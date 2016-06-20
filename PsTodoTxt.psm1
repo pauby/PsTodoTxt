@@ -11,7 +11,6 @@ Set-StrictMode -Version Latest
 
 
 $scriptsToLoad = @(
-    'ConvertTo-TodoTxtObject.ps1',
     'Get-TodoTxt.ps1',
     'Import-TodoTxt.ps1',
     'New-TodoTxtObject.ps1',    
