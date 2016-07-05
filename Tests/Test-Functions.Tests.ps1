@@ -1,7 +1,5 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $here = Split-Path -Parent $here 
-#$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
-#. "$here\$sut"
 Import-Module $here\PsTodoTxt
 
 InModuleScope PsTodoTxt {
