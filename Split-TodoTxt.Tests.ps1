@@ -5,6 +5,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 Describe "Split-TodoTxt" {
 
     function Get-TodoTxtTodaysDate {}; Mock Get-TodoTxtTodaysDate { return "2016-05-05" }
+    function Write-VerboseHashTable {}; Mock Write-VerboseHashTable { };
 
     Context "no parameters provided" {
         It "throws an error" {
@@ -18,6 +19,7 @@ Describe "Split-TodoTxt" {
             $result = @{ Task = "x 2016-07-07"; CreatedDate = "2016-05-05" }
             $actualObj = New-Object -TypeName PSObject -Property $actual
             $resultObj = New-Object -TypeName PSObject -Property $result
+            $actual | Should BeOfType HashTable
             Compare-Object $actualObj $resultObj -Property DoneDate, Priority, CreatedDate, Task, Context, Project, Addon | Should Be $null
         }
 
@@ -26,6 +28,7 @@ Describe "Split-TodoTxt" {
             $result = @{ DoneDate = "2016-07-07"; CreatedDate = "2016-05-05"; Task = "2015-10-10" }
             $actualObj = New-Object -TypeName PSObject -Property $actual
             $resultObj = New-Object -TypeName PSObject -Property $result
+            $actual | Should BeOfType HashTable
             Compare-Object $actualObj $resultObj -Property DoneDate, Priority, CreatedDate, Task, Context, Project, Addon | Should Be $null
         }
 
@@ -34,6 +37,7 @@ Describe "Split-TodoTxt" {
             $result = @{ DoneDate = "2016-07-07"; Priority = "Y"; CreatedDate = "2016-05-05"; Task = "2015-10-10" }
             $actualObj = New-Object -TypeName PSObject -Property $actual
             $resultObj = New-Object -TypeName PSObject -Property $result
+            $actual | Should BeOfType HashTable
             Compare-Object $actualObj $resultObj -Property DoneDate, Priority, CreatedDate, Task, Context, Project, Addon | Should Be $null
         }
 
@@ -43,6 +47,7 @@ Describe "Split-TodoTxt" {
                 Project = @("window"); Addon = @{ due = "2016-12-01" }; }
             $actualObj = New-Object -TypeName PSObject -Property $actual
             $resultObj = New-Object -TypeName PSObject -Property $result
+            $actual | Should BeOfType HashTable  
             Compare-Object $actualObj $resultObj -Property DoneDate, Priority, CreatedDate, Task, Context, Project, Addon | Should Be $null
         }
     }
@@ -58,6 +63,8 @@ Describe "Split-TodoTxt" {
                         @{ DoneDate = ""; Priority = ""; CreatedDate="2016-05-05"; Task = "Another test task"; Context = @("work"); Project = @("career"); Addon = @{ misc = "Sometext"} },
                         @{ CreatedDate = "2014-12-31"; Task = "Merry Christmas"; Context = @("office"); Project = @("tagme"); } )
             [bool]($actual.Count -eq $result.count) | Should Be $true
+            $actual | Should BeOfType HashTable
+            
             for ($i = 0; $i -lt $actual.Count; $i++) {
                 $actualObj = New-Object -TypeName PSObject -Property $actual[$i]
                 $resultObj = New-Object -TypeName PSObject -Property $result[$i]

@@ -2,12 +2,12 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe "Utility-Functions" {
-    Context "Testing function Get-TodoTxtTodaysDate" {
-        It "returns todays date" {
-            $today = Get-Date -Format "yyy-MM-dd"
-            $today -eq (Get-TodoTxtTodaysDate) | Should Be $true
-        }
+Describe "Get-TodoTxtTodaysDate" {
+
+    It "returns todays date" {
+        $today = Get-Date -Format "yyyy-MM-dd"
+        $today -eq (Get-TodoTxtTodaysDate) | Should Be $true
+        $today | Should BeOfType String
     }
 
     Context "Testing function Write-VerboseHashTable" {
