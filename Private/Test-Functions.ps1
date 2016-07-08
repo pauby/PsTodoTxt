@@ -24,7 +24,7 @@ New-Alias -Name Test-TodoTxtProject -Value Test-TodoTxtContext
     TODO        : Might be easier to this via a regular expression.
 .LINK
     https://www.github.com/pauby
-.PARAMETER TestDate
+.PARAMETER Date
     The date to test. Note that this is a string and not a date object.
 .OUTPUTS
 	Whether the date is valid or not. Output type is [bool]
@@ -137,7 +137,6 @@ function Test-TodoTxtContext
     # Context, as stored in the object, should just be a word with no spaces and not start with an @
     # this regex is to match whitespace or an @ - if they match anything then the context is invalid
     $regex = [regex]"[@+\s]"
-    #"(?:@\S+)"
 
     foreach ($item in $Context)
     {
@@ -149,59 +148,4 @@ function Test-TodoTxtContext
 
     # if we get here each context must be valid
     $true
-}
-
-<#
-.SYNOPSIS
-    Short description.
-.DESCRIPTION
-    Long description.
-.NOTES
-	Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 26/04/16 - Initial version
-
-	Credit		: Code originally taken from http://stackoverflow.com/questions/26997511/how-can-you-test-if-an-object-has-a-specific-property (author http://stackoverflow.com/users/520612/cb)
-
-	Notes		: Code requires PowerShell v3 - see Credit link for v2 version
-    #TODO#      : This may not be required
-.LINK
-    https://www.github.com/pauby
-.PARAMETER PARAMETER
-    Parameter description
-.INPUTS
-	Parameter and type [psobject]
-.OUTPUTS
-	Output and type [psobject]
-.EXAMPLE
-    $todoObj = $todoObj | Set-Todo -Priority "B"
-
-    Sets the priority of the $todoObj to "B" and outputs the modified todo.
-#>
-
-function Test-ObjectProperty
-{
-	[CmdletBinding()]
-	Param
-	(
-		[Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
-		[ValidateNotNullOrEmpty()]
-		[object]$InputObject,
-
-		[Parameter(Mandatory=$true)]
-		[ValidateNotNullOrEmpty()]
-		[string]$PropertyName
-	)
-
-	Begin
-	{
-	}
-
-	Process
-	{
-		return [bool]($_.PSobject.Properties.name -match $PropertyName)
-	}
-
-	End
-	{
-	}
 }
