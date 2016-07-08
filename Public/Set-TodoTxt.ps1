@@ -1,17 +1,17 @@
-﻿<# 
+﻿<#
 .SYNOPSIS
     Sets a todo's properties.
 .DESCRIPTION
     Validates and sets a todo's properties.
-.NOTES 
+.NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 28/09/15 - Initial version
-    
+
     Notes       : The InputObject should be created using New-TodoTxtObject so the properties are automatically created so this code DOES NOT check if they exist.
-    
+
     TODO        : Add test for addons
                   Created a custom TodoObject so that we can check the object type and therefore guarantee it was created by New-TodoTxtObject
-.LINK 
+.LINK
     https://www.github.com/pauby
 .PARAMETER InputObject
     The todo object to set the properties of.
@@ -43,14 +43,14 @@ function Set-TodoTxt
 {
     [CmdletBinding()]
 	Param(
-        [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
-        [ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory=$false, Position=1, ValueFromPipeline=$true)] # this parameter is mandatory but we don't want to prompt for it interactively
+        [ValidateNotNull()]
         [object[]]$InputObject,     # note if you change this parameter name, change code that excludes checking it below
-        
+
         [Parameter(Mandatory=$false)]
         [ValidateScript( { $_ -ge 1 } )]
         [Alias("l")]
-        [int]$Line,        
+        [int]$Line,
 
         [Parameter(Mandatory=$false)]
         [ValidateScript( { Test-TodoTxtDate $_ } )]
@@ -58,7 +58,7 @@ function Set-TodoTxt
         [string]$DoneDate,
 
         [Parameter(Mandatory=$false)]
-        [ValidateScript( { Test-TodoTxtDate $_ } )]
+        [ValidateScript( { Test-TodoTxtDate $_ })]
         [Alias("cd")]
         [string]$CreatedDate,
 
@@ -77,7 +77,7 @@ function Set-TodoTxt
         [string[]]$Context,
 
         [Parameter(Mandatory=$false)]
-        [ValidateScript( { Test-TodoTxtProject $_ } )]        
+        [ValidateScript( { Test-TodoTxtProject $_ } )]
         [Alias("p")]
         [string[]]$Project,
 
@@ -86,86 +86,43 @@ function Set-TodoTxt
         [string[]]$Addon
     )
 
-    Begin 
+    Begin
     {
     }
 
     Process
-    {       
+    {
+        $result = Assert-MandatoryParameter -MandatoryParameter "InputObject" -PassedParameter $PSBoundParameters
+        if ($result -ne $null) {
+            throw [System.ArgumentException] "Mandatory parameter missing: $($result -join ',')"
+        }
+
+        # if we are not given an existing object to modify, then we need to check that the minimum TodoTxt property of Task is present
+        if ( (-not ($InputObject | Test-ObjectProperty -PropertyName "Task")) -and (-not $PsBoundParameters.ContainsKey("Task")) )  {
+            throw [System.ArgumentException]"For Task not to be required to be set, the object must already have a Task property. If the object does not have a Task property you must set one first."
+        }
+
+        # filter out the InputObject parameter as we won't use it here
         $keys = $PsBoundParameters.Keys | where { $_ -ne "InputObject" }
         foreach ($key in $keys)
         {
-            if (($_ | Test-ObjectProperty -PropertyName $key))
-            {               
-                $_.$key = $PsBoundParameters.$key                                
+            # check to see if the property already exists
+            if (($InputObject | Test-ObjectProperty -PropertyName $key))
+            {
+                # property already exists so just set it to the new value
+                $InputObject.$key = $PsBoundParameters.$key
             }
             else
             {
+                # property does not already exist to create it with the new value
                 $InputObject | Add-Member -MemberType NoteProperty -Name $key -Value $PsBoundParameters.$key
                 Write-Debug "Created and set $key to $($InputObject.$key)"
             }
         }
-        
+
         Write-Debug ($InputObject | Out-String)
-        
-        $_
-        
-        #$InputObject
-        
-                #Foreach ($key in $PsBoundParameters.Keys -)
-        
-<#        if ($DoneDate)
-        {
-            Write-Verbose "Setting DoneDate to $DoneDate."
-            $_.DoneDate = $DoneDate
-        }
 
-        if ($CreatedDate)
-        {
-            Write-Verbose "Setting CreatedDate to $CreatedDate."
-            $_.CreatedDate = $CreatedDate
-        }
-
-        if ($Priority)
-        {
-            Write-Verbose "Setting Priority to $Priority."
-            $_.Priority = $Priority
-        }
-
-        if ($Task)
-        {
-            Write-Verbose "Setting Task to $Task"
-            $_.Task = $Task
-        }
-
-        if ($Context)
-        {
-            Write-Verbose "Setting Context to $($Context -join ", ")."
-            $_.Context = $Context
-        }
-
-        if ($Project)
-        {
-            Write-Verbose "Setting Project to $($Project -join ", ")."
-            $_.Project = $Project
-        }
-
-        if ($DueDate)
-        {
-            Write-Verbose "Setting DueDate to $DueDate."
-            $_.DueDate = $DueDate
-        }
-
-        if ($Addon)
-        {
-            Write-Verbose "Setting Addon to $($Addon -join ", ")."
-            $_.Addon = $Addon
-        }
-                
-        Write-Verbose "Object modified. $_"
-
-        $_
-#> 
+        $InputObject
    }
 
     End { }
