@@ -10,3 +10,5 @@ InModuleScope PsTodoTxt {
                 { }
             }
         }
+
+Remove-Module PsTodoTxt
