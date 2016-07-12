@@ -19,9 +19,9 @@ InModuleScope PsTodoTxt {
             Mock Get-TodoTxtTodaysDate { return $testDate }
 
             It "Should return an empty array for empty todo file" {
-                $result = Import-TodoTxt -Path ([System.IO.Path]::GetTempFileName()) 
+                $result = Import-TodoTxt -Path ([System.IO.Path]::GetTempFileName())
                 $result.count | Should Be 0
-                $result -is [array]  | Should Be $true 
+                $result -is [array]  | Should Be $true
             }
 
             It "Should return a populated array for a populated todo file" {
@@ -32,7 +32,7 @@ InModuleScope PsTodoTxt {
                     "2015-04-12 I am your Father @empire_strikes_back @near_the_end +darthvader",
                     "x 2014-07-30 2016-02-01 Feel the hate @return_of_the_jedi +emperor +darth_vader"
                 )
-                $output = @( 
+                $output = @(
                         @{ CreatedDate = "2015-07-29"; Task = "Use the Force Luke" },
                         @{ CreatedDate = "2015-06-22"; Task = "It's a piece of JUNK! https://en.wikipedia.org/wiki/Millennium_Falcon"; Context = "star_wars"; },
                         @{ CreatedDate = "2015-04-12"; Task = "I am your Father"; Context = @("empire_strikes_back", "near_the_end"); Project = "darthvader"; },
@@ -42,7 +42,7 @@ InModuleScope PsTodoTxt {
                 $actual = Import-Todotxt -Path $tempPath
 
                 $actual.count | Should Be $output.count
-                $actual -is [array] | Should be $true 
+                $actual -is [array] | Should be $true
                 for ($i = 0; $i -lt $actual.count; $i++) {
                     $expected = New-Object -TypeName PSObject -Property $output[$i]
                     Compare-Object -ReferenceObject $expected -DifferenceObject $actual[$i] -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should be $null
