@@ -16,12 +16,13 @@ $scriptsToLoad = @(
     'Public\Split-TodoTxt.ps1',
     'Public\Set-TodoTxt.ps1',
     'Private\Assert-MandatoryParameter.ps1',
+    'Private\Get-TodoTxtTodaysDate.ps1',
     'Private\New-TodoTxtObject.ps1',
     'Private\Test-ObjectProperty.ps1',
     'Private\Test-TodoTxtContext.ps1',
     'Private\Test-TodoTxtDate.ps1',
     'Private\Test-TodoTxtPriority.ps1',
-    'Private\Utility-Functions.ps1'
+    'Private\Write-VerboseHashTable.ps1'
 )
 
 foreach ($script in $scriptsToLoad)
