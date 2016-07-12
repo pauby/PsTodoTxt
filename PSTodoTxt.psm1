@@ -15,11 +15,13 @@ $scriptsToLoad = @(
     'Public\Import-TodoTxt.ps1',
     'Public\Split-TodoTxt.ps1',
     'Public\Set-TodoTxt.ps1',
+    'Private\Assert-MandatoryParameter.ps1',
     'Private\New-TodoTxtObject.ps1',
     'Private\Test-ObjectProperty.ps1',
-    'Private\Test-Functions.ps1',
+    'Private\Test-TodoTxtContext.ps1',
+    'Private\New-TodoTxtDate.ps1',
+    'Private\Test-TodoTxtPriority.ps1',
     'Private\Utility-Functions.ps1'
-    'Private\Assert-MandatoryParameter.ps1'
 )
 
 foreach ($script in $scriptsToLoad)
@@ -27,3 +29,5 @@ foreach ($script in $scriptsToLoad)
     Write-Verbose "Importing script file $script"
     . (Join-Path $PSScriptRoot $script)
 }
+
+New-Alias -Name Test-TodoTxtProject -Value Test-TodoTxtContext

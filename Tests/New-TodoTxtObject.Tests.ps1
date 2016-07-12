@@ -13,3 +13,5 @@ Describe "New-TodoTxtObject" {
         Compare-Object -ReferenceObject $actual -DifferenceObject $expected | Should Be $null
     }
 }
+
+Remove-Module PsTodoTxt
