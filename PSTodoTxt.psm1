@@ -19,7 +19,7 @@ $scriptsToLoad = @(
     'Private\New-TodoTxtObject.ps1',
     'Private\Test-ObjectProperty.ps1',
     'Private\Test-TodoTxtContext.ps1',
-    'Private\New-TodoTxtDate.ps1',
+    'Private\Test-TodoTxtDate.ps1',
     'Private\Test-TodoTxtPriority.ps1',
     'Private\Utility-Functions.ps1'
 )
