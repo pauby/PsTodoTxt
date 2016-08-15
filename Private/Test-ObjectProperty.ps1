@@ -34,7 +34,7 @@ function Test-ObjectProperty
 	(
 		[Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
 		[ValidateNotNull()]
-		[object]$InputObject,		# this parameter is mandatory but don't want promtped if it's not provided
+		[object]$InputObject,
 
 		[Parameter(Mandatory=$true)]
 		[ValidateNotNullOrEmpty()]
