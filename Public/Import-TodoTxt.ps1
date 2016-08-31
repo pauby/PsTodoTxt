@@ -36,17 +36,11 @@ function Import-TodoTxt
     $todos = Get-Content -Path $Path -Encoding UTF8
     if ($todos -eq $null) {
         Write-Verbose "File $Path is empty."
+        return @()
     }
     else {
         Write-Verbose "Read $($todos.count) todos."
         Write-Verbose "Splitting todos into properties"
-        $splitTodos = $todos | Split-TodoTxt
-    
-        foreach ($todo in $splitTodos) {
-            $todoList += New-Object -TypeName PSObject -Property $todo 
-        }
+        return ,($todos | ConvertFrom-TodoTxtString)
     }
-
-    # if there are no todos read then this will return an empty list
-    ,$todoList
 }

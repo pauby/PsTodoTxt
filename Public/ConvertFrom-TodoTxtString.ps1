@@ -2,10 +2,11 @@
 .SYNOPSIS
     Splits a todo text string.
 .DESCRIPTION
-    Splits a todo text string into it's components.
+    Splits a todo text string into parts and return back an object.
 .NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 20/06/16 - Initial version
+                  1.1 - 31/08/16 - Changed to return an object; Changed name.
     Notes       : The todo 'task' text is mandatory and an error will be thrown if it's not present.
     ##TODO##    : This really needs rewritten to condense it and include more regex to split the todo text in one pass.
                   Remove the Write-Verbose at each component split. The hashtable is printed at the end in verbose mode so no need for it?
@@ -16,9 +17,9 @@
 .INPUTS
 	Input type [String]
 .OUTPUTS
-	Output type [Hashtable]
+	Output type [PSObject]
 .EXAMPLE
-    Split-TodoTxt -Todo 'take car to garage @car +car_maintenance'
+    ConvertFrom-TodoTxtString -Todo 'take car to garage @car +car_maintenance'
 
 	Splits the todo text into it's components and returns them in a hashtable.
 .EXAMPLE
@@ -28,9 +29,10 @@
 	Splits the todo text into it's components and returns them in a hashtable.
 #>
 
-function Split-TodoTxt
+function ConvertFrom-TodoTxtString
 {
     [CmdletBinding()]
+    [OutputType([PSObject])]
     Param (
         [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
         [ValidateNotNullOrEmpty()]
@@ -164,7 +166,7 @@ function Split-TodoTxt
 #endregion
         Write-VerboseHashTable $split
 
-        $split
+        New-Object -TypeName PSObject -Property $split
     }
 
     End {}

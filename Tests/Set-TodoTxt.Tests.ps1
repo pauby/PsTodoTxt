@@ -24,7 +24,7 @@ InModuleScope PsTodoTxt {
             Mock Get-TodoTxtTodaysDate { return $testDate }
 
             It "Should return an object with parameters" {
-                $actual = Split-TodoTxt "x 2016-07-07 2015-10-10"
+                $actual = ConvertFrom-TodoTxtString "x 2016-07-07 2015-10-10"
                 $result = @{ DoneDate = "2016-07-07"; CreatedDate = $testDate; Task = "2015-10-10" }
                 $actualObj = New-Object -TypeName PSObject -Property $actual
                 $resultObj = New-Object -TypeName PSObject -Property $result
