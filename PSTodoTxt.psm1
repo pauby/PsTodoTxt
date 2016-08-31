@@ -9,12 +9,12 @@
 #Requires -Version 3
 Set-StrictMode -Version Latest
 
-
 $scriptsToLoad = @(
     'Public\Get-TodoTxt.ps1',
     'Public\Import-TodoTxt.ps1',
     'Public\Split-TodoTxt.ps1',
     'Public\Set-TodoTxt.ps1',
+    'Public\Join-Todotxt.ps1',
     'Private\Assert-MandatoryParameter.ps1',
     'Private\Get-TodoTxtTodaysDate.ps1',
     'Private\New-TodoTxtObject.ps1',
