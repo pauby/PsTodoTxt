@@ -14,7 +14,7 @@ $scriptsToLoad = @(
     'Public\Import-TodoTxt.ps1',
     'Public\ConvertFrom-TodoTxtString.ps1',
     'Public\Set-TodoTxt.ps1',
-    'Public\Join-Todotxt.ps1',
+    'Public\ConvertTo-TodoTxtString.ps1',
     'Private\Assert-MandatoryParameter.ps1',
     'Private\Get-TodoTxtTodaysDate.ps1',
     'Private\New-TodoTxtObject.ps1',

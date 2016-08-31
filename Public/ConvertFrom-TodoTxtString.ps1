@@ -24,7 +24,7 @@
 	Splits the todo text into it's components and returns them in a hashtable.
 .EXAMPLE
     $todo = 'take car to garage @car +car_maintenance'
-    $todo | Split-TodoTxt
+    $todo | ConvertFrom-TodoTxtString
 
 	Splits the todo text into it's components and returns them in a hashtable.
 #>
