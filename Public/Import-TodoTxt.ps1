@@ -1,12 +1,12 @@
-﻿<# 
+﻿<#
 .SYNOPSIS
     Imports todos from the todo file.
 .DESCRIPTION
     Reads todos from the todo file and has them converted to todo objects before output.
-.NOTES 
+.NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 29/04/16 - Initial version
-.LINK 
+.LINK
     https://www.github.com/pauby
 .PARAMETER Path
     Path to the todo file.
@@ -23,7 +23,7 @@ function Import-TodoTxt
     [CmdletBinding()]
     [OutputType([array])]
     Param (
-        [Parameter(Mandatory=$true, 
+        [Parameter(Mandatory=$true,
                    HelpMessage='Enter the path to the todotxt file.')]
         [ValidateScript( { Test-Path $_ } )]
         [string]$Path
@@ -31,7 +31,7 @@ function Import-TodoTxt
 
     # Read the contents of the todo file and force it's output to be an array so we can check number returned.
     $todoList = @()
-    
+
     Write-Verbose "Reading todo file ($Path) contents."
     $todos = Get-Content -Path $Path -Encoding UTF8
     if ($todos -eq $null) {
@@ -40,7 +40,7 @@ function Import-TodoTxt
     }
     else {
         Write-Verbose "Read $($todos.count) todos."
-        Write-Verbose "Splitting todos into properties"
+        Write-Verbose "Converting todotxt to objects"
         return ,($todos | ConvertFrom-TodoTxtString)
     }
 }
