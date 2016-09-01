@@ -25,7 +25,7 @@ function Import-TodoTxt
         [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [ValidateNotNull()]
         [object]
-        $InputObject,
+        $Todo,
 
         [Parameter(Mandatory=$true)]
         [ValidateScript( { Test-Path $_ } )]
@@ -38,9 +38,29 @@ function Import-TodoTxt
 
     Begin {
         $todoText = @()
+        $converted = @()
+        $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
+        if ($PipelineInput) {
+            Write-Verbose "We are taking data from the pipeline."
+        }
+        else {
+            Write-Verbose "We are taking data from function parameters."
+        }
     }
 
     Process {
+        if ($PipelineInput) {
+            $pipe = $_
+        }
+        else {
+            $pipe = $Todo
+        }
+
+        $pipe | Foreach-Object {
+            $_ | ConvertTo-TodotxtString | Set-Content -Path $Path -
+
+        }
+        $
         $text = "{0}{1}{2}{3}{4}" -f { if ($InputObject.}
     }
 
