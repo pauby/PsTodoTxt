@@ -11,7 +11,7 @@ function ConvertTo-TodoTxtString
 .LINK
     http://www.github.com/pauby/pstodotxt
 .PARAMETER InputObject
-    This is the todo text object as output from ConvertFrom-TodoTxtString
+    This is the todotxt object (as output from ConvertFrom-TodoTxtString for example).
 .INPUTS
 	Input type [PSObject]
 .OUTPUTS
@@ -28,10 +28,10 @@ function ConvertTo-TodoTxtString
 
     [OutputType([array])]
     Param (
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [ValidateNotNullOrEmpty()]
-        [PSObject]
-        $InputObject
+        [PSObject[]]
+        $Todo
     )
 
     Begin {
@@ -44,63 +44,76 @@ function ConvertTo-TodoTxtString
         # 5 - Project (check this exists)
         # 6 - Addon (check this exists)
         $TodoParts = 7
+        $converted = @()
+        $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
+        if ($PipelineInput) {
+            Write-Verbose "We are taking data from the pipeline."
+        }
+        else {
+            Write-Verbose "We are taking data from function parameters."
+        }
     }
 
     Process {
-        # initialise the array with empty text so we only have to assign valid values
-        $text = for ($i = 0; $i -lt $TodoParts; $i++) { "" }
-
-        $index = 0
-        if ((Test-ObjectProperty -InputObject $InputObject -PropertyName "DoneDate") -and (-not ([string]::IsNullOrEmpty($InputObject.DoneDate)))) {
-            $text[$index] = "x $($InputObject.DoneDate) "
-            Write-Verbose "DoneDate: $($text[$index])"
+        if ($PipelineInput) {
+            $pipe = $_
         }
-        $index++
-
-        $text[$index] = "$($InputObject.CreatedDate) "
-        Write-Verbose "CreatedDate: $($text[$index])"
-        $index++
-
-        if ((Test-ObjectProperty -InputObject $InputObject -PropertyName "Priority") -and (-not ([string]::IsNullOrEmpty($InputObject.Priority)))) {
-            $text[$index] = "($(obj.Priority)) "
-            Write-Verbose "Priority: $($text[$index])"
+        else {
+            $pipe = $Todo
         }
-        $index++
 
-        $text[$index] = "$($InputObject.Task) "
-        Write-Verbose "Task: $($text[$index])"
-        $index++
+        $pipe | ForEach-Object {
+            $counter = 0
+            # initialise the array with empty text so we only have to assign valid values
+            $text = for ($i = 0; $i -lt $TodoParts; $i++) { "" }
 
-        if ((Test-ObjectProperty -InputObject $InputObject -PropertyName "Context") -and $InputObject.Context.count -gt 0) {
-            $newContext = @()
-            foreach ($item in $InputObject.Context) {
-                $newContext += "@$item"
+            $index = 0
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "DoneDate") -and (-not ([string]::IsNullOrEmpty($_.DoneDate)))) {
+                $text[$index] = "x $($_.DoneDate) "
+                Write-Verbose "DoneDate: $($text[$index])"
             }
-            $text[$index] = "$($newContext -join ' ') "
-            Write-Verbose "Context: $($text[$index])"
-        }
-        $index++
+            $index++
 
-        if ((Test-ObjectProperty -InputObject $InputObject -PropertyName "Project") -and $InputObject.Project.count -gt 0) {
-            $newProject = @()
-            foreach ($item in $InputObject.Project) {
-                $newProject += "+$item"
+            $text[$index] = "$($_.CreatedDate) "
+            Write-Verbose "CreatedDate: $($text[$index])"
+            $index++
+
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Priority") -and (-not ([string]::IsNullOrEmpty($_.Priority)))) {
+                $text[$index] = "($($_.Priority)) "
+                Write-Verbose "Priority: $($text[$index])"
             }
-            $text[$index] = "$($newProject -join ' ') "
-            Write-Verbose "Project: $($text[$index])"
-        }
-        $index++
+            $index++
 
-        if ((Test-ObjectProperty -InputObject $InputObject -PropertyName "Addon") -and $InputObject.Addon.count -gt 0) {
-            $addons = @() 
-            foreach($addon in $InputObject.Addon) {
-                $addons += "$($addon[0]):$($addon[1])"
+            $text[$index] = "$($_.Task) "
+            Write-Verbose "Task: $($text[$index])"
+            $index++
+
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Context") -and $_.Context.count -gt 0) {
+                $text[$index] = "$( ($_.Context | ForEach-Object { "@$_"}) -join " ") "
+                Write-Verbose "Context: $($text[$index])"
             }
-            $text[$index] = $addons -join " "
-            Write-Verbose "Addons: $($text[$index])"
+            $index++
+
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Project") -and $_.Project.count -gt 0) {
+                $text[$index] = "$( ($_.Project | ForEach-Object { "+$_"}) -join " ") "
+                Write-Verbose "Project: $($text[$index])"
+            }
+            $index++
+
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Addon") -and $_.Addon.count -gt 0) {
+                $text[$index] = "$( ($_.Addon.GetEnumerator() | ForEach-Object { "$($_.name):$($_.value)"  }) -join " ") "
+                Write-Verbose "Addons: $($text[$index])"
+            }
+
+            if ($PipelineInput) {
+                $converted = ("{0}{1}{2}{3}{4}{5}{6}" -f $text).Trim()
+            }
+            else {
+                $converted += ("{0}{1}{2}{3}{4}{5}{6}" -f $text).Trim()
+            }
         }
 
-        "{0}{1}{2}{3}{4}{5}{6}" -f $text
+        return $converted
     }
 
     End {
