@@ -63,7 +63,6 @@ function ConvertTo-TodoTxtString
         }
 
         $pipe | ForEach-Object {
-            $counter = 0
             # initialise the array with empty text so we only have to assign valid values
             $text = for ($i = 0; $i -lt $TodoParts; $i++) { "" }
 
