@@ -16,8 +16,7 @@ function Export-TodoTxt
 .LINK
     https://www.github.com/pauby/pstodotxt
 .PARAMETER Path
-    Path to the todo file. If the file exists and -Append parameter is
-    not specified then the file will be overwritten.
+    Path to the todo file. The file must already exist.
 .EXAMPLE
     $todo = Import-TodoTxt -Path c:\input.txt
     Export-TodoTxt -Todo $todo -Path c:\output.txt
