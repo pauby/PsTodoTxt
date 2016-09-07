@@ -1,8 +1,4 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$here = Split-Path -Parent $here 
-Import-Module $here\PsTodoTxt
-
-InModuleScope PsTodoTxt {
+#InModuleScope PsTodoTxt {
 
     Describe "Test-TodoTxtDate" {
         It "Should throw an exception for null / empty input" {
@@ -24,9 +20,9 @@ InModuleScope PsTodoTxt {
         It "Should return a boolean true for a correctly formatted date" {
             $actual = Test-TodoTxtDate -Date "1974-01-28"
             $actual | Should Be $true
-            $actual | Should BeOfType boolean 
+            $actual | Should BeOfType boolean
         }
     }
-}
+#}
 
 Remove-Module PsTodoTxt

@@ -1,9 +1,4 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$here = Split-Path -Parent $here
-Import-Module $here\PsTodoTxt
-
-
-InModuleScope PsTodoTxt {
+﻿#InModuleScope PsTodoTxt {
 
     Describe "Set-TodoTxt" {
 
@@ -33,6 +28,6 @@ InModuleScope PsTodoTxt {
             }
         }
     }
-}
+#}
 
 Remove-Module PsTodoTxt

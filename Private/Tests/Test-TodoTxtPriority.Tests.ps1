@@ -1,8 +1,4 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$here = Split-Path -Parent $here 
-Import-Module $here\PsTodoTxt
-
-InModuleScope PsTodoTxt {
+#InModuleScope PsTodoTxt {
 
     Describe "Test-TodoTxtPriority" {
         It "Should throw an exception for null / empty input" {
@@ -27,6 +23,6 @@ InModuleScope PsTodoTxt {
             $actual | Should BeOfType boolean
         }
     }
-}
+#}
 
 Remove-Module PsTodoTxt

@@ -1,8 +1,4 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$here = Split-Path -Parent $here
-Import-Module $here\PsTodoTxt
-
-InModuleScope PsTodoTxt {
+#InModuleScope PsTodoTxt {
 
     Describe "Get-TodoTxtTodaysDate" {
         It "Should return todays date as a string" {
@@ -11,6 +7,6 @@ InModuleScope PsTodoTxt {
             $today | Should BeOfType String
         }
     }
-}
+#}
 
 Remove-Module PsTodoTxt
