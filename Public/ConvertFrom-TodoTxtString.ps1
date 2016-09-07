@@ -32,7 +32,7 @@
 function ConvertFrom-TodoTxtString
 {
     [CmdletBinding()]
-    [OutputType([PSObject])]
+    [OutputType([object[]])]
     Param (
         [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
         [ValidateNotNullOrEmpty()]
@@ -41,18 +41,11 @@ function ConvertFrom-TodoTxtString
 
     Begin
     {
-        # create regex to extra the first poart of the todo
-            # $linePattern = "^(?:x\ (?<done>\d{4}-\d{2}-\d{2})\ )?(?:\((?<prio>[A-Z])\)\ )?(?:(?<created>\d{4}-\d{2}-\d{2})?\ )?(?<task>.*)"
+        # create regex to extra the first part of the todo
         $regexLine = [regex]"^(?:x\ (?<done>\d{4}-\d{2}-\d{2})\ )?(?:\((?<prio>[A-Za-z])\)\ )?(?:(?<created>\d{4}-\d{2}-\d{2})?\ )?(?<task>.*)"
         $regexContext = [regex]"(?:\s@\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
-            #"((?<=\s)(?:@\S+))+"
         $regexProject = [regex]"(?:\s\+\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
-            #"((?<=\s)(?:\+\S+))+"
-        $regexDue = [regex]"(?:due:\d{4}-\d{2}-\d{2})"
-            #"(?i)due:(?<due>[0-9]+-[0-9]+-[0-9]+)"
         $regexAddon = [regex]"(?<=\s)(?:\S+\:(?!//)\S+)"
-            #"(?:\s\S+\:(?!//)\S+)"
-        $lineNum = 0
         $converted = @()
         $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
         if ($PipelineInput) {
@@ -123,7 +116,8 @@ function ConvertFrom-TodoTxtString
                 # 1. only use unique contexts (if the same one is specified more than once don't add it again),
                 # 2. trim each context
                 # 3. extract the context without the @ sign (skip over first character)
-                $context = @($regexContext.Matches($split['task']) | Get-Unique | % { $_.ToString().Trim() } | % { $_.Substring(1) } )
+                $context = @($regexContext.Matches($split['task']) | Get-Unique | ForEach-Object { $_.ToString().Trim() } | 
+                    ForEach-Object { $_.Substring(1) } )
                 $split.Add("Context", $context)
                 Write-Verbose "Context ($($split['Context'].Count)): $($split['Context'] -join ',')"
 
@@ -139,7 +133,8 @@ function ConvertFrom-TodoTxtString
                 # 1. only use unique contexts (if the same one is specified more than once don't add it again),
                 # 2. trim each context
                 # 3. extract the context without the @ sign (skip over first character)
-                $project = @($regexProject.Matches($split['task']) | Get-Unique | % { $_.ToString().Trim() } | % { $_.Substring(1) } )
+                $project = @($regexProject.Matches($split['task']) | Get-Unique | ForEach-Object { $_.ToString().Trim() } | 
+                    ForEach-Object { $_.Substring(1) } )
                 $split.Add("Project", $project)
                 Write-Verbose "Projects ($($split['Project'].Count)): $($split['Project'] -join ',')"
 

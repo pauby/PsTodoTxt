@@ -24,6 +24,7 @@
 function Test-TodoTxtPriority
 {
     [CmdletBinding()]
+    [OutputType([bool])]
     Param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]

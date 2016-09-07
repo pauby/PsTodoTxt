@@ -1,5 +1,8 @@
+$projRoot = Join-Path -Path (Split-Path -Parent $MyInvocation.MyCommand.Path) -ChildPath "..\..\"
+Import-Module "$projRoot\$($module).psd1"
 
-    Describe "Test-ObjectProperty" {
+Describe "Testing Function - $($Function.Name) - for Functional Processing" {
+    InModuleScope PsTodoTxt {
         Context "Invalid data provided" {
             It "Should throw an error" {
                 { Assert-MandatoryParameter -MandatoryParameter "" -PassedParameter @{} } | Should throw
@@ -32,6 +35,6 @@
             }
         }
     }
+}
 
-
-Remove-Module PsTodoTxt
+Remove-Module 

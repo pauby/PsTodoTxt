@@ -21,6 +21,7 @@
 function Test-TodoTxtDate
 {
     [CmdletBinding()]
+    [OutputType([bool])]
     Param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]

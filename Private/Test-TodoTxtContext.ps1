@@ -25,6 +25,7 @@
 function Test-TodoTxtContext
 {
     [CmdletBinding()]
+    [OutputType([bool])]
     Param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]

@@ -27,8 +27,8 @@ function New-TodoTxtObject
 {
     [CmdletBinding()]
 
-    $todoObj = New-Object -Type PSObject #-Property $defaultProps
+    $todoObj = New-Object -Type PSObject
 	$todoObj | Add-Member -MemberType NoteProperty -Name "CreatedDate" -Value (Get-TodoTxtTodaysDate)
 
-    $todoObj
+    Write-Output $todoObj
 }
