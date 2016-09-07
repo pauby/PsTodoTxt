@@ -11,7 +11,7 @@ $Rules = Get-ScriptAnalyzerRule | Where { $_.Rulename -notin $ExcludedRules }
 
 $manifest = Get-Item "$projRoot\*.psd1"
 $module = $manifest.BaseName
-Import-Module "$projRoot\$($module).psd1" -Global
+Import-Module "$projRoot\$($module).psd1"
 
 $ModuleData = Get-Module $Module
 $AllFunctions = & $moduleData {Param($modulename) Get-command -CommandType Function -Module $modulename} $module

@@ -1,3 +1,6 @@
+#
+# Must be called from the main script or
+#
 $projRoot = Join-Path -Path (Split-Path -Parent $MyInvocation.MyCommand.Path) -ChildPath "..\..\"
 Import-Module "$projRoot\$($module).psd1"
 
