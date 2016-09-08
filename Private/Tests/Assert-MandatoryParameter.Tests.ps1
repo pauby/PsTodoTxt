@@ -1,10 +1,4 @@
-#
-# Must be called from the main script or
-#
-$projRoot = Join-Path -Path (Split-Path -Parent $MyInvocation.MyCommand.Path) -ChildPath "..\..\"
-Import-Module "$projRoot\$($module).psd1"
-
-Describe "Testing Function - $($Function.Name) - for Functional Processing" {
+Describe "Testing Function - $($Function.Name) - Functional Processing" {
     InModuleScope PsTodoTxt {
         Context "Invalid data provided" {
             It "Should throw an error" {
@@ -39,5 +33,3 @@ Describe "Testing Function - $($Function.Name) - for Functional Processing" {
         }
     }
 }
-
-Remove-Module 

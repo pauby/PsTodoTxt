@@ -1,7 +1,5 @@
-﻿#InModuleScope PSTodoTxt {
-
-    Describe "New-TodoTxtObject" {
-
+﻿Describe "Testing Function - $($Function.Name) - Functional Processing" {
+    InModuleScope PSTodoTxt {
         $testDate = "2016-07-01"
         Mock Get-TodoTxtTodaysDate { return $testDate }
 
@@ -11,6 +9,4 @@
             Compare-Object -ReferenceObject $actual -DifferenceObject $expected -Property CreatedDate | Should Be $null
         }
     }
-#}
-
-Remove-Module PsTodoTxt
+}

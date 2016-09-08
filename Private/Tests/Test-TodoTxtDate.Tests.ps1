@@ -1,6 +1,5 @@
-#InModuleScope PsTodoTxt {
-
-    Describe "Test-TodoTxtDate" {
+Describe "Testing Function - $($Function.Name) - Functional Processing" {
+    InModuleScope PsTodoTxt {
         It "Should throw an exception for null / empty input" {
             { Test-TodoTxtDate -Date "" } | Should throw "argument is null or empty"
         }
@@ -23,6 +22,4 @@
             $actual | Should BeOfType boolean
         }
     }
-#}
-
-Remove-Module PsTodoTxt
+}

@@ -1,6 +1,5 @@
-#InModuleScope PsTodoTxt {
-
-    Describe "Test-TodoTxtPriority" {
+Describe "Testing Function - $($Function.Name) - Functional Processing" {
+    InModuleScope PsTodoTxt {
         It "Should throw an exception for null / empty input" {
             { Test-TodoTxtPriority -Priority "" } | Should throw "argument is null or empty"
         }
@@ -23,6 +22,4 @@
             $actual | Should BeOfType boolean
         }
     }
-#}
-
-Remove-Module PsTodoTxt
+}
