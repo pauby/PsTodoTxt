@@ -32,9 +32,9 @@
 .PARAMETER Addon
     The addon key:value pairs of the todo. To remove this property value from the object pass $null or an empty string as the parameter value.
 .INPUTS
-	Todo object of type [psobject]
+	Todo object of type [object]
 .OUTPUTS
-	The modified todo object or type [psobject]
+	The modified todo object or type [object]
 .EXAMPLE
     $todoObj = $todoObj | Set-TodoTxt -Priority "B"
 
@@ -42,15 +42,11 @@
 #>
 
     [CmdletBinding()]
+    [OutputType([Object[]])]
 	Param(
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)] # this parameter is mandatory but we don't want to prompt for it interactively
         [ValidateNotNull()]
         [object[]]$Todo,     # note if you change this parameter name, change code that excludes checking it below
-
-        [Parameter(Mandatory=$false)]
-        [ValidateScript( { $_ -ge 1 } )]
-        [Alias("l")]
-        [int]$Line,
 
         [Parameter(Mandatory=$false)]
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
@@ -106,7 +102,7 @@
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtProject $_  
+                                return Test-TodoTxtContext $_   # note we don't use the alias Test-TodoTxtProject here as PSScriptAnaylzer picks up on the alias  
                             }   
                         } )]
         [Alias("p")]
@@ -146,7 +142,7 @@
             }
 
             # only check for specific parameters 
-            $keys = $PsBoundParameters.Keys | where { $_ -in $validParams }
+            $keys = $PsBoundParameters.Keys | Where-Object { $_ -in $validParams }
 
             # loop through each parameter and set the corresponding proprty on the todotxt object
             foreach ($key in $keys)

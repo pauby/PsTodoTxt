@@ -17,22 +17,24 @@ Import-Module "$projRoot\$($module).psd1"
 $ModuleData = Get-Module $Module
 $AllFunctions = & $moduleData {Param($modulename) Get-command -CommandType Function -Module $modulename} $module
 
+Write-Host "Excluded the following ScriptAnalyzer rules: `n    * $($ExcludedRules -join '`n    * ')`n"
+
 if ($ModuleFunctions.count -gt 0) {
     foreach($ModuleFunction in $ModuleFunctions)
     {
         Describe "Testing Private Function - $($ModuleFunction.BaseName) - Standard Processing" {
             It "Is valid Powershell (Has no script errors)" {
-                $contents = Get-Content -Path $PrivateFunction.FullName -ErrorAction Stop
+                $contents = Get-Content -Path $ModuleFunction.FullName -ErrorAction Stop
                 $errors = $null
                 $null = [System.Management.Automation.PSParser]::Tokenize($contents, [ref]$errors)
                 $errors.Count | Should Be 0
             }
 
-            foreach ($rule in $rules) {
-                It "passes the PSScriptAnalyzer Rule $rule" {
-                    (Invoke-ScriptAnalyzer -Path $PrivateFunction.FullName -IncludeRule $rule.RuleName ).Count | Should Be 0
+#            foreach ($rule in $rules) {
+                It "Passes PSScriptAnalyzer Rules $rule" {
+                    (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0
                 }
-            }
+#            }
 
             It 'Passes all Script Analyzer tests' {
                 (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0

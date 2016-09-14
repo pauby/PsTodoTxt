@@ -2,7 +2,9 @@ Describe "Testing Function - $($Function.Name) - Functional Processing" {
     InModuleScope PSTodoTxt {
         Context "Invalid data supplied" {
             It "Should throw an exception for invalid filename" {
-                { Import-TodoTxt -Path hhgjfd } | Should throw "Cannot validate argument on parameter 'Path'"
+                # we need to just generate a filename - GetTempFilename() creates the file too
+                $invalidFilename = Join-Path -Path $env:TEMP -ChildPath ((1..25 | ForEach-Object { Get-Random -Min 0 -Max 9 }) -join "") 
+                { Import-TodoTxt -Path $invalidFilename  } | Should throw "Cannot validate argument on parameter 'Path'"
             }
         }
 
@@ -13,8 +15,8 @@ Describe "Testing Function - $($Function.Name) - Functional Processing" {
 
             It "Should return an empty array for empty todo file" {
                 $result = Import-TodoTxt -Path ([System.IO.Path]::GetTempFileName())
-                $result.count | Should Be 0
-                $result -is [array]  | Should Be $true
+                @($result).count | Should Be 0
+                $null -eq $result | Should Be $true
             }
 
             It "Should return a populated array for a populated todo file" {
