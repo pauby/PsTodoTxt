@@ -37,8 +37,8 @@ function Test-TodoTxtContext
     # this regex is to match whitespace or an @ - if they match anything then the context is invalid
     $regex = [regex]"[@+\s]"
 
-    $Context | foreach-Object {
-        if (($regex.Match($_)).Success -eq $True) {
+    foreach ($item in $Context) {
+        if (($regex.Match($item)).Success -eq $True) {
             return $false
         }
     }
