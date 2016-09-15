@@ -1,4 +1,4 @@
-Describe "Testing Function - $($Function.Name) - Functional Processing" {
+Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PsTodoTxt {
         It "Should throw an exception for null / empty input" {
             { Test-TodoTxtDate -Date "" } | Should throw "argument is null or empty"

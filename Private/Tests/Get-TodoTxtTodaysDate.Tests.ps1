@@ -1,5 +1,5 @@
 
-Describe "Testing Function - $($Function.Name) - Functional Processing" {
+Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PSTodoTxt {
         It "Should return todays date as a string" {
             $today = Get-Date -Format "yyyy-MM-dd"

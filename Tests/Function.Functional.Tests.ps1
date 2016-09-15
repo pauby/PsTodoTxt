@@ -11,7 +11,9 @@ $Rules = Get-ScriptAnalyzerRule | Where { $_.Rulename -notin $ExcludedRules }
 
 $manifest = Get-Item "$projRoot\*.psd1"
 $module = $manifest.BaseName
-Remove-Module PSTodoTxt
+if (Get-Module -Name PsTodoTxt) {
+    Remove-Module PSTodoTxt
+}
 Import-Module "$projRoot\$($module).psd1"
 
 $ModuleData = Get-Module $Module
@@ -22,7 +24,7 @@ Write-Host "Excluded the following ScriptAnalyzer rules: `n    * $($ExcludedRule
 if ($ModuleFunctions.count -gt 0) {
     foreach($ModuleFunction in $ModuleFunctions)
     {
-        Describe "Testing Private Function - $($ModuleFunction.BaseName) - Standard Processing" {
+        Describe "Testing Function - $($ModuleFunction.BaseName) - Best Practice & Errors" {
             It "Is valid Powershell (Has no script errors)" {
                 $contents = Get-Content -Path $ModuleFunction.FullName -ErrorAction Stop
                 $errors = $null
@@ -30,14 +32,16 @@ if ($ModuleFunctions.count -gt 0) {
                 $errors.Count | Should Be 0
             }
 
-#            foreach ($rule in $rules) {
-                It "Passes PSScriptAnalyzer Rules $rule" {
-                    (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0
-                }
-#            }
+            It "Passes PSScriptAnalyzer Rules $rule" {
+                (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0
+            }
 
             It 'Passes all Script Analyzer tests' {
                 (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0
+            }
+
+            It "test" {
+                "$($ModuleFunction.BaseName).Tests" -in $ModuleFunctionTests.BaseName | Should Be $true
             }
         }
 

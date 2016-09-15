@@ -1,4 +1,4 @@
-﻿Describe "Testing Function - $($Function.Name) - Functional Processing" {
+﻿Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PSTodoTxt {
         $testDate = "2016-07-01"
         Mock Get-TodoTxtTodaysDate { return $testDate }

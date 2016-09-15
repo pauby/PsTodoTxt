@@ -1,4 +1,4 @@
-Describe "Testing Function - $($Function.Name) - Functional Processing" {
+Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PsTodoTxt {
         Context "Testing Function as per name (Test-TodoTxtContext)" {
             It "Should throw an exception for null / empty input" {
@@ -25,7 +25,7 @@ Describe "Testing Function - $($Function.Name) - Functional Processing" {
 
             It "Should return a boolean true for a valid context array" {
                 $actual = Test-TodoTxtContext -Context @("so-long", "fairwell", "auf-Wiedersehen", "goodnight")
-                $actual | Should Be $false
+                $actual | Should Be $true
                 $actual | Should BeOfType boolean
             }
         }
@@ -55,7 +55,7 @@ Describe "Testing Function - $($Function.Name) - Functional Processing" {
 
         It "Should return a boolean true for a valid context array" {
             $actual = Test-TodoTxtProject -Project @("so-long", "fairwell", "auf-Wiedersehen", "goodnight")
-            $actual | Should Be $false
+            $actual | Should Be $true
             $actual | Should BeOfType boolean
         }
     }

@@ -1,4 +1,4 @@
-Describe "Testing Function - $($Function.Name) - Functional Processing" {
+Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PsTodoTxt {
         Context "Invalid data provided" {
             It "Should throw an error" {

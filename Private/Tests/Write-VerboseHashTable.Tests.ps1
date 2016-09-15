@@ -1,11 +1,5 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$here = Split-Path -Parent $here
-Import-Module $here\PsTodoTxt
-
-InModuleScope PsTodoTxt {
-
-    Describe "Write-VerboseHashTable" {
-
+Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
+    InModuleScope PsTodoTxt {
         It "Should output a formatted hashtable in verbose mode" {
             $ht = @{ name = "joe"; surname = "bloggs"}
             # capture verbose output to a variable - pipe to out-string to get it all in one line
@@ -15,5 +9,3 @@ InModuleScope PsTodoTxt {
         }
     }
 }
-
-Remove-Module PsTodoTxt
