@@ -32,7 +32,7 @@ if ($ModuleFunctions.count -gt 0) {
                 $errors.Count | Should Be 0
             }
 
-            It "Passes PSScriptAnalyzer Rules $rule" {
+            It "Passes PSScriptAnalyzer Rules" {
                 (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0
             }
 
@@ -40,7 +40,7 @@ if ($ModuleFunctions.count -gt 0) {
                 (Invoke-ScriptAnalyzer -Path $ModuleFunction.FullName -ExcludeRule $ExcludedRules ).Count | Should Be 0
             }
 
-            It "test" {
+            It 'Has a Pester test file' {
                 "$($ModuleFunction.BaseName).Tests" -in $ModuleFunctionTests.BaseName | Should Be $true
             }
         }
