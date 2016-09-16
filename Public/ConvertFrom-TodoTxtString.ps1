@@ -43,8 +43,10 @@ function ConvertFrom-TodoTxtString
     {
         # create regex to extra the first part of the todo
         $regexLine = [regex]"^(?:x\ (?<done>\d{4}-\d{2}-\d{2})\ )?(?:\((?<prio>[A-Za-z])\)\ )?(?:(?<created>\d{4}-\d{2}-\d{2})?\ )?(?<task>.*)"
-        $regexContext = [regex]"(?:\s@\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
-        $regexProject = [regex]"(?:\s\+\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
+        $regexContext = [regex]"(^|\s)(@\S+)"
+        #"(?:\s@\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
+        $regexProject = [regex]"(^|\s)(\+\S+)"
+        #"(?:\s\+\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
         $regexAddon = [regex]"(?<=\s)(?:\S+\:(?!//)\S+)"
         $converted = @()
         $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
@@ -171,12 +173,12 @@ function ConvertFrom-TodoTxtString
             # it's mandatory we have a task
             if ([string]::IsNullOrEmpty($split['task']))
             {
-                throw "TodoTxt 'task' cannot be empty."
+            throw "Cannot validate argument 'Task'. TodoTxt 'task' cannot be empty."
             }
             $split['task'] = $split['task'].Trim()
 
 #endregion
-            $newObj = New-Object -TypeName PSObject -Property $split
+            $newObj = (New-Object -TypeName PSObject) | Set-TodoTxt @split
 
             if ($PipelineInput) {
                 $converted = $newObj
