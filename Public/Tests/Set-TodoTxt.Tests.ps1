@@ -1,20 +1,22 @@
 ﻿Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PSTodoTxt {
-        Context "Testing Mandatory Parameter - Todo" {
-            It "Should throw an exception for null mandatory parameter" {
+        Context "Testing Mandatory Parameters Input" {
+            It "Passes testing for null and missing mandatory parameter" {
                 { Set-TodoTxt -Todo $null } | Should throw "argument is null"
-            }
-        }
-
-        Context "Testing Mandatory Parameter - Task" {
-            It "Should throw an exception for missing Task parameter" {
                 { Set-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "Task property"
             }
-
-            It "Should pass for mandatory parameters Todo and Task" {
+                        
+            It "Passes testing for valid mandatory parameter input" {
                 $expected = New-Object -Typename PSObject -Property @{ Task = "Test task" }
                 $actual = Set-TodoTxt -Todo (New-Object -Typename PSObject) -Task "Test task"
                 Compare-Object -ReferenceObject $actual -DifferenceObject $expected -Property Task | Should Be $null
+            }
+        }
+
+        Context "Testing Other Parameters Input" {
+            It "Passes testing of invalid parameter input" {
+                { (New-Object -TypeName PSObject) | Set-TodoTxt -CreatedDate "2016-99-99" -Task "Go see Jabba" } | Should throw "Cannot validate argument"
+                { (New-Object -TypeName PSObject) | Set-TodoTxt -DoneDate "2016-99-99" -Task "Go see Jabba" } | Should throw "Cannot validate argument"
             }
         }
 
@@ -56,6 +58,8 @@
                 Write-Output -NoEnumerate $actual | Should BeOfType Array
                 Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
                     -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
+
+                $splat = @{ Task = "Go see Jabba"; Project = "pay_debts"; Context = "jabba-palace" } 
             }
         }
     }

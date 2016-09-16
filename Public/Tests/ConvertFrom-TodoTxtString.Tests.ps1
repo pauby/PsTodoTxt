@@ -1,40 +1,41 @@
 Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PSTodoTxt {
-        Context "Testing parameters against invalid data" {
-            It "Fail when passed empty data" {
-                { ConvertFrom-TodoTxtString -Todo $null } | Should throw "argument is null"
+        Context "Testing mandatory parameters input" {   
+            It "Passes testing for null and / or missing mandatory parameter" { 
+                { ConvertFrom-TodoTxtString -Todo $null } | Should throw "null or empty"   
+                { ConvertFrom-TodoTxtString -Todo (New-Object -Typename PSObject) } | Should throw "null or empty"
             }
         }
 
-        Context "Testing output against valid input" {
-            $todoTxt = @( "2017-09-88 Lets go to the Degobah system",
-                            "x 2015-10-09 LEIA! +rebels +hoth @deathstar due:2018-09-09",
-                            "(g) You're a little short to be a stormtrooper? @deathstar +prison")
-            $todaysDate = "2016-09-15"
-            Mock Get-TodoTxtTodaysDate { Write-Output $todaysDate }
+        Context "Testing function processing and logic" {
+            $invalidStringArr = @( "2016-10-99 Go to Ewok planet",
+                "x 2016-88-10 Go to Ewok planet @deathstar",
+                "2016-01-01 @deathstar +ewok",
+                "2016-01-10 +ewok",
+                "x 2016-01-01 Go to Ewok planet @@deathstar ++ewok"
+                )
 
-            It "Passes when passed a single valid TodoTxt string" {
-                $expected = New-Object -TypeName PSObject -Property @{ CreatedDate = "2017-09-88"; Task = "Lets go to the Degobah system" }
-                $actual = ConvertFrom-TodoTxtString -Todo $todoTxt[0]
-                $actual | Should BeOfType Object
-                Compare-Object -ReferenceObject $actual -DifferenceObject $expected -Property CreatedDate, Task | Should Be $null
+            $validStringArr = @( "2016-10-09 Go to Ewok planet",
+                "x 2016-08-10 Go to Ewok planet @deathstar",
+                "2016-01-01 Go to Ewok planet @deathstar +ewok",
+                "x 2016-01-01 Go to Ewok planet @deathstar +ewok"
+                )
+
+            $validStringOutput = ( 
+                (New-Object -TypeName PSObject -Property @{ CreatedDate="2016-10-09"; Task = "Go to Ewok planet" }),
+                (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-08-10"; Task = "Go to Ewok planet"; Context = "deathstar"}),
+                (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"}),
+                (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"})
+            ) 
+
+            It "Passes testing of invalid data" {
+                $invalidStringArr | ForEach-Object {
+                    { $_ | ConvertFrom-TodoTxtString } | Should throw "Cannot validate argument"
+                }
             }
 
-            It "Passes when passed multiple valid TodoTxt strings" {
-                $expected = @( (New-Object -TypeName PSObject -Property @{ CreatedDate = "2017-09-88"; Task = "Lets go to the Degobah system" } ),
-                    (New-Object -TypeName PSObject -Property @{ DoneDate = "2015-10-09"; CreatedDate = $todaysDate; Task = "LEIA!"; Context = "deathstar"; Project = @("rebels", "hoth"); Addon = @{ due = "2018-09-09"} } ),
-                    (New-Object -TypeName PSObject -Property @{ CreatedDate = $todaysDate; Priority = "G"; Task = "You're a little short to be a stormtrooper?"; Context = "deathstar"; Project = "prison" } )
-                    )
-                $actual = ConvertFrom-TodoTxtString -Todo $todoTxt
-                write-host $todoTxt
-                Write-Output -NoEnumerate $actual | Should BeOfType Array
-                ($actual.Count -eq $expected.Count) | Should be $true
-                Compare-Object -ReferenceObject $actual[0] -DifferenceObject $expected[0] -Property CreatedDate, Task | Should Be $null
-                Compare-Object -ReferenceObject $actual[1] -DifferenceObject $expected[1] -Property DoneDate, CreatedDate, Task, Context, Project, Addon | Should Be $null
-                Compare-Object -ReferenceObject $actual[2] -DifferenceObject $expected[2] -Property CreatedDate, Priority, Task, Context, Project | Should Be $null
-                $actual | ForEach-Object {
-                    $_ | Should BeOfType Object
-                }
+            It "Passes testing of valid data" {
+
             }
         }
     }
