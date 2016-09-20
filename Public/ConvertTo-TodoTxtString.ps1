@@ -68,18 +68,38 @@ function ConvertTo-TodoTxtString
 
             $index = 0
             if ((Test-ObjectProperty -InputObject $_ -PropertyName "DoneDate") -and (-not ([string]::IsNullOrEmpty($_.DoneDate)))) {
-                $text[$index] = "x $($_.DoneDate) "
-                Write-Verbose "DoneDate: $($text[$index])"
+                if (Test-TodoTxtDate $_.DoneDate) {
+                    $text[$index] = "x $($_.DoneDate) "
+                    Write-Verbose "DoneDate: $($text[$index])"
+                }
+                else {
+                    Write-Error "DoneDate '$($_.DoneDate)' is invalid." -category InvalidArgument
+                    return
+                }
             }
             $index++
 
-            $text[$index] = "$($_.CreatedDate) "
-            Write-Verbose "CreatedDate: $($text[$index])"
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "CreatedDate") -and (-not ([string]::IsNullOrEmpty($_.CreatedDate)))) {
+                if (Test-TodoTxtDate $_.CreatedDate) {
+                    $text[$index] = "$($_.CreatedDate) "
+                    Write-Verbose "CreatedDate: $($text[$index])"
+                }
+                else {
+                    Write-Error "CreatedDate '$($_.CreatedDate)' is invalid." -Category InvalidArgument
+                    return
+                }
+            }
             $index++
 
             if ((Test-ObjectProperty -InputObject $_ -PropertyName "Priority") -and (-not ([string]::IsNullOrEmpty($_.Priority)))) {
-                $text[$index] = "($($_.Priority)) "
-                Write-Verbose "Priority: $($text[$index])"
+                if (Test-TodoTxtPriority $_.Priority) {
+                    $text[$index] = "($($_.Priority)) "
+                    Write-Verbose "Priority: $($text[$index])"
+                }
+                else {
+                    Write-Error "Priority '$($_.Priority)' is invalid."
+                    return
+                }
             }
             $index++
 
@@ -87,19 +107,31 @@ function ConvertTo-TodoTxtString
             Write-Verbose "Task: $($text[$index])"
             $index++
 
-            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Context") -and $_.Context.count -gt 0) {
-                $text[$index] = "$( ($_.Context | ForEach-Object { "@$_"}) -join " ") "
-                Write-Verbose "Context: $($text[$index])"
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Context") -and @($_.Context).count -gt 0) {
+                if (Test-TodoTxtContext $_.Context) {
+                    $text[$index] = "$( ($_.Context | ForEach-Object { "@$_"}) -join " ") "
+                    Write-Verbose "Context: $($text[$index])"
+                }
+                else {
+                    Write-Error "Context '$($_.Context)' is invalid."
+                    return
+                }
             }
             $index++
 
-            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Project") -and $_.Project.count -gt 0) {
-                $text[$index] = "$( ($_.Project | ForEach-Object { "+$_"}) -join " ") "
-                Write-Verbose "Project: $($text[$index])"
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Project") -and @($_.Project).count -gt 0) {
+                if (Test-TodoTxtProject $_.Project) {
+                    $text[$index] = "$( ($_.Project | ForEach-Object { "+$_"}) -join " ") "
+                    Write-Verbose "Project: $($text[$index])"
+                }
+                else {
+                    Write-Error "Project '$($_.Project)' is invalid."
+                    return
+                }
             }
             $index++
 
-            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Addon") -and $_.Addon.count -gt 0) {
+            if ((Test-ObjectProperty -InputObject $_ -PropertyName "Addon") -and @($_.Addon).count -gt 0) {
                 $text[$index] = "$( ($_.Addon.GetEnumerator() | ForEach-Object { "$($_.name):$($_.value)"  }) -join " ") "
                 Write-Verbose "Addons: $($text[$index])"
             }
