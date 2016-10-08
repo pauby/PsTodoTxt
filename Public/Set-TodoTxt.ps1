@@ -41,104 +41,107 @@
     Sets the priority of the $todoObj to "B" and outputs the modified todo.
 #>
 
-    [CmdletBinding()]
-    [OutputType([Object[]])]
+    [OutputType([Object])]
 	Param(
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)] # this parameter is mandatory but we don't want to prompt for it interactively
+        [Parameter(Position=0, ValueFromPipeline=$true)] # this parameter is mandatory but we don't want to prompt for it interactively
         [ValidateNotNull()]
-        [object[]]$Todo,     # note if you change this parameter name, change code that excludes checking it below
+        [Object]$Todo,
 
-        [Parameter(Mandatory=$false)]
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtDate $_  
+                                return Test-TodoTxtDate -Date $_  
                             }   
                         } )]
-        [Alias("dd")]
+        [Alias('dd')]
         [string]$DoneDate,
 
-        [Parameter(Mandatory=$false)]
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtDate $_  
+                                return Test-TodoTxtDate -Date $_  
                             }   
                         } )]
 
-        [Alias("cd")]
+        [Alias('cd')]
+        [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
+                                return $true
+                            } 
+                            else {
+                                return Test-TodoTxtDate -Date $_  
+                            }   
+                        } )]
         [string]$CreatedDate,
 
-        [Parameter(Mandatory=$false)]
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtPriority $_  
+                                return Test-TodoTxtPriority -Priority $_  
                             }   
                         } )]
-        [Alias("pri", "u")]
+        [Alias('pri', 'u')]
         [string]$Priority,
 
-        [Parameter(Mandatory=$false)]
-        [Alias("t")]
+        [Alias('t')]
         [string]$Task,
 
-        [Parameter(Mandatory=$false)]
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtContext $_  
+                                return Test-TodoTxtContext -Context $_  
                             }   
                         } )]
-        [Alias("c")]
+        [Alias('c')]
         [string[]]$Context,
 
-        [Parameter(Mandatory=$false)]
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtContext $_   # note we don't use the alias Test-TodoTxtProject here as PSScriptAnaylzer picks up on the alias  
+                                return Test-TodoTxtContext -Context $_   # note we don't use the alias Test-TodoTxtProject here as PSScriptAnaylzer picks up on the alias  
                             }   
                         } )]
-        [Alias("p")]
+        [Alias('p')]
         [string[]]$Project,
 
-        [Parameter(Mandatory=$false)]
-        [Alias("a")]
+        [Alias('a')]
         [string[]]$Addon
     )
 
     Begin
     {
-        $validParams = @("DoneDate", "CreatedDate", "Priority", "Task", "Context", "Project", "Addon")
-        $converted = @()
-        $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
+        $validParams = @('DoneDate', 'CreatedDate', 'Priority', 'Task', 'Context', 'Project', 'Addon')
+<#        $PipelineInput = -not $PSBoundParameters.ContainsKey('Todo')
         if ($PipelineInput) {
-            Write-Verbose "We are taking data from the pipeline."
+            Write-Verbose 'We are taking data from the pipeline.'
         }
         else {
-            Write-Verbose "We are taking data from function parameters."
-        }
+            Write-Verbose 'We are taking data from function parameters.'
+        }#>
     }
 
     Process
     {
-        if ($PipelineInput) {
-            $pipe = $_
-        }
-        else {
-            $pipe = $Todo
-        }
+ #       if ($PipelineInput) {
+ #           $pipe = $_
+ #       }
+ #       else {
+ #           $pipe = $Todo
+ #       }
 
-        $pipe | ForEach-Object {
-            # if we are not given an existing object to modify, then we need to check that the minimum TodoTxt property of Task is present
-            if ( (-not ($_ | Test-ObjectProperty -PropertyName "Task")) -and (-not $PsBoundParameters.ContainsKey("Task")) )  {
-                throw [System.ArgumentException]"For Task not to be required to be set, the object must already have a Task property. If the object does not have a Task property you must set one first."
+        $Todo | ForEach-Object {
+            # either the object passed needs to have a task property or the Task parameter needs to have been used
+            if ( (-not ($_ | Test-ObjectProperty -PropertyName 'Task')) -and (-not $PsBoundParameters.ContainsKey('Task')) )  {
+                throw [ArgumentException]'For Task not to be required to be set, the object must already have a Task property. If the object does not have a Task property you must set one first.'
+            }
+
+            # either the object passed has a CreatedDate property or the CreatedDate parameter needs to have been used
+            if ( (-not ($_ | Test-ObjectProperty -PropertyName 'CreatedDate')) -and (-not $PsBoundParameters.ContainsKey('CreatedDate')) )  {
+                $_ | Add-Member -MemberType NoteProperty -Name 'CreatedDate' -Value (Get-TodoTxtTodaysDate)
             }
 
             # only check for specific parameters 
@@ -160,17 +163,10 @@
                 }
             }
 
-            if ($PipelineInput) {
-                $converted = $_ 
-            }
-            else {
-                $converted += $_
-            }
+            Write-Output $_
 
             Write-Debug ($_ | Out-String)
         }
-
-        return $converted
    }
 
     End { 

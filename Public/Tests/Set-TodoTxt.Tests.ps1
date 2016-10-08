@@ -1,4 +1,11 @@
-﻿Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
+﻿#Requires -Version 3.0
+
+#if (-not $Variable:Function) {
+    $Function = $PSScriptRoot.Split('.')[0]
+#}
+write-verbose "Function: $Function"
+
+Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
     InModuleScope PSTodoTxt {
         Context "Testing Mandatory Parameters Input" {
             It "Passes testing for null and missing mandatory parameter" {
@@ -34,8 +41,8 @@
                 Project = @("Yoda", "LearnTheForce"); `
                 Addon = @( @{dead = "uncle-owen"}, @{ transport = "x-wing"} ) }
 
-            It "Should return a valid TodoTxt object" {
-                $expected = (New-Object -Typename PSObject -Property $props1)
+            It "Should return a valid TodoTxt object using the pipeline" {
+                $expected = (New-Object -Typename PSObject -Property $props1)            
                 $actual = (New-Object -Typename PSObject) | Set-TodoTxt -CreatedDate $props1.CreatedDate `
                     -DoneDate $props1.DoneDate -Priority $props1.Priority -Task $props1.Task -Context $props1.Context `
                     -Project $props1.Project -Addon $props1.Addon
@@ -44,22 +51,48 @@
                     -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
             }
 
-            It "Should amend the Task property of multiple existing TodoTxt objects" {
+            It "Should return a valid TodoTxt object using the pipeline" {
+                $expected = (New-Object -Typename PSObject -Property $props1)
+                $actual = Set-TodoTxt -Todo (New-Object -Typename PSObject) -CreatedDate $props1.CreatedDate `
+                    -DoneDate $props1.DoneDate -Priority $props1.Priority -Task $props1.Task -Context $props1.Context `
+                    -Project $props1.Project -Addon $props1.Addon
+                $actual | Should BeOfType Object
+                Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
+                    -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
+            }
+
+            It "Should amend the Task property of multiple existing TodoTxt objects using the pipeline" {
+                $newTaskText = "Find a new song for the Cantina band"    
                 $expected = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
                     (New-Object -TypeName PSObject -Property $props3) )
-                $actual = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
-                    (New-Object -TypeName PSObject -Property $props3) )
-                $newTaskText = "Find a new song for the Cantina band"
                 $expected | ForEach-Object { 
                     $_.Task = $newTaskText
-                }
+                }                            
+                $actual = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
+                    (New-Object -TypeName PSObject -Property $props3) )
                 $actual = $actual | Set-TodoTxt -Task $newTaskText
 
                 Write-Output -NoEnumerate $actual | Should BeOfType Array
                 Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
                     -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
+            }
 
-                $splat = @{ Task = "Go see Jabba"; Project = "pay_debts"; Context = "jabba-palace" } 
+            It "Should amend the Task property of multiple existing TodoTxt objects using Todo parameter" {
+                $newTaskText = "Find a new song for the Cantina band"
+                $expected = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
+                    (New-Object -TypeName PSObject -Property $props3) )
+                $expected | ForEach-Object { 
+                    $_.Task = $newTaskText
+                }
+         
+                $actual = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
+                    (New-Object -TypeName PSObject -Property $props3) )
+                $actual | ForEach-Object {
+                    $_ = Set-TodoTxt -Todo $_ -Task $newTaskText
+                }
+                Write-Output -NoEnumerate $actual | Should BeOfType Array
+                Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
+                    -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
             }
         }
     }
