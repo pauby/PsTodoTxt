@@ -102,7 +102,7 @@
                                 return $true
                             } 
                             else {
-                                return Test-TodoTxtContext -Context $_   # note we don't use the alias Test-TodoTxtContext here as PSScriptAnaylzer picks up on the alias  
+                                return Test-TodoTxtContext -Context $_
                             }   
                         } )]
         [Alias('p')]
