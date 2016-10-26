@@ -32,17 +32,22 @@ function Test-ObjectProperty
 	[OutputType([boolean])]
 	Param
 	(
-		[Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-		[ValidateScript( { $_.GetType().Name -eq "PSCustomObject" } )]
+		[Parameter(Position=0, ValueFromPipeline=$true)]
+		[ValidateScript( { [bool]($_.GetType().Name -eq "PSCustomObject") } )]
 		[ValidateNotNull()]
 		[object]$InputObject,
 
-		[Parameter(Mandatory=$true, Position=1)]
+		[Parameter(Position=1)]
 		[ValidateNotNullOrEmpty()]
 		[string]$PropertyName
 	)
 
 	Begin {
+		@('InputObject', 'PropertyName') | ForEach-Object {
+			if (-not($PSBoundParameters.ContainsKey($_))) {
+				throw [ArgumentException]"Mandatory parameter '$_' is missing."
+			}
+		}		
 	}
 
 	Process	{

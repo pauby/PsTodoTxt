@@ -19,5 +19,3 @@ foreach ($script in $toInclude) {
     Write-Verbose "Importing $script"
     . $script
 }
-
-New-Alias -Name Test-TodoTxtProject -Value Test-TodoTxtContext

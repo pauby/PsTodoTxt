@@ -120,7 +120,7 @@ function ConvertTo-TodoTxtString
             $index++
 
             if ((Test-ObjectProperty -InputObject $_ -PropertyName "Project") -and @($_.Project).count -gt 0) {
-                if (Test-TodoTxtProject $_.Project) {
+                if (Test-TodoTxtContext $_.Project) {
                     $text[$index] = "$( ($_.Project | ForEach-Object { "+$_"}) -join " ") "
                     Write-Verbose "Project: $($text[$index])"
                 }
