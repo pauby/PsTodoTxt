@@ -1,52 +1,76 @@
-Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
-    InModuleScope PSTodoTxt {
-        Context "Testing parameters input" {
-            It "Passes testing for null and / or missing mandatory parameter" {
-                { ConvertFrom-TodoTxtString -Todo $null } | Should throw "null or empty"
-                { ConvertFrom-TodoTxtString -Todo (New-Object -Typename PSObject) } | Should throw "null or empty"
-            }
-        }
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+$functionName = $sut -replace '\.ps1'
 
-        Context "Testing function processing and logic" {
-            $todaysDate = "2106-01-01"
+Remove-Module PsTodoTxt -ErrorAction SilentlyContinue
+Import-Module .\PSTodoTxt.psd1 -Force
+#. "$here\$sut"
+
+Describe "Function Testing - $($functionName)" {
+    Context "Parameter Validation" {
+        It "will throw an exception for null or missing parameters" {
+            # we only have one parameter so test it
+            { ConvertFrom-TodoTxtString -Todo $null } | Should throw "null or empty"
+            { ConvertFrom-TodoTxtString -Todo (New-Object -Typename PSObject) } | Should throw "null or empty"
+        }
+    }
+
+    Context "Processing and Logic" {
+    }
+
+    Context "Output" {
+        InModuleScope PsTodoTxt {
+            $todaysDate = "2016-01-01"
             Mock Get-TodoTxtTodaysDate { return $todaysDate }
 
-            $invalidStringArr = @( "2016-10-99 Go to Ewok planet",
-                "x 2016-88-10 Go to Ewok planet @deathstar",
-                "2016-01-01 @deathstar +ewok",
-                "2016-01-10 +ewok",
-                "x 2016-01-01 Go to Ewok planet @@deathstar ++ewok"
-                )
-
-            $validStringArr = @( "2016-10-09 Go to Ewok planet",
-                "x 2016-08-10 Go to Ewok planet @deathstar",
-                "2016-01-01 Go to Ewok planet @deathstar +ewok",
-                "x 2016-01-01 Go to Ewok planet @deathstar +ewok"
-                )
-
-            $validStringOutput = (
-                (New-Object -TypeName PSObject -Property @{ CreatedDate="2016-10-09"; Task = "Go to Ewok planet" }),
-                (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-08-10"; CreatedDate = $todaysDate; Task = "Go to Ewok planet"; Context = "deathstar"}),
-                (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"}),
-                (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-01"; CreatedDate = $todaysDate; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"})
+            $validTests = @(
+                @{  "name"      = "one of each component";
+                    "todo"      = "x 2016-12-11 (r) 2016-10-09 Go to Ewok planet @home +travel due:2016-12-03";
+                    "expected"  = (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-12-11"; Priority = "R"; CreatedDate="2016-10-09";
+                                    Context = @( "home" ); Project = @( "travel" ); Addon = @{ "due" = "2016-12-03" }; Task = "Go to Ewok planet" })
+                },
+                @{  "name"      = "just task";
+                    "todo"      = "Go to Ewok planet";
+                    "expected"  = (New-Object -TypeName PSObject -Property @{ CreatedDate = $todaysDate; Task = "Go to Ewok planet"} )
+                },
+                @{  "name"      = "double @@ / ++ for context / project"
+                    "todo"      = "x 2016-01-23 Go to Ewok planet @@deathstar ++ewok";
+                    "expected"  = (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-23"; CreatedDate = $todaysDate; Task = "Go to Ewok planet @@deathstar ++ewok"} )
+                },
+                @{  "name"      = "no task text";
+                    "todo"      = "2016-12-09 @deathstar +ewok";
+                    "expected"  = (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-12-09"; Task = "@deathstar +ewok"} )
+                }
             )
 
-            It "Passes testing of invalid data" {
-                $invalidStringArr | ForEach-Object {
-                    { $_ | ConvertFrom-TodoTxtString } | Should throw "Cannot validate argument"
+            It "outputs the correct todo object when valid todo string is passed - <name>" -TestCases $validTests {
+                Param (
+                    $todo,
+                    $expected
+                )
+                $result = $todo | ConvertFrom-TodoTxtString
+                Compare-Object -ReferenceObject $expected -DifferenceObject $result | Should be $null
+            }
+
+            $invalidTests = @(
+                @{  "name"      = "invalid created date";
+                    "todo"      = "2016-10-99 Go to Ewok planet"
+                },
+                @{  "name"      = "invalid done date";
+                    "todo"      = "x 2016-88-10 Go to Ewok planet @deathstar";
+                },
+                @{  "name"      = "different date format";
+                    "todo"      = "2016-23-01 Go to Ewok planet";
                 }
-            }
+            )
 
-			It "Passes testing of valid data" {
-				$actual = $validStringArr | ConvertFrom-TodoTxtString
+            It "throws an exception with invalid todo string - <name>" -TestCases $invalidTests {
+                Param (
+                    $todo
+                )
 
-				Write-Output -NoEnumerate $actual | Should BeOfType Array
-                $actual.Count | Should Be $validStringOutput.Count
-				Compare-Object -ReferenceObject $actual[0] -DifferenceObject $validStringOutput[0] -Property CreatedDate, Task | Should Be $null
-                Compare-Object -ReferenceObject $actual[1] -DifferenceObject $validStringOutput[1] -Property DoneDate, CreatedDate, Task, Context | Should Be $null
-                Compare-Object -ReferenceObject $actual[2] -DifferenceObject $validStringOutput[2] -Property CreatedDate, Task, Context, Project | Should Be $null
-                Compare-Object -ReferenceObject $actual[3] -DifferenceObject $validStringOutput[3] -Property DoneDate, CreatedDate, Task, Context, Project  | Should Be $null
+                { ConvertFrom-TodoTxtString -Todo $todo } | Should throw
             }
-        }
+        } # end InModuleScope
     }
 }

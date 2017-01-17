@@ -1,15 +1,16 @@
-﻿<#
+﻿#Requires -Version 3
+<#
 .SYNOPSIS
     Splits a todo text string.
 .DESCRIPTION
     Splits a todo text string into parts and return back an object.
+
+    See the project documentation for the format of the object.
 .NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 20/06/16 - Initial version
                   1.1 - 31/08/16 - Changed to return an object; Changed name.
-    Notes       : The todo 'task' text is mandatory and an error will be thrown if it's not present.
-    ##TODO##    : This really needs rewritten to condense it and include more regex to split the todo text in one pass.
-                  Remove the Write-Verbose at each component split. The hashtable is printed at the end in verbose mode so no need for it?
+    Notes       : If the task description is not present then you will find that various components of the todo end up as it.
 .LINK
     http://www.github.com/pauby/pstodotxt
 .PARAMETER Todo
@@ -21,12 +22,12 @@
 .EXAMPLE
     ConvertFrom-TodoTxtString -Todo 'take car to garage @car +car_maintenance'
 
-	Splits the todo text into it's components and returns them in a hashtable.
+	Splits the todo text into it's components and returns them in an object.
 .EXAMPLE
     $todo = 'take car to garage @car +car_maintenance'
     $todo | ConvertFrom-TodoTxtString
 
-	Splits the todo text into it's components and returns them in a hashtable.
+	Splits the todo text into it's components and returns them in an object
 #>
 
 function ConvertFrom-TodoTxtString
@@ -39,156 +40,78 @@ function ConvertFrom-TodoTxtString
         [string[]]$Todo
     )
 
-    Begin
-    {
-        # create regex to extra the first part of the todo
-        $regexLine = [regex]"^(?:x\ (?<done>\d{4}-\d{2}-\d{2})\ )?(?:\((?<prio>[A-Za-z])\)\ )?(?:(?<created>\d{4}-\d{2}-\d{2})?\ )?(?<task>.*)"
-        $regexContext = [regex]"(^|\s)(@\S+)"
-        #"(?:\s@\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
-        $regexProject = [regex]"(^|\s)(\+\S+)"
-        #"(?:\s\+\S+)" # this regex is also used to replace the context with <blank> so it needs to capture the '@' too or this will be left
-        $regexAddon = [regex]"(?<=\s)(?:\S+\:(?!//)\S+)"
-        $converted = @()
-        $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
-        if ($PipelineInput) {
-            Write-Verbose "We are taking data from the pipeline."
-        }
-        else {
-            Write-Verbose "We are taking data from function parameters."
-        }
+    Begin {
+        # create a hashtable of regular expressions to extract the parts from the Input
+        # the format should be:
+        #   name    - the object property name that the extracted part will be assigned to
+        #   regex   - the regular expression to extract the part
+        #
+        # Note that as each part is extracted it is also removed from the input so this will affect which
+        # anchors used in the expressions
+        $regexList = @(
+            @{ "name" = "DoneDate"; "regex" = "^x\ \d{4}-\d{2}-\d{2}\ " },  # the done date - eg. 'x 2017-08-01'
+            @{ "name" = "Priority"; "regex" = "^\(([A-Za-z])\)\ " },    # priority - eg. '(B)'
+            @{ "name" = "CreatedDate"; "regex" = "^\d{4}-\d{2}-\d{2}\ " },  # created date - eg. '2016-05-23'
+            @{ "name" = "Context"; "regex" = "\ @[^\s@]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
+            @{ "name" = "Project"; "regex" = "\ \+[^\+\s]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
+            @{ "name" = "Addon"; "regex" = "(\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
+        )
     }
 
-    Process
-    {
-        if ($PipelineInput) {
-            $pipe = $_
-        }
-        else {
-            $pipe = $Todo
-        }
+    Process {
+        $Todo | ForEach-Object {
+            $output = New-Object -TypeName PSObject -Property @{ "CreatedDate" = (Get-TodoTxtTodaysDate) }
+            $line = $_
+            foreach ($item in $regexList) {
+                if ($line -match $item.regex) {
+                    $found = [regex]::matches($line, $item.regex)
+                    $line = $line -replace $item.regex
 
-        $pipe | ForEach-Object {
-            $split = @{}
-            Write-Verbose "Original TodoTxt: $_"
+                    switch ($item.name) {
+                        "DoneDate" {
+                            # the format of the 'done' is 'x <DATE>' so we need to skip over the x and the space
+                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value (Get-Date -Date $found.value.SubString(2) -Format "yyyy-MM-dd")
+                            break
+                        }
 
-            # split the todo into components. this regex only splits the first part of the todo. Note that the 'task'
-            # contains everything beyond the created date we will then split the rest of the todo using further
-            $parsedLine = $regexLine.Match($_).Groups
+                        "CreatedDate" {
+                            $output.CreatedDate = (Get-Date -Date $found.value -Format "yyyy-MM-dd")
+                            break
+                        }
 
-            $split.Add("Task", $parsedLine['task'].Value)
-            if ([string]::IsNullOrEmpty($split['task']))
-            {
-                throw "TodoTxt 'task' cannot be empty."
-            }
+                        "Priority"  {
+                            # priority is returned as '(<PRIORITY>)' and that will match the numbered capture (1) in the regex so we use that
+                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value ([string]$found.groups[1].value).ToUpper()
+                            break
+                        }
 
-#region donedate
-            if ($parsedLine['done'].Value)
-            {
-                $split.Add("DoneDate", $parsedLine['done'].Value)
-                Write-Verbose "DoneDate: $($split.DoneDate)"
-            }
-#endregion
+                        { $_ -in "Context", "Project" } {
+                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value @($found | foreach-object { [string]$_.value} )
+                            break
+                        }
 
-#region createdate
-            if ($parsedLine['created'].Value)
-            {
-                $createdDate = $parsedLine['created'].Value
-            }
-            else
-            {
-                # no created date on the todo so set it todays date
-                $createdDate = Get-TodoTxtTodaysDate
-            }
-            $split.Add("CreatedDate", $createdDate)
-            Write-Verbose "CreatedDate: $($split.CreatedDate)"
-#endregion
-
-#region priority
-            if ($parsedLine['prio'].Value)
-            {
-                $split.Add("Priority", $parsedLine['prio'].Value.ToUpper())
-                Write-Verbose "Priority: $($split.Priority)"
-            }
-#endregion
-
-#region context and lists
-            if ($regexContext.IsMatch($split['task']))
-            {
-                # get an array of context:
-                # 1. only use unique contexts (if the same one is specified more than once don't add it again),
-                # 2. trim each context
-                # 3. extract the context without the @ sign (skip over first character)
-                $context = @($regexContext.Matches($split['task']) | Get-Unique | ForEach-Object { $_.ToString().Trim() } | 
-                    ForEach-Object { $_.Substring(1) } )
-                $split.Add("Context", $context)
-                Write-Verbose "Context ($($split['Context'].Count)): $($split['Context'] -join ',')"
-
-                # as the context was part of the task text, we need to remove it now that we have used it
-                $split['task'] = $regexContext.Replace($split['task'], "")
-            }
-#endregion
-
-#region project and tags
-            if ($regexProject.IsMatch($split['task']))
-            {
-                # get an array of context:
-                # 1. only use unique contexts (if the same one is specified more than once don't add it again),
-                # 2. trim each context
-                # 3. extract the context without the @ sign (skip over first character)
-                $project = @($regexProject.Matches($split['task']) | Get-Unique | ForEach-Object { $_.ToString().Trim() } | 
-                    ForEach-Object { $_.Substring(1) } )
-                $split.Add("Project", $project)
-                Write-Verbose "Projects ($($split['Project'].Count)): $($split['Project'] -join ',')"
-
-                # remove the matched projects from the rest of the todotxt line
-                $split['task'] = $regexProject.Replace($split['task'], "")
-            }
-#endregion
-
-#region addons
-            # find the key:value pairs EXCEPT when there is a // after the : (for example http:// https:// ftp:// etc.
-            # each of these get their own object member
-            if ($regexAddon.IsMatch($split['task']))
-            {
-                $addons = @{}
-                foreach ($match in $regexAddon.Matches($split['task'])) {
-                    if ($addons.ContainsKey($match[0])) {
-                        Write-Warning "Todo '$_' contains multiple '$match[0]' addons. Ignoring."
-                    }
-                    else {
-                        $parts = $match -split ":"
-                        $addons.Add($parts[0], $parts[1])
+                        "Addon" {
+                            $addons = @{}
+                            foreach ($f in $found) {
+                                $addons.Add($f.groups[1].value, $f.groups[2].value)
+                            }
+                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value $addons
+                            break
+                        }
                     }
                 }
-                $split.Add("Addon", $addons)
-                Write-Verbose "Addon ($($split['Addon'].Count)):"
-                Write-VerboseHashtable -Hashtable $split['Addon']
-
-                # remove the key:value pairs from the rest of the todotxt
-                $split['task'] = $regexAddon.Replace($split['task'], "")
             }
-#endregion
 
-#region task text
-            # it's mandatory we have a task
-            if ([string]::IsNullOrEmpty($split['task']))
-            {
-            throw "Cannot validate argument 'Task'. TodoTxt 'task' cannot be empty."
+            # what is left here is the task itself but we need to tidy it up
+            # as each part is extracted it's leaving behind double spaces etc.
+            $line = ($line -replace "\ {2,}", " ").Trim()
+            if ($line.length -lt 1) {
+                throw "Task description cannot be empty."
             }
-            $split['task'] = $split['task'].Trim()
+            $output | Add-Member -MemberType NoteProperty -Name 'Task' -Value $line
 
-#endregion
-            $newObj = (New-Object -TypeName PSObject) | Set-TodoTxt @split
-
-            if ($PipelineInput) {
-                $converted = $newObj
-            }
-            else {
-                $converted += $newObj
-            }
+            Write-Output $output
         }
-
-        return $converted
     }
 
     End {
