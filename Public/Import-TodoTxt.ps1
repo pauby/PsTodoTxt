@@ -18,7 +18,7 @@
 .EXAMPLE
     Import-Todo -Path c:\todo.txt
 
-    Reads the todotxt stings from the file c:\todo.txt and converts them to objects..
+    Reads the todotxt strings from the file c:\todo.txt and converts them to objects..
 #>
     [CmdletBinding()]
     [OutputType([object])]
