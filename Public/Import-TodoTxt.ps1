@@ -13,12 +13,13 @@
     https://www.github.com/pauby/pstodotxt
 .PARAMETER Path
     Path to the todo file. The file must exist.
+    Throws an exception if the file does not exist. Nothing is returned if file is empty.
 .OUTPUTS
     Output is [object]
 .EXAMPLE
     Import-Todo -Path c:\todo.txt
 
-    Reads the todotxt strings from the file c:\todo.txt and converts them to objects..
+    Reads the todotxt strings from the file c:\todo.txt and converts them to objects.
 #>
     [CmdletBinding()]
     [OutputType([object])]
@@ -33,7 +34,6 @@
     $todos = Get-Content -Path $Path -Encoding UTF8
     if ($null -eq $todos) {
         Write-Verbose "File $Path is empty."
-        Write-Output @()
     }
     else {
         Write-Verbose "Read $(@($todos).count) todos."
