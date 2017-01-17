@@ -1,10 +1,15 @@
+$ourModule = 'PsTodoTxt'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $functionName = $sut -replace '\.ps1'
 
-Remove-Module PsTodoTxt -ErrorAction SilentlyContinue
-Import-Module .\PSTodoTxt.psd1 -Force
-#. "$here\$sut"
+if (Test-Path -Path "$ourModule.psd1") {
+    Remove-Module $ourModule -ErrorAction SilentlyContinue
+    Import-Module ".\$ourModule.psd1" -Force
+}
+else {
+    throw "Module .\$ourModule.psd1 not found in current directory" 
+}
 
 Describe "Function Testing - $($functionName)" {
     Context "Parameter Validation" {
