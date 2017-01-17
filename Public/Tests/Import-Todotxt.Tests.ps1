@@ -1,48 +1,44 @@
-Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
-    InModuleScope PSTodoTxt {
-        Context "Invalid data supplied" {
-            It "Should throw an exception for invalid filename" {
-                # we need to just generate a filename - GetTempFilename() creates the file too
-                $invalidFilename = Join-Path -Path $env:TEMP -ChildPath ((1..25 | ForEach-Object { Get-Random -Min 0 -Max 9 }) -join "") 
-                { Import-TodoTxt -Path $invalidFilename  } | Should throw "Cannot validate argument on parameter 'Path'"
-            }
+$ourModule = 'PsTodoTxt'
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+$functionName = $sut -replace '\.ps1'
+
+if (Test-Path -Path "$ourModule.psd1") {
+    Remove-Module $ourModule -ErrorAction SilentlyContinue
+    Import-Module ".\$ourModule.psd1" -Force
+}
+else {
+    throw "Module .\$ourModule.psd1 not found in current directory" 
+}
+
+Describe "Function Testing - $($functionName)" {
+    Context "Parameter Validation" {
+        It "throws an exception for missing import file" {
+            { Import-TodoTxt -Path 'TestDrive:missingfile.txt'  } | Should throw "Cannot validate argument on parameter 'Path'"
+        }
+    }
+
+    Context "Processing and Logic" {
+        It 'returns $null for empty todo file' {
+            $emptyFile = 'TestDrive:empty.txt'
+            Add-Content -Path $emptyFile -Value ''
+            Clear-Content -Path $emptyFile 
+            Import-TodoTxt -Path $emptyFile | Should Be $null
         }
 
-        Context "Valid data supplied" {
-
-            $testDate = "2016-05-05"
-            Mock Get-TodoTxtTodaysDate { return $testDate }
-
-            It "Should return an empty array for empty todo file" {
-                $result = Import-TodoTxt -Path ([System.IO.Path]::GetTempFileName())
-                @($result).count | Should Be 0
-                $null -eq $result | Should Be $true
-            }
-
-            It "Should return a populated array for a populated todo file" {
-                $tempPath = ([System.IO.Path]::GetTempFileName())
-                $content = @(
-                    "2015-07-29 Use the Force Luke",
-                    "2015-06-22 It's a piece of JUNK! https://en.wikipedia.org/wiki/Millennium_Falcon @star_wars",
-                    "2015-04-12 I am your Father @empire_strikes_back @near_the_end +darthvader",
-                    "x 2014-07-30 2016-02-01 Feel the hate @return_of_the_jedi +emperor +darth_vader"
-                )
-                $output = @(
-                        @{ CreatedDate = "2015-07-29"; Task = "Use the Force Luke" },
-                        @{ CreatedDate = "2015-06-22"; Task = "It's a piece of JUNK! https://en.wikipedia.org/wiki/Millennium_Falcon"; Context = "star_wars"; },
-                        @{ CreatedDate = "2015-04-12"; Task = "I am your Father"; Context = @("empire_strikes_back", "near_the_end"); Project = "darthvader"; },
-                        @{ DoneDate = "2014-07-30"; CreatedDate = "2016-02-01"; Task = "Feel the hate"; Context = "return_of_the_jedi"; Project = @( "emperor", "darth_vader"); }
-                )
-                $content | Set-Content -Path $tempPath
-                $actual = Import-Todotxt -Path $tempPath
-
-                $actual.count | Should Be $output.count
-                $actual -is [array] | Should be $true
-                for ($i = 0; $i -lt $actual.count; $i++) {
-                    $expected = New-Object -TypeName PSObject -Property $output[$i]
-                    Compare-Object -ReferenceObject $expected -DifferenceObject $actual[$i] -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should be $null
-                }
-            }
+        It 'returns todo objects when give strings' {
+            # this tests the flow of the function not the Output
+            Mock -ModuleName $ourModule ConvertFrom-TodoTxtString { } # we don't care about calling the real function just measuring how many tiems it was called
+            $todoFile = 'TESTDRIVE:todofile.txt'
+            Add-Content -Path $todoFile -Value 'line 1'
+            Add-Content -Path $todoFile -Value 'line 2'
+            Import-TodoTxt -Path $todoFile
+            Assert-MockCalled -ModuleName $ourModule -CommandName 'ConvertFrom-TodoTxtString' -Times 2
         }
+    }
+
+    Context "Output" {
+        # the output comes from the ConvertFrom-TodoTxtString function. We tested this has been 
+        # called above so no furterh output tests needed 
     }
 }
