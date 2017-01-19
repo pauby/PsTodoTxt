@@ -10,6 +10,7 @@
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 20/06/16 - Initial version
                   1.1 - 31/08/16 - Changed to return an object; Changed name.
+                  1.2 - 19/01/17 - Function renamed; code refactored and cut down substantially
     Notes       : If the task description is not present then you will find that various components of the todo end up as it.
 .LINK
     http://www.github.com/pauby/pstodotxt
@@ -20,17 +21,17 @@
 .OUTPUTS
 	Output type [PSObject]
 .EXAMPLE
-    ConvertFrom-TodoTxtString -Todo 'take car to garage @car +car_maintenance'
+    Split-TodoTxt -Todo 'take car to garage @car +car_maintenance'
 
 	Splits the todo text into it's components and returns them in an object.
 .EXAMPLE
     $todo = 'take car to garage @car +car_maintenance'
-    $todo | ConvertFrom-TodoTxtString
+    $todo | Split-TodoTxt
 
 	Splits the todo text into it's components and returns them in an object
 #>
 
-function ConvertFrom-TodoTxtString
+function Split-TodoTxt
 {
     [CmdletBinding()]
     [OutputType([object[]])]

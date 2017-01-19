@@ -2,8 +2,8 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
     InModuleScope PSTodoTxt {
         Context "Testing parameters input" {
             It "Passes testing for null and / or missing mandatory parameter" {
-                { ConvertTo-TodoTxtString -Todo $null } | Should throw "null or empty"
-                { ConvertTo-TodoTxtString -Todo (New-Object -Typename PSObject) } | Should throw "property 'Task'"
+                { Join-TodoTxt -Todo $null } | Should throw "null or empty"
+                { Join-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "property 'Task'"
             }
         }
 
@@ -21,11 +21,11 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
             It "Passes testing of invalid data" {
                   $invalidObjArray | ForEach-Object {
                     $errorStream = ""
-                    $errorStream = $_ | ConvertTo-TodoTxtString 2>&1
+                    $errorStream = $_ | Join-TodoTxt 2>&1
                     $errorStream | Should BeLike "* invalid."
                 }
             }
-        
+
 			It "Passes testing of valid data" {
                 $validObjArray = (
                     (New-Object -TypeName PSObject -Property @{ CreatedDate="2016-02-09"; Task = "Go to Ewok planet" }),
@@ -33,10 +33,10 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
                     (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"}),
                     (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-01"; CreatedDate = "2017-09-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"})
                 )
-                $expected = @( "2016-02-09 Go to Ewok planet", "x 2016-06-10 2016-01-01 Go to Ewok planet @deathstar", 
+                $expected = @( "2016-02-09 Go to Ewok planet", "x 2016-06-10 2016-01-01 Go to Ewok planet @deathstar",
                     "2016-01-01 Go to Ewok planet @deathstar +ewok", "x 2016-01-01 2017-09-01 Go to Ewok planet @deathstar +ewok")
 
-			    $actual = $validObjArray | ConvertTo-TodoTxtString
+			    $actual = $validObjArray | Join-TodoTxt
                 @($actual).Count | Should Be $expected.Count
                 $actual -is [array] | Should Be $true
                 for ($i = 0; $i -lt $actual.Count; $i++) {
