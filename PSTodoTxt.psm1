@@ -1,12 +1,12 @@
+#Requires -Version 3
 <#
 .NOTES
-    File Name	: PoshTodo.psm1
+    File Name	: PsTodoTxt.psm1
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 09/10/15 - Initial version
 
     TODO        :
 #>
-#Requires -Version 3
 Set-StrictMode -Version Latest
 
 $toInclude = @()                            # add the files, in the root, to be included
