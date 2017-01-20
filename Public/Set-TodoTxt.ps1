@@ -47,7 +47,7 @@
 
     [OutputType([PSObject])]
 	Param(
-        [Parameter(Position=0, ValueFromPipeline=$true)] # this parameter is mandatory but we don't want to prompt for it interactively
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
         [ValidateNotNull()]
         [Object]$Todo,
 
