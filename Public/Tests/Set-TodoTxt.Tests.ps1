@@ -28,43 +28,55 @@ else {
 
 Describe "Function Testing - $($functionName)" {
     Context "Parameter Validation" -Tag 'ValidParams' {
-  #      InModuleScope PSTodoTxt {
+        Mock -ModuleName $ourModule Test-TodoTxtDate { return $false }
+        Mock -ModuleName $ourModule Test-TodoTxtPriority { return $false }
+        Mock -ModuleName $ourModule Test-TodoTxtContext { return $false }
 
-            Mock -ModuleName $ourModule Test-TodoTxtDate { return $false }
-
-            It "will throw an exception for null or missing parameters" {
-                { Set-TodoTxt -Todo $null } | Should throw "argument is null"
-            }
-
-            It "will throw an exception for invalid parameter data - invalid DoneDate" {
-                { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -DoneDate '2016-09-99'} | Should throw
-                Assert-MockCalled -ModuleName $ourModule Test-TodoTxtDate -Times 1
-            }
-
-            It 'will pass for empty or $null data for parameters that accept it' {
-                Set-TodoTxt -Todo (New-Object -TypeName PSObject) -DoneDate ''} | Should not throw
-            }
-
-  #      } # end InModuleScope
-<#        $tests = @{ 'name'          = 'invalid DoneDate';
-                    'parameters'    = @{ DoneDate = '2016-12-91' }
-                 },
-                 @{ 'name'          = 'empty CreatedDate'
-                    'parameters'    = @{ CreatedDate = '' }
-                 },
-                 @{ 'name'          = 'invalid '
-
-                 }
-
-
-        It "will throw an exception for invalid input parameters" -TestCases $tests {
-            Param (
-                  $Para
-            )
+        It "will throw an exception for null, empty or missing parameters" {
+            { Set-TodoTxt -Todo $null } | Should throw "argument is null"
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -CreatedDate '' } | Should throw "argument is null"
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -Task '' } | Should throw "argument is null"
         }
 
-        It "will pass for empty / new input object" {
-            { Set-TodoTxt -Todo (New-Object -Typename PSObject) } | Should not throw
+        # remember we are testing that the ValidateScript scriptblock is being executed - we don't care about the results.
+        $tests = @(
+            @{  'name'      = 'DoneDate';
+                'splat'     = @{ 'donedate' = '2016-01-99' };
+                'function'  = 'Test-TodoTxtDate'
+            },
+            @{  'name'      = 'CreatedDate';
+                'splat'     = @{ 'createddate' = '2016-01-99' };
+                'function'  = 'Test-TodoTxtDate'
+            },
+            @{  'name'      = 'Priority';
+                'splat'     = @{ 'priority' = '1' };
+                'function'  = 'Test-TodoTxtPriority'
+            },
+            @{  'name'      = 'Context';
+                'splat'     = @{ 'context' = 'here' };
+                'function'  = 'Test-TodoTxtContext'
+            },
+            @{  'name'      = 'Project';
+                'splat'     = @{ 'project' = 'here' };
+                'function'  = 'Test-TodoTxtContext'
+            }
+            )
+
+        It "will throw an exception in ValidateScript statement - <name>" -TestCases $tests {
+            Param (
+                $splat,
+                $function
+            )
+
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) @splat } | Should throw "did not return a result of True"
+            Assert-MockCalled -ModuleName $ourModule -CommandName $function -Times 1
+        }
+
+        It 'will pass for empty or $null data for parameters that accept it' {
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -DoneDate ''} | Should not throw
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -Priority ''} | Should not throw
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -Context ''} | Should not throw
+            { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -Project ''} | Should not throw
         }
     }
 
@@ -73,7 +85,27 @@ Describe "Function Testing - $($functionName)" {
     }
 
     Context "Output" -Tag 'Output' {
-	# Output data tests
+        $props1 = @{ CreatedDate = "2016-05-05"; DoneDate = "2016-09-09"; Priority = "H";
+            Task = "Turn to the Dark Side"; Context = @("deathstar", "hoth");
+            Project = @("rebelalliancedestruction", "deathstarbuild"); `
+            Addon = @( @{due = "2016-10-01"}, @{ transport = "tie-fighter"} )
+            }
+
+        # the same code is used to set any property so we only need to test 1 of removing and 1 of changing
+
+        It 'will pass removing an object property' {
+            $objTest = New-Object -TypeName PSObject -Property $props1
+            $result = Set-TodoTxt -Todo $objTest -DoneDate ''
+
+            $result | Should BeOfType PSObject
+            $result.PSObject.Properties.Name.Count | Should be ($props1.Count - 1)
+        }
+
+        It 'will pass modifying a property value' {
+            $objTest = New-Object -TypeName PSObject -Property $props1
+            $result = Set-TodoTxt -Todo $objTest -Priority 'Z'
+            $result.Priority | Should be 'Z'
+        }
     }
 #>
     Context "Code Analysis" -Tag 'CodeCheck' {
@@ -88,106 +120,3 @@ Describe "Function Testing - $($functionName)" {
         }
     }
 }
-
-
-<#
-#Requires -Version 3.0
-
-#if (-not $Variable:Function) {
-    $Function = $PSScriptRoot.Split('.')[0]
-#}
-write-verbose "Function: $Function"
-
-Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
-    InModuleScope PSTodoTxt {
-        Context "Testing Mandatory Parameters Input" {
-            It "Passes testing for null and missing mandatory parameter" {
-                { Set-TodoTxt -Todo $null } | Should throw "argument is null"
-                { Set-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "Task property"
-            }
-                        
-            It "Passes testing for valid mandatory parameter input" {
-                $expected = New-Object -Typename PSObject -Property @{ Task = "Test task" }
-                $actual = Set-TodoTxt -Todo (New-Object -Typename PSObject) -Task "Test task"
-                Compare-Object -ReferenceObject $actual -DifferenceObject $expected -Property Task | Should Be $null
-            }
-        }
-
-        Context "Testing Other Parameters Input" {
-            It "Passes testing of invalid parameter input" {
-                { (New-Object -TypeName PSObject) | Set-TodoTxt -CreatedDate "2016-99-99" -Task "Go see Jabba" } | Should throw "Cannot validate argument"
-                { (New-Object -TypeName PSObject) | Set-TodoTxt -DoneDate "2016-99-99" -Task "Go see Jabba" } | Should throw "Cannot validate argument"
-            }
-        }
-
-        Context "Valid data supplied" {
-            $props1 = @{ CreatedDate = "2016-05-05"; DoneDate = "2016-09-09"; Priority = "H";
-                Task = "Turn to the Dark Side"; Context = @("deathstar", "hoth"); 
-                Project = @("rebelalliancedestruction", "deathstarbuild"); `
-                Addon = @( @{due = "2016-10-01"}, @{ transport = "tie-fighter"} ) }
-            $props2 = @{ CreatedDate = "2015-07-08"; DoneDate = "2016-01-01"; Priority = "D";
-                Task = "Great, kid. Don't get cocky!"; Context = @("tatooine", "rebel-base"); 
-                Project = @("death-star-blow-up"); `
-                Addon = @( @{due = "2018-10-19"}, @{ transport = "milenium_falcon"} ) }
-            $props3 = @{ CreatedDate = "2012-11-29"; Task = "I'm Luke Skywalker and I'm here to rescue you!"; 
-                Context = @("Dagobah", "Mos-Eisley"); 
-                Project = @("Yoda", "LearnTheForce"); `
-                Addon = @( @{dead = "uncle-owen"}, @{ transport = "x-wing"} ) }
-
-            It "Should return a valid TodoTxt object using the pipeline" {
-                $expected = (New-Object -Typename PSObject -Property $props1)            
-                $actual = (New-Object -Typename PSObject) | Set-TodoTxt -CreatedDate $props1.CreatedDate `
-                    -DoneDate $props1.DoneDate -Priority $props1.Priority -Task $props1.Task -Context $props1.Context `
-                    -Project $props1.Project -Addon $props1.Addon
-                $actual | Should BeOfType Object
-                Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
-                    -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
-            }
-
-            It "Should return a valid TodoTxt object using the pipeline" {
-                $expected = (New-Object -Typename PSObject -Property $props1)
-                $actual = Set-TodoTxt -Todo (New-Object -Typename PSObject) -CreatedDate $props1.CreatedDate `
-                    -DoneDate $props1.DoneDate -Priority $props1.Priority -Task $props1.Task -Context $props1.Context `
-                    -Project $props1.Project -Addon $props1.Addon
-                $actual | Should BeOfType Object
-                Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
-                    -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
-            }
-
-            It "Should amend the Task property of multiple existing TodoTxt objects using the pipeline" {
-                $newTaskText = "Find a new song for the Cantina band"    
-                $expected = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
-                    (New-Object -TypeName PSObject -Property $props3) )
-                $expected | ForEach-Object { 
-                    $_.Task = $newTaskText
-                }                            
-                $actual = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
-                    (New-Object -TypeName PSObject -Property $props3) )
-                $actual = $actual | Set-TodoTxt -Task $newTaskText
-
-                Write-Output -NoEnumerate $actual | Should BeOfType Array
-                Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
-                    -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
-            }
-
-            It "Should amend the Task property of multiple existing TodoTxt objects using Todo parameter" {
-                $newTaskText = "Find a new song for the Cantina band"
-                $expected = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
-                    (New-Object -TypeName PSObject -Property $props3) )
-                $expected | ForEach-Object { 
-                    $_.Task = $newTaskText
-                }
-         
-                $actual = @( (New-Object -TypeName PSObject -Property $props1), (New-Object -TypeName PSObject -Property $props2),
-                    (New-Object -TypeName PSObject -Property $props3) )
-                $actual | ForEach-Object {
-                    $_ = Set-TodoTxt -Todo $_ -Task $newTaskText
-                }
-                Write-Output -NoEnumerate $actual | Should BeOfType Array
-                Compare-Object -ReferenceObject $actual -DifferenceObject $expected `
-                    -Property DoneDate, CreatedDate, Priority, Task, Context, Project, Addon | Should Be $null
-            }
-        }
-    }
-}
-#>

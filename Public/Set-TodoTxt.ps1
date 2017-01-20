@@ -80,7 +80,7 @@
         [Alias('t')]
         [string]$Task,  # this cannot be empty as we need a task
 
-        [ValidateScript( { if ($null -eq $_) {
+        [ValidateScript( { if ( ($null -eq $_) -or ([string]::IsNullOrEmpty($_)) ) {
                                 return $true
                             }
                             else {
@@ -90,7 +90,7 @@
         [Alias('c')]
         [string[]]$Context,
 
-        [ValidateScript( {  if ($null -eq $_) {
+        [ValidateScript( {  if ( ($null -eq $_) -or ([string]::IsNullOrEmpty($_)) ) {
                                 return $true
                             }
                             else {
@@ -118,8 +118,14 @@
             # loop through each parameter and set the corresponding property on the todotxt object
             foreach ($key in $keys)
             {
-                Write-Verbose "Set $key to $($_.$key)"
-                $_ | Add-Member -MemberType NoteProperty -Name $key -Value $PsBoundParameters.$key -Force
+                if ( ($null -eq $PsBoundParameters.$key) -or ([string]::IsNullOrEmpty($PsBoundParameters.$key)) ) {
+                    Write-Verbose "Removing property $key"
+                    $_.PSObject.Properties.Remove($key)
+                }
+                else {
+                    Write-Verbose "Set $key to $($PSBoundParameters.$key)"
+                    $_ | Add-Member -MemberType NoteProperty -Name $key -Value $PsBoundParameters.$key -Force
+                }
             }
 
             Write-Output $_
