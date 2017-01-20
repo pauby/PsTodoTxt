@@ -1,4 +1,97 @@
-﻿#Requires -Version 3.0
+﻿#Requires -Module Pester
+
+$ourModule = 'PsTodoTxt'
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+
+$functionName = $sut -replace '\.ps1'
+$functionScript = Get-ChildItem $sut -Recurse | Select-Object -First 1
+if ($null -eq $functionScript) {
+    Write-Host "Cannot find the script $sut in any child directories. Will not check the code quality with PSScriptAnalyser." -ForegroundColor 'Red'
+}
+
+# Setup the PSScriptAnalyser Rules
+try {
+    $ExcludedPSSCriptAnalyserRules = Get-Variable -Name 'My_ExcludedPSScriptAnalyserRules' -Scope 'Global' -ValueOnly
+}
+catch {
+    $ExcludedPSSCriptAnalyserRules = @()
+}
+
+if (Test-Path -Path "$ourModule.psd1") {
+    Remove-Module $ourModule -ErrorAction SilentlyContinue
+    Import-Module ".\$ourModule.psd1" -Force
+}
+else {
+    throw "Module .\$ourModule.psd1 not found in current directory"
+}
+
+Describe "Function Testing - $($functionName)" {
+    Context "Parameter Validation" -Tag 'ValidParams' {
+  #      InModuleScope PSTodoTxt {
+
+            Mock -ModuleName $ourModule Test-TodoTxtDate { return $false }
+
+            It "will throw an exception for null or missing parameters" {
+                { Set-TodoTxt -Todo $null } | Should throw "argument is null"
+            }
+
+            It "will throw an exception for invalid parameter data - invalid DoneDate" {
+                { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -DoneDate '2016-09-99'} | Should throw
+                Assert-MockCalled -ModuleName $ourModule Test-TodoTxtDate -Times 1
+            }
+
+            It 'will pass for empty or $null data for parameters that accept it' {
+                Set-TodoTxt -Todo (New-Object -TypeName PSObject) -DoneDate ''} | Should not throw
+            }
+
+  #      } # end InModuleScope
+<#        $tests = @{ 'name'          = 'invalid DoneDate';
+                    'parameters'    = @{ DoneDate = '2016-12-91' }
+                 },
+                 @{ 'name'          = 'empty CreatedDate'
+                    'parameters'    = @{ CreatedDate = '' }
+                 },
+                 @{ 'name'          = 'invalid '
+
+                 }
+
+
+        It "will throw an exception for invalid input parameters" -TestCases $tests {
+            Param (
+                  $Para
+            )
+        }
+
+        It "will pass for empty / new input object" {
+            { Set-TodoTxt -Todo (New-Object -Typename PSObject) } | Should not throw
+        }
+    }
+
+    Context "Processing and Logic" -Tag 'Proc' {
+	# Processing and logic flow tests
+    }
+
+    Context "Output" -Tag 'Output' {
+	# Output data tests
+    }
+#>
+    Context "Code Analysis" -Tag 'CodeCheck' {
+        if ($null -ne $functionScript) {
+            if ($ExcludedPSSCriptAnalyserRules.Count -gt 0) {
+                Write-Host "`nExcluded the following ScriptAnalyzer rules: `n    * $($ExcludedPSSCriptAnalyserRules -join '`n    * ')"
+            }
+
+            It 'passes all PSScriptAnalyser rules' {
+                (Invoke-ScriptAnalyzer -Path $functionScript -ExcludeRule $ExcludedPSSCriptAnalyserRules).Count | Should Be 0
+            }
+        }
+    }
+}
+
+
+<#
+#Requires -Version 3.0
 
 #if (-not $Variable:Function) {
     $Function = $PSScriptRoot.Split('.')[0]
@@ -97,3 +190,4 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
         }
     }
 }
+#>
