@@ -1,74 +1,62 @@
 ﻿function Test-TodoTxt
 {
-    <#
+<#
 .SYNOPSIS
     Tests a todotxt object.
 .DESCRIPTION
-    Tests a TodoTxt object properties for valid values.
+    Tests a TodoTxt object properties to ensure they conform to the todotxt specification.
 .NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 15/09/16 - Initial version
-
-    TODO        : Add test for addons
-                  Created a custom TodoObject so that we can check the object type and therefore guarantee it was created by New-TodoTxtObject
+                  1.1 - 23/01/17 - Refactored code
 .LINK
     https://www.github.com/pauby/pstodotxt
-.PARAMETER Todo
-    The TodoTxt object to set the properties of.
 .PARAMETER DoneDate
-    The done date to set. This is only validated as a date in the correct format and can be any date past, future or present. To remove this property value from the object pass $null or an empty string as the parameter value.
+    The DoneDate property to test.
 .PARAMETER CreatedDate
-    The created date to set. This is only validated as a date in the correct format and can be any date past, future or present.  To remove this property value from the object pass $null or an empty string as the parameter value.
+    The CreatedDate property to test.
 .PARAMETER Priority
-    The priority of the todo. To remove this property value from the object pass an empty string as the parameter value.
+    The Priority property to test.
 .PARAMETER Task
-    The tasks description of the todo. This property cannot be removed.
+    The Tasks property to test.
 .PARAMETER Context
-    The context(s) of the todo. To remove this property value from the object pass $null or an empty string as the parameter value.
+    The Context property to test.
 .PARAMETER Project
-    The project(s) of the todo. To remove this property value from the object pass $null or an empty string as the parameter value.
+    The Project property to test.
 .PARAMETER Addon
-    The addon key:value pairs of the todo. To remove this property value from the object pass $null or an empty string as the parameter value.
-.INPUTS
-	Todo object of type [object]
+    The Addon (key:value pairs) property to test.
 .OUTPUTS
-	The modified todo object or type [object]
+	Result of the tested todo - true or false [boolean]
 .EXAMPLE
-    $todoObj = $todoObj | Set-TodoTxt -Priority "B"
+    $obj | Test-TodoTxt
 
-    Sets the priority of the $todoObj to "B" and outputs the modified todo.
+    Tests the properties of the object $obj.
 #>
 
     [CmdletBinding()]
     [OutputType([boolean])]
 	Param(
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( { Test-TodoTxtDate $_ } )]
         [Alias("dd")]
         [string]$DoneDate,
 
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( {  Test-TodoTxtDate $_ } )]
         [Alias("cd")]
         [string]$CreatedDate,
 
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( { Test-TodoTxtPriority $_ } )]
         [Alias("pri", "u")]
         [string]$Priority,
 
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [ValidateNotNullOrEmpty()]
         [Alias("t")]
         [string]$Task,
 
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( { Test-TodoTxtContext $_ } )]
         [Alias("c")]
         [string[]]$Context,
 
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( { Test-TodoTxtContext $_ } )]  # note we don't use the alias Test-TodoTxtContext here as PSScriptAnaylzer picks up on the alias
         [Alias("p")]
         [string[]]$Project,
 
@@ -83,12 +71,43 @@
         # test mandatory parameters here
         $mandatoryParams = @( 'CreatedDate', 'Task')
         $keys = @($PsBoundParameters.Keys | Where-Object { $_ -in $mandatoryParams })
-
         if ($keys.count -ne $mandatoryParams.count) {
-            $false
+            return $false
         }
-        else {
-            $true
-        }
-   }
+
+        # test each parameter passed
+        foreach ($key in $PsBoundParameters.Keys) {
+            switch ($key) {
+                { $_ -in @('DoneDate', 'CreatedDate') } {
+                    if (-not (Test-TodoTxtDate $PsBoundParameters.$key)) {
+                        return $false
+                    }
+                    break
+                }
+
+                "Priority" {
+                    if (-not (Test-TodoTxtPriority $PSBoundParameters.$key)) {
+                        return $false
+                    }
+                    break
+                }
+
+                "Task" {
+                    if ([string]::IsNullOrEmpty($PSBoundParameters.$key)) {
+                        return $false
+                    }
+                    break
+                }
+
+                { $_ -in @( 'Context', 'Project') } {
+                    if (-not (Test-TodoTxtContext $PSBoundParameters.$key)) {
+                        return $false
+                    }
+                }
+            } #end switch
+        } #end foreach
+
+        # if we get here we have passed all Tests
+        $true
+    } #end process
 }
