@@ -5,18 +5,19 @@ function Export-TodoTxt
 .SYNOPSIS
     Exports todotxt objects.
 .DESCRIPTION
-    Exports todotxt, previously created with ConvertFrom-TodoTxtString,
+    Exports todotxt, previously created with Split-TodoTxt,
     to a text file. Before exporting the todotxt objects are converted
     back to todotxt strings by calling the cmdlet
-    ConvertTo-TodoTxtString.
+    Join-TodoTxt.
 .NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 29/04/16 - Initial version
                 : 2.0 - 06/09/16 - Completely rewritten to accept pipeline and parameter input.
+                  2.1 - 23/01/17 - Refactored code
 .LINK
     https://www.github.com/pauby/pstodotxt
 .PARAMETER Path
-    Path to the todo file. The file must already exist.
+    Path to the todo file. The file will be created if it does not exist.
 .EXAMPLE
     $todo = Import-TodoTxt -Path c:\input.txt
     Export-TodoTxt -Todo $todo -Path c:\output.txt
@@ -33,11 +34,11 @@ function Export-TodoTxt
     Param(
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
         [ValidateNotNull()]
-        [object[]]
+        [PSObject]
         $Todo,
 
         [Parameter(Mandatory=$true,Position=1)]
-        [ValidateScript( { if ($PSBoundParameters.ContainsKey("Append")) { Test-Path $_ } else { $true } } )]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Path,
 
@@ -46,31 +47,23 @@ function Export-TodoTxt
     )
 
     Begin {
-        $PipelineInput = -not $PSBoundParameters.ContainsKey("Todo")
     }
 
     # NOTE:
-    # in order to use $input in End{} we CANNOT have a Process{}
+    # in order to use $input in End{} we CANNOT have a Process{}, even an empty one
     #
 
     End {
-        if ($PipelineInput) {
-            $toExport = @($input)
-        }
-        else {
-            $toExport = $Todo
-        }
-
-        Write-Verbose "We have $($toExport.count) objects in the pipeline to write to $Path."
+        Write-Verbose "We have $(@($Todo).count) objects in the pipeline to write to $Path."
         if ($VerbosePreference -ne "SilentlyContinue") {
             $toExport | ForEach-Object { Write-Verbose "Object: $_" }
         }
 
         if ($Append.IsPresent) {
-            $toExport | ConvertTo-TodoTxtString | Add-Content -Path $Path -Encoding UTF8
+            $Todo | Join-TodoTxt | Add-Content -Path $Path -Encoding UTF8
         }
         else {
-            $toExport | ConvertTo-TodoTxtString | Set-Content -Path $Path -Encoding UTF8
+            $Todo | Join-TodoTxt | Set-Content -Path $Path -Encoding UTF8
         }
     }
 }
