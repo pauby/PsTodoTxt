@@ -8,10 +8,11 @@ function Join-TodoTxt
 .NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 31/08/16 - Initial version
+                  1.1 - 23/01/17 - Refactored code
 .LINK
     http://www.github.com/pauby/pstodotxt
 .PARAMETER InputObject
-    This is the todotxt object (as output from ConvertFrom-TodoTxtString for example).
+    This is the todotxt object (as output from Split-TodoTxt for example).
 .INPUTS
 	Input type [PSObject]
 .OUTPUTS
