@@ -40,75 +40,55 @@
 #>
 
     [CmdletBinding()]
-    [OutputType([Object[]])]
+    [OutputType([boolean])]
 	Param(
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
-                                return $true
-                            }
-                            else {
-                                return Test-TodoTxtDate $_
-                            }
-                        } )]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [ValidateScript( { Test-TodoTxtDate $_ } )]
         [Alias("dd")]
         [string]$DoneDate,
 
-        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
-        [ValidateNotNullOrEmpty()]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [ValidateScript( {  Test-TodoTxtDate $_ } )]
         [Alias("cd")]
         [string]$CreatedDate,
 
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
-                                return $true
-                            }
-                            else {
-                                return Test-TodoTxtPriority $_
-                            }
-                        } )]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [ValidateScript( { Test-TodoTxtPriority $_ } )]
         [Alias("pri", "u")]
         [string]$Priority,
 
-        [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [ValidateNotNullOrEmpty()]
         [Alias("t")]
         [string]$Task,
 
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
-                                return $true
-                            }
-                            else {
-                                return Test-TodoTxtContext $_
-                            }
-                        } )]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [ValidateScript( { Test-TodoTxtContext $_ } )]
         [Alias("c")]
         [string[]]$Context,
 
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) {
-                                return $true
-                            }
-                            else {
-                                return Test-TodoTxtContext $_   # note we don't use the alias Test-TodoTxtContext here as PSScriptAnaylzer picks up on the alias
-                            }
-                        } )]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [ValidateScript( { Test-TodoTxtContext $_ } )]  # note we don't use the alias Test-TodoTxtContext here as PSScriptAnaylzer picks up on the alias
         [Alias("p")]
         [string[]]$Project,
 
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("a")]
         [string[]]$Addon
     )
 
     Process
     {
-        # all the parameter testing has already been done in the parameter validation so if we get here
-        # we just need to pass back $true
+        # we didn't mark any parameters mandatory as we didn't want to prompt for them but throw instead
+        # test mandatory parameters here
+        $mandatoryParams = @( 'CreatedDate', 'Task')
+        $keys = @($PsBoundParameters.Keys | Where-Object { $_ -in $mandatoryParams })
 
-        Write-Output $true
+        if ($keys.count -ne $mandatoryParams.count) {
+            $false
+        }
+        else {
+            $true
+        }
    }
 }
-
-#(New-Object -TypeName PSObject -Property @{ CreatedDate = "2017-09-88"; Task = "Lets go to the Degobah system" } ) | Test-TodoTxt
