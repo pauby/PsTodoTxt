@@ -1,4 +1,4 @@
-#Requires -Module Pester#
+#Requires -Module Pester
 
 $ourModule = 'PsTodoTxt'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
