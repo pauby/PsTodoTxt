@@ -1,48 +1,97 @@
-Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
-    InModuleScope PSTodoTxt {
-        Context "Testing parameters input" {
-            It "Passes testing for null and / or missing mandatory parameter" {
-                { Join-TodoTxt -Todo $null } | Should throw "null or empty"
-                { Join-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "property 'Task'"
-            }
-        }
+#Requires -Module Pester
 
-        Context "Testing function processing and logic" {
-            $todaysDate = "2106-01-01"
-            Mock Get-TodoTxtTodaysDate { return $todaysDate }
+$ourModule = 'PSTodoTxt'
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
-            $invalidObjArray = (
-                (New-Object -TypeName PSObject -Property @{ CreatedDate="2016-99-09"; Task = "Go to Ewok planet" }),
-                (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-88-10"; CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"}),
-                (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "@@@deathstar"; Project = "ewok"}),
-                (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-01"; CreatedDate = "2017-09-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "+ewok"})
-            )
+$functionName = $sut -replace '\.ps1'
+$functionScript = Get-ChildItem $sut -Recurse | Select-Object -First 1
+if ($null -eq $functionScript) {
+    Write-Host "Cannot find the script $sut in any child directories. Will not check the code quality with PSScriptAnalyser." -ForegroundColor 'Red'
+}
 
-            It "Passes testing of invalid data" {
-                  $invalidObjArray | ForEach-Object {
-                    $errorStream = ""
-                    $errorStream = $_ | Join-TodoTxt 2>&1
-                    $errorStream | Should BeLike "* invalid."
-                }
-            }
+# Setup the PSScriptAnalyser Rules
+try {
+    $ExcludedPSSCriptAnalyserRules = Get-Variable -Name 'My_ExcludedPSScriptAnalyserRules' -Scope 'Global' -ValueOnly
+}
+catch {
+    $ExcludedPSSCriptAnalyserRules = @()
+}
 
-			It "Passes testing of valid data" {
-                $validObjArray = (
-                    (New-Object -TypeName PSObject -Property @{ CreatedDate="2016-02-09"; Task = "Go to Ewok planet" }),
-                    (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-06-10"; CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"}),
-                    (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-01-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"}),
-                    (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-01"; CreatedDate = "2017-09-01"; Task = "Go to Ewok planet"; Context = "deathstar"; Project = "ewok"})
-                )
-                $expected = @( "2016-02-09 Go to Ewok planet", "x 2016-06-10 2016-01-01 Go to Ewok planet @deathstar",
-                    "2016-01-01 Go to Ewok planet @deathstar +ewok", "x 2016-01-01 2017-09-01 Go to Ewok planet @deathstar +ewok")
+if (Test-Path -Path "$ourModule.psd1") {
+    Remove-Module $ourModule -ErrorAction SilentlyContinue
+    Import-Module ".\$ourModule.psd1" -Force
+}
+else {
+    throw "Module .\$ourModule.psd1 not found in current directory"
+}
 
-			    $actual = $validObjArray | Join-TodoTxt
-                @($actual).Count | Should Be $expected.Count
-                $actual -is [array] | Should Be $true
-                for ($i = 0; $i -lt $actual.Count; $i++) {
-                    $actual[$i] -ceq $expected[$i] | Should Be $true
-                }
-            }
+Write-Host "`nFunction Testing - $($functionName)" -ForegroundColor Magenta
+Describe 'Test parameter validation' -Tag 'testparam' {
+
+    It 'will throw an exception for null or missing parameters' {
+        { Join-TodoTxt -Todo $null } | Should throw 'argument is null'  # use parameter instead of pipeline otherwise exception not caught
+    }
+}
+
+Describe 'Test internal function processing, logic and flow' -Tag 'flow' {
+    InModuleScope $ourModule {
+
+        Mock Test-TodoTxt { return $false }
+
+        It 'will throw an exception for an invalid object' {
+            { (New-Object -TypeName PSObject -Property @{ 'task' = 'This will fail' }) | Join-TodoTxt } | SHould throw 'invalid Todotxt object'
         }
     }
 }
+
+Describe "Test and validate output" -tag 'output' {
+
+    $tests = @(
+        @{  'name'          = 'with DoneDate, CreatedDate and Task';
+            'testObject'    = (New-Object -TypeName PSObject -Property @{ 'DoneDate' = '2019-01-12'; 'CreatedDate' = '2016-01-01'; 'Task' = 'Rescue Han from Jabba' });
+            'result'        = 'x 2019-01-12 2016-01-01 Rescue Han from Jabba'
+        },
+        @{  'name'          = 'with Priority, CreatedDate and Task';
+            'testObject'    = (New-Object -TypeName PSObject -Property @{ 'Priority' = 'G'; 'CreatedDate' = '2016-01-01'; 'Task' = 'Rescue Han from Jabba' });
+            'result'        = '(G) 2016-01-01 Rescue Han from Jabba'
+        },
+        @{  'name'          = 'with CreatedDate, Task and Context';
+            'testObject'    = (New-Object -TypeName PSObject -Property @{ 'Context' = @('palace', 'jabba'); 'CreatedDate' = '2016-01-01'; 'Task' = 'Rescue Han from Jabba' });
+            'result'        = '2016-01-01 Rescue Han from Jabba @palace @jabba'
+        },
+        @{  'name'          = 'with CreatedDate, Task and Addon';
+            'testObject'    = (New-Object -TypeName PSObject -Property @{ 'Addon' = @{ 'due' = '2017-09-01'; 'help' = 'leia'}; 'CreatedDate' = '2016-01-01';
+                'Task' = 'Rescue Han from Jabba' });
+            'result'        = '2016-01-01 Rescue Han from Jabba due:2017-09-01 help:leia'
+        },
+        @{  'name'          = 'with everything';
+            'testObject'    = (New-Object -TypeName PSObject -Property @{ 'DoneDate' = '2018-08-15'; Priority = 'K'; 'CreatedDate' = '2016-01-01';
+            'Task' = 'Rescue Han from Jabba'; 'Context' = @('palace', 'jabba'); 'Project' = @('rescue', 'rescue-han'); 'Addon' = @{ 'due' = '2087-12-09'; 'help' = 'luke'} });
+            'result'        = 'x 2018-08-15 (K) 2016-01-01 Rescue Han from Jabba @palace @jabba +rescue +rescue-han due:2087-12-09 help:luke'
+        }
+    )
+
+    It "will return a joined string - <name>" -TestCases $tests {
+        Param (
+            $testObject, $result
+        )
+
+        ($testObject | Join-TodoTxt) | Should Be $result
+        Join-TodoTxt -Todo $testObject | Should be $result
+    }
+}
+
+Describe "Code analysis" -Tag 'codecheck' {
+    if ($null -ne $functionScript) {
+        if ($ExcludedPSSCriptAnalyserRules.Count -gt 0) {
+            Write-Host "`nExcluded the following ScriptAnalyzer rules: `n    * $($ExcludedPSSCriptAnalyserRules -join '`n    * ')`n"
+        }
+
+        It 'passes all PSScriptAnalyser rules' {
+            (Invoke-ScriptAnalyzer -Path $functionScript -ExcludeRule $ExcludedPSSCriptAnalyserRules).Count | Should Be 0
+        }
+    }
+}
+
+Write-Host "`nEnd Function Testing" -ForegroundColor Magenta
