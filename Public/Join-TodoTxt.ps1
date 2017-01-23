@@ -26,18 +26,18 @@ function Join-TodoTxt
     [OutputType([string])]
     Param (
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateNotNull()]
         [PSObject]
         $Todo
     )
 
     Begin {
-        $objProps = @('DoneDate', 'CreatedDate', 'Priority', 'Task', 'Context', 'Project', 'Addon')
+        $objProps = @('DoneDate', 'Priority', 'CreatedDate', 'Task', 'Context', 'Project', 'Addon')
     }
 
     Process {
-        $joined = ""    # just maiing it clear this is what we are using to hold joined text 
-        ForEach ($todoObj in $Todo) { 
+        $joined = ""    # just maiing it clear this is what we are using to hold joined text
+        ForEach ($todoObj in $Todo) {
 
             # valid the todotxt object
             if (-not ($todoObj | Test-TodoTxt)) {
@@ -48,19 +48,19 @@ function Join-TodoTxt
                 if ( (Test-ObjectProperty -InputObject $todoObj -PropertyName $prop) -and ($null -ne $todoObj.$prop) -and (-not [string]::IsNullOrEmpty($todoObj.$prop)) ) {
 
                     switch ($prop) {
-                        "DoneDate" {                            
+                        "DoneDate" {
                             $joined += "x $($todoObj.DoneDate) "
-                            break
-                        }
-
-                        "CreatedDate" {
-                            $joined += "$($todoObj.CreatedDate) "
                             break
                         }
 
                         "Priority" {
                             $joined += "($($todoObj.Priority.ToUpper())) "
                             break;
+                        }
+
+                        "CreatedDate" {
+                            $joined += "$($todoObj.CreatedDate) "
+                            break
                         }
 
                         "Task" {
