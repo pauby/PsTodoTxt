@@ -5,10 +5,10 @@ function Export-TodoTxt
 .SYNOPSIS
     Exports todotxt objects.
 .DESCRIPTION
-    Exports todotxt, previously created with Split-TodoTxt,
+    Exports todotxt, previously created with ConvertTo-TodoTxt,
     to a text file. Before exporting the todotxt objects are converted
     back to todotxt strings by calling the cmdlet
-    Join-TodoTxt.
+    ConvertFrom-TodoTxt.
 .NOTES
     Author		: Paul Broadwith (paul@pauby.com)
 	History		: 1.0 - 29/04/16 - Initial version
@@ -60,10 +60,10 @@ function Export-TodoTxt
         }
 
         if ($Append.IsPresent) {
-            $Todo | Join-TodoTxt | Add-Content -Path $Path -Encoding UTF8
+            $Todo | ConvertFrom-TodoTxt | Add-Content -Path $Path -Encoding UTF8
         }
         else {
-            $Todo | Join-TodoTxt | Set-Content -Path $Path -Encoding UTF8
+            $Todo | ConvertFrom-TodoTxt | Set-Content -Path $Path -Encoding UTF8
         }
     }
 }

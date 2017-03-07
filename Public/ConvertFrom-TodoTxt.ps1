@@ -1,4 +1,4 @@
-function Join-TodoTxt
+function ConvertFrom-TodoTxt
 {
 <#
 .SYNOPSIS
@@ -12,13 +12,13 @@ function Join-TodoTxt
 .LINK
     http://www.github.com/pauby/pstodotxt
 .PARAMETER InputObject
-    This is the todotxt object (as output from Split-TodoTxt for example).
+    This is the todotxt object (as output from ConvertTo-TodoTxt for example).
 .INPUTS
 	Input type [PSObject]
 .OUTPUTS
 	Output type [String]
 .EXAMPLE
-    $todoObject | Join-TodoTxt
+    $todoObject | ConvertFrom-TodoTxt
 
 	Converts $todoObject into a todotxt string.
 #>

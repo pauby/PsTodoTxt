@@ -30,8 +30,8 @@ Describe "Function Testing - $($functionName)" {
     Context "Parameter Validation" {
         It "will throw an exception for null or missing parameters" {
             # we only have one parameter so test it
-            { Split-TodoTxt -Todo $null } | Should throw "null or empty"
-            { Split-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "null or empty"
+            { ConvertTo-TodoTxt -Todo $null } | Should throw "null or empty"
+            { ConvertTo-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "null or empty"
         }
     }
 
@@ -68,7 +68,7 @@ Describe "Function Testing - $($functionName)" {
                     $todo,
                     $expected
                 )
-                $result = $todo | Split-TodoTxt
+                $result = $todo | ConvertTo-TodoTxt
                 Compare-Object -ReferenceObject $expected -DifferenceObject $result | Should be $null
             }
 
@@ -89,7 +89,7 @@ Describe "Function Testing - $($functionName)" {
                     $todo
                 )
 
-                { Split-TodoTxt -Todo $todo } | Should throw
+                { ConvertTo-TodoTxt -Todo $todo } | Should throw
             }
         } # end InModuleScope
     }

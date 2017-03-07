@@ -30,7 +30,7 @@ Write-Host "`nFunction Testing - $($functionName)" -ForegroundColor Magenta
 Describe 'Test parameter validation' -Tag 'testparam' {
 
     It 'will throw an exception for null or missing parameters' {
-        { Join-TodoTxt -Todo $null } | Should throw 'argument is null'  # use parameter instead of pipeline otherwise exception not caught
+        { ConvertFrom-TodoTxt -Todo $null } | Should throw 'argument is null'  # use parameter instead of pipeline otherwise exception not caught
     }
 }
 
@@ -40,7 +40,7 @@ Describe 'Test internal function processing, logic and flow' -Tag 'flow' {
         Mock Test-TodoTxt { return $false }
 
         It 'will throw an exception for an invalid object' {
-            { (New-Object -TypeName PSObject -Property @{ 'task' = 'This will fail' }) | Join-TodoTxt } | SHould throw 'invalid Todotxt object'
+            { (New-Object -TypeName PSObject -Property @{ 'task' = 'This will fail' }) | ConvertFrom-TodoTxt } | SHould throw 'invalid Todotxt object'
         }
     }
 }
@@ -77,8 +77,8 @@ Describe "Test and validate output" -tag 'output' {
             $testObject, $result
         )
 
-        ($testObject | Join-TodoTxt) | Should Be $result
-        Join-TodoTxt -Todo $testObject | Should be $result
+        ($testObject | ConvertFrom-TodoTxt) | Should Be $result
+        ConvertFrom-TodoTxt -Todo $testObject | Should be $result
     }
 }
 

@@ -41,12 +41,12 @@ Describe "Function Testing - $($functionName)" {
 
         It 'returns todo objects when give strings' {
             # this tests the flow of the function not the Output
-            Mock -ModuleName $ourModule Split-TodoTxt { } # we don't care about calling the real function just measuring how many tiems it was called
+            Mock -ModuleName $ourModule ConvertTo-TodoTxt { } # we don't care about calling the real function just measuring how many tiems it was called
             $todoFile = 'TESTDRIVE:todofile.txt'
             Add-Content -Path $todoFile -Value 'line 1'
             Add-Content -Path $todoFile -Value 'line 2'
             Import-TodoTxt -Path $todoFile
-            Assert-MockCalled -ModuleName $ourModule -CommandName 'Split-TodoTxt' -Times 2
+            Assert-MockCalled -ModuleName $ourModule -CommandName 'ConvertTo-TodoTxt' -Times 2
         }
     }
 

@@ -37,6 +37,6 @@
     }
     else {
         Write-Verbose "Read $(@($todos).count) todos."
-        Write-Output $todos | Split-TodoTxt
+        Write-Output $todos | ConvertTo-TodoTxt
     }
 }

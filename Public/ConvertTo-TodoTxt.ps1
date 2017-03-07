@@ -21,17 +21,17 @@
 .OUTPUTS
 	Output type [PSObject]
 .EXAMPLE
-    Split-TodoTxt -Todo 'take car to garage @car +car_maintenance'
+    ConvertTo-TodoTxt -Todo 'take car to garage @car +car_maintenance'
 
 	Splits the todo text into it's components and returns them in an object.
 .EXAMPLE
     $todo = 'take car to garage @car +car_maintenance'
-    $todo | Split-TodoTxt
+    $todo | ConvertTo-TodoTxt
 
 	Splits the todo text into it's components and returns them in an object
 #>
 
-function Split-TodoTxt
+function ConvertTo-TodoTxt
 {
     [CmdletBinding()]
     [OutputType([object[]])]
@@ -55,14 +55,16 @@ function Split-TodoTxt
             @{ "name" = "CreatedDate"; "regex" = "^\d{4}-\d{2}-\d{2}\ " },  # created date - eg. '2016-05-23'
             @{ "name" = "Context"; "regex" = "\ @[^\s@]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
             @{ "name" = "Project"; "regex" = "\ \+[^\+\s]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
-            @{ "name" = "Addon"; "regex" = "(\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
+            @{ "name" = "Addon"; "regex" = "\ (\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
         )
     }
 
     Process {
         $Todo | ForEach-Object {
+            Write-Verbose "Processing line: $_"
             $output = New-Object -TypeName PSObject -Property @{ "CreatedDate" = (Get-TodoTxtTodaysDate) }
             $line = $_
+
             foreach ($item in $regexList) {
                 if ($line -match $item.regex) {
                     $found = [regex]::matches($line, $item.regex)
@@ -72,30 +74,35 @@ function Split-TodoTxt
                         "DoneDate" {
                             # the format of the 'done' is 'x <DATE>' so we need to skip over the x and the space
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value (Get-Date -Date $found.value.SubString(2) -Format "yyyy-MM-dd")
+                            Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
 
                         "CreatedDate" {
                             $output.CreatedDate = (Get-Date -Date $found.value -Format "yyyy-MM-dd")
+                            Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
 
                         "Priority"  {
                             # priority is returned as '(<PRIORITY>)' and that will match the numbered capture (1) in the regex so we use that
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value ([string]$found.groups[1].value).ToUpper()
+                            Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
 
                         { $_ -in "Context", "Project" } {
-                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value @($found | foreach-object { [string]$_.value} )
+                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value @($found | foreach-object { [string]$_.value.Trim() } )
+                            Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
 
                         "Addon" {
                             $addons = @{}
                             foreach ($f in $found) {
-                                $addons.Add($f.groups[1].value, $f.groups[2].value)
-                            }
+                                $addons.Add($f.groups[1].value, $f.groups[2].value.Trim())
+                                Write-Verbose "Found Addon '$(f.groups[1].value)': $($f.groups[2].value)"
+                        }
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value $addons
                             break
                         }
@@ -110,6 +117,7 @@ function Split-TodoTxt
                 throw "Task description cannot be empty."
             }
             $output | Add-Member -MemberType NoteProperty -Name 'Task' -Value $line
+            Write-Verbose "Found 'Task': $($output.task)"
 
             Write-Output $output
         }
