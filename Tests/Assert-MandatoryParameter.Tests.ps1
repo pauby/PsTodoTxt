@@ -1,5 +1,8 @@
+$ourModule = "PsTodoTxt"
+Import-Module .\$ourModule.psd1
+
 Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
-    InModuleScope PsTodoTxt {
+    InModuleScope $ourModule {
         Context "Invalid data provided" {
             It "Should throw an error" {
                 { Assert-MandatoryParameter -MandatoryParameter "" -PassedParameter @{} } | Should throw
