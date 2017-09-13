@@ -1,4 +1,4 @@
-# PoshTodo
+# PsTodoTxt
 
 This is a powershell CLI to the [Todo.txt](http://todotxt.com/) todo file format with some PowerShell like features and alson taking inspiration from Taskwarrior.
 
@@ -26,10 +26,10 @@ Each todo is split into parts and is stored as an PSCustomObject as properties w
 * **Task (String) (Mandatory)**
   * This is the todo task, or description.
   * It effectively is all of hte text left after you remove all the other parts.
-* **Context (String[]) (Optional)**
+* **Context / List (String[]) (Optional)**
   * One or more contexts, or lists, of the todo.
   * If it exists it will be stored in the object without the leading **@**.
-* **Project (String[]) (Optional)**
+* **Project / Tag (String[]) (Optional)**
   * One or more projects, or tags, of the todo.
   * If it exists it will be stored in the object without the leading **+**.
 * **Addon (Hashtable) (Optional)**
@@ -52,4 +52,4 @@ Nothing yet - not released version 1 yet!
 * [SimpleTask](https://github.com/mpcjanssen/simpletask-android/blob/master/src/main/assets/listsandtags.en.md) - took the idea for some of the addons from here (recurring tasks, hidden tasks etc.)
 * [How to GTD with SimpleTask](https://gist.github.com/alehandrof/9941620)
 * [How TaskWarrior handles Urgency](http://taskwarrior.org/docs/urgency.html)
-* [How topydo handles urgency](https://github.com/bram85/topydo/wiki/Importance)t m 15,106,104,11,116,117
+* [How topydo handles urgency](https://github.com/bram85/topydo/wiki/Importance)
