@@ -56,7 +56,7 @@ function Export-TodoTxt
     End {
         Write-Verbose "We have $(@($Todo).count) objects in the pipeline to write to $Path."
         if ($VerbosePreference -ne "SilentlyContinue") {
-            $Todo | ForEach-Object { Write-Verbose "Object: $_" }
+            $toExport | ForEach-Object { Write-Verbose "Object: $_" }
         }
 
         if ($Append.IsPresent) {
