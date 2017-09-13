@@ -1,12 +1,10 @@
 # PsTodoTxt
 
-This is a powershell CLI to the [Todo.txt](http://todotxt.com/) todo file format with some PowerShell like features and alson taking inspiration from Taskwarrior.
-
-Idea taken from [PsTodoTxt](https://github.com/derantell/PsTodoTxt) it has been completely rewritten.
+This is a PowerShell CLI to the [Todo.txt](http://todotxt.com/) todo file format with some PowerShell like features.
 
 ## Goal
 
-The goal of this project is to create a command line interface to Todo.txt and add in some important Taskwarrior features such as prioritisation and ease of editing tasks.
+The goal of this project is to create a command line interface to todo.txt.
 
 ## Todo.txt Components
 
