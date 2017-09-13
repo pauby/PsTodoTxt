@@ -33,9 +33,9 @@ function Test-TodoTxtContext
         [string[]]$Context
     )
 
-    # Context, as stored in the object, should just be a word with no spaces and not start with an @
-    # this regex is to match whitespace or an @ - if they match anything then the context is invalid
-    $regex = [regex]"[@+\s]"
+    # Context / Project / Tag / List should be a string (or an array of strings) that starts with an 
+    # @ or a + and then followed by an alphabetic character
+    $regex = [regex]"[@+][a-zA-z]"
 
     foreach ($item in $Context) {
         if (($regex.Match($item)).Success -eq $True) {
