@@ -100,8 +100,8 @@ function ConvertTo-TodoTxt
                         "Addon" {
                             $addons = @{}
                             foreach ($f in $found) {
-                                $addons.Add($f.groups[1].value, $f.groups[2].value.Trim())
-                                Write-Verbose "Found Addon '$(f.groups[1].value)': $($f.groups[2].value)"
+                                $addons.Add($f.groups[1].value.Trim(), $f.groups[2].value.Trim())
+                                Write-Verbose "Found Addon '$($f.groups[1].value)': $($f.groups[2].value)"
                         }
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value $addons
                             break
