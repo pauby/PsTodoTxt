@@ -1,32 +1,22 @@
 #Requires -Module Pester
 
-$ourModule = 'PsTodoTxt'
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+. "$PSScriptRoot\..\shared-module-pstodotxt.ps1"
 
-$functionName = $sut -replace '\.ps1'
-$functionScript = Get-ChildItem $sut -Recurse | Select-Object -First 1
-if ($null -eq $functionScript) {
-    Write-Host "Cannot find the script $sut in any child directories. Will not check the code quality with PSScriptAnalyser." -ForegroundColor 'Red'
-}
+#$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+#$root = $here -replace "(\\tests\\.*)"  # root directory of the project (the one below \tests\..)
+$scriptType = Split-Path $PSScriptRoot -Leaf | Where-Object { $_ -in @("private", "public") }
+$scriptFilename = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+$scriptPath = "$root\source\$(Join-Path -Path $scriptType -ChildPath $scriptFilename)"
 
-# Setup the PSScriptAnalyser Rules
-try {
-    $ExcludedPSSCriptAnalyserRules = Get-Variable -Name 'My_ExcludedPSScriptAnalyserRules' -Scope 'Global' -ValueOnly
-}
-catch {
-    $ExcludedPSSCriptAnalyserRules = @()
+"{0,-15} : {1}" -f "Script Filename", $scriptFilename
+"{0,-15} : {1}" -f "Script Type", $scriptType
+"{0,-15} : {1}" -f "Script Path", $scriptPath
+
+if (!(Test-Path $scriptPath)) {
+    Write-Error "Cannot find the script $scriptPath. Will not check the code quality with PSScriptAnalyser."
 }
 
-if (Test-Path -Path "$ourModule.psd1") {
-    Remove-Module $ourModule -ErrorAction SilentlyContinue
-    Import-Module ".\$ourModule.psd1" -Force
-}
-else {
-    throw "Module .\$ourModule.psd1 not found in current directory"
-}
-
-Describe "Function Testing - $($functionName)" {
+Describe "Function Testing - ConvertTo-TodoTxt" {
     Context "Parameter Validation" {
         It "will throw an exception for null or missing parameters" {
             # we only have one parameter so test it
@@ -95,14 +85,9 @@ Describe "Function Testing - $($functionName)" {
     }
 
     Context "Code Analysis" {
-        if ($null -ne $functionScript) {
-            if ($ExcludedPSSCriptAnalyserRules.Count -gt 0) {
-                Write-Host "`nExcluded the following ScriptAnalyzer rules: `n    * $($ExcludedPSSCriptAnalyserRules -join '`n    * ')`n"
-            }
 
-            It 'passes all PSScriptAnalyser rules' {
-                (Invoke-ScriptAnalyzer -Path $functionScript -ExcludeRule $ExcludedPSSCriptAnalyserRules).Count | Should Be 0
-            }
+        It 'passes all PSScriptAnalyser rules' {
+                (Invoke-ScriptAnalyzer -Path $scriptPath).count | Should Be 0
         }
     }
 }
