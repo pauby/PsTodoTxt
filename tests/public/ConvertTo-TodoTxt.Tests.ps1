@@ -2,19 +2,13 @@
 
 . "$PSScriptRoot\..\shared-module-pstodotxt.ps1"
 
-#$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-#$root = $here -replace "(\\tests\\.*)"  # root directory of the project (the one below \tests\..)
 $scriptType = Split-Path $PSScriptRoot -Leaf | Where-Object { $_ -in @("private", "public") }
 $scriptFilename = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $scriptPath = "$root\source\$(Join-Path -Path $scriptType -ChildPath $scriptFilename)"
 
-"{0,-15} : {1}" -f "Script Filename", $scriptFilename
-"{0,-15} : {1}" -f "Script Type", $scriptType
-"{0,-15} : {1}" -f "Script Path", $scriptPath
-
-if (!(Test-Path $scriptPath)) {
-    Write-Error "Cannot find the script $scriptPath. Will not check the code quality with PSScriptAnalyser."
-}
+"{0,-15} : {1}" -f "Script Filename", $scriptFilename | Write-Verbose
+"{0,-15} : {1}" -f "Script Type", $scriptType | Write-Verbose
+"{0,-15} : {1}" -f "Script Path", $scriptPath | Write-Verbose
 
 Describe "Function Testing - ConvertTo-TodoTxt" {
     Context "Parameter Validation" {
@@ -84,10 +78,15 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
         } # end InModuleScope
     }
 
-    Context "Code Analysis" {
+    if (!(Test-Path $scriptPath)) {
+        Write-Error "Cannot find the script $scriptPath. Will not check the code quality with PSScriptAnalyser."
+    }
+    else {
+        Context "Code Analysis" {
 
-        It 'passes all PSScriptAnalyser rules' {
-                (Invoke-ScriptAnalyzer -Path $scriptPath).count | Should Be 0
+            It 'passes all PSScriptAnalyser rules' {
+                    (Invoke-ScriptAnalyzer -Path $scriptPath).count | Should Be 0
+            }
         }
     }
 }
