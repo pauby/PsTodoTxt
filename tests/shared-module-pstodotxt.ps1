@@ -11,8 +11,8 @@ if (!(Test-Path $ModulePath)) {
     throw "Module $ModulePath not found."
 }
 
-"{0,-15} : {1}" -f "Module Manifest", $ModuleManifestPath
-"{0,-15} : {1}" -f "Module", $ModulePath
+"{0,-15} : {1}" -f "Module Manifest", $ModuleManifestPath | Write-Verbose
+"{0,-15} : {1}" -f "Module", $ModulePath | Write-Verbose
 # The first time this is called, the module will be forcibly (re-)imported.
 # After importing it once, the $SuppressImportModule flag should prevent
 # the module from being imported again for each test file.
