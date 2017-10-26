@@ -1,14 +1,7 @@
-#Requires -Module Pester
+. "$PSScriptRoot\..\shared.ps1"
 
-. "$PSScriptRoot\..\shared-module-pstodotxt.ps1"
-
-$scriptType = Split-Path $PSScriptRoot -Leaf | Where-Object { $_ -in @("private", "public") }
-$scriptFilename = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
-$scriptPath = "$root\source\$(Join-Path -Path $scriptType -ChildPath $scriptFilename)"
-
-"{0,-15} : {1}" -f "Script Filename", $scriptFilename | Write-Verbose
-"{0,-15} : {1}" -f "Script Type", $scriptType | Write-Verbose
-"{0,-15} : {1}" -f "Script Path", $scriptPath | Write-Verbose
+$thisScript = Get-TestedScript
+Import-TestedModule | Out-Null
 
 Describe "Function Testing - ConvertTo-TodoTxt" {
     Context "Parameter Validation" {
@@ -65,15 +58,10 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
         }
     }
 
-    if (!(Test-Path $scriptPath)) {
-        Write-Error "Cannot find the script $scriptPath. Will not check the code quality with PSScriptAnalyser."
-    }
-    else {
-        Context "Code Analysis" {
+    Context "Code Analysis" {
 
-            It 'passes all PSScriptAnalyser rules' {
-                (Invoke-ScriptAnalyzer -Path $scriptPath).count | Should Be 0
-            }
+        It 'passes all PSScriptAnalyser rules' {
+            (Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
         }
     }
 }
