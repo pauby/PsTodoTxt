@@ -1,16 +1,18 @@
+$ModuleName = 'PsTodoTxt'
+
 . "$PSScriptRoot\..\shared.ps1"
 
 $thisScript = Get-TestedScript
 Import-TestedModule | Out-Null
 
 Describe "Function Testing - ConvertTo-TodoTxt" {
-    Context "Parameter Validation" {
+    Context "Input" {
         It 'will throw an exception for null or missing parameters' {
             { ConvertFrom-TodoTxt -Todo $null } | Should throw 'argument is null'  # use parameter instead of pipeline otherwise exception not caught
         }
     }
 
-    Context "Processing and Logic" {
+    Context "Logic & Flow" {
         InModuleScope PsTodoTxt {
 
             Mock Test-TodoTxt { return $false }
