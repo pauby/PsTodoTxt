@@ -1,6 +1,15 @@
+$ModuleName = 'PsTodoTxt'
+
+. "$PSScriptRoot\..\shared.ps1"
+
+$thisScript = Get-TestedScript
+Import-TestedModule | Out-Null
+
 Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
+
     InModuleScope PSTodoTxt {
-        Context "Testing parameters input" {
+        Context "Input" {
+
             It "Passes testing for null and / or missing mandatory parameter" {
                 { Test-ObjectProperty } | Should throw 'parameter'
                 { Test-ObjectProperty -InputObject (New-Object -Typename PSObject) } | Should throw 'parameter'
@@ -13,7 +22,7 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
             }
         }
 
-        Context "Testing function processing and logic" {
+        Context "Logic & Flow" {
             $testObj = New-Object -TypeName PSObject -Property @{ forename = 'Luke'; surname = 'Skywalker' }
 
             It "Passes testing of invalid data" {
@@ -27,6 +36,13 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
                 $actual -is [bool] | Should Be $true
                 $actual | Should Be $true
             }
+        }
+    }
+
+    Context "Code Analysis" {
+
+        It 'passes all PSScriptAnalyser rules' {
+            (Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
         }
     }
 }

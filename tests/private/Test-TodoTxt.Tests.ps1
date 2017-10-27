@@ -1,38 +1,13 @@
-﻿#Requires -Module Pester
+﻿$ModuleName = 'PsTodoTxt'
 
-$ourModule = 'PsTodoTxt'
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+. "$PSScriptRoot\..\shared.ps1"
 
-$functionName = $sut -replace '\.ps1'
-$functionScript = Get-ChildItem $sut -Recurse | Select-Object -First 1
-if ($null -eq $functionScript) {
-    Write-Host "Cannot find the script $sut in any child directories. Will not check the code quality with PSScriptAnalyser." -ForegroundColor 'Red'
-}
+$thisScript = Get-TestedScript
+Import-TestedModule | Out-Null
 
-# Setup the PSScriptAnalyser Rules
-try {
-    $ExcludedPSSCriptAnalyserRules = Get-Variable -Name 'My_ExcludedPSScriptAnalyserRules' -Scope 'Global' -ValueOnly
-}
-catch {
-    $ExcludedPSSCriptAnalyserRules = @()
-}
-
-if (Test-Path -Path "$ourModule.psd1") {
-    Remove-Module $ourModule -ErrorAction SilentlyContinue
-    Import-Module ".\$ourModule.psd1" -Force
-}
-else {
-    throw "Module .\$ourModule.psd1 not found in current directory"
-}
-
-Describe "Function Testing - $($functionName)" {
-    InModuleScope -ModuleName $ourModule {
-        Context "Parameter Validation" -Tag 'ValidParams' {
-            # as all parameters are validate in the code of the function the tests are below
-        }
-
-        Context "Processing and Logic" -Tag 'Proc' {
+Describe "Function Testing - Test-TodoTxt" {
+    InModuleScope -ModuleName $ModuleName {
+        Context "Input" {
 
             Mock Test-TodoTxtDate { return $false }
             Mock Test-TodoTxtPriority { return $false }
@@ -46,6 +21,7 @@ Describe "Function Testing - $($functionName)" {
                     'testObject'    = (New-Object -TypeName PSObject -Property @{ 'CreatedDate' = '2017-01-01'} )
                 }
             )
+
             It 'will return $false for missing parameters - <name>' -TestCases $tests {
                 Param (
                     $testObject
@@ -80,7 +56,11 @@ Describe "Function Testing - $($functionName)" {
             }
         }
 
-        Context "Output" -Tag 'Output' {
+        Context "Logic & Flow" {
+            # as all parameters are validate in the code of the function the tests are below
+        }
+
+        Context "Output" {
 
             Mock Test-TodoTxtDate { return $true }
             Mock Test-TodoTxtPriority { return $true }
@@ -95,46 +75,10 @@ Describe "Function Testing - $($functionName)" {
         }
     } #end InModuleScope
 
-    Context "Code Analysis" -Tag 'CodeCheck' {
-        if ($null -ne $functionScript) {
-            if ($ExcludedPSSCriptAnalyserRules.Count -gt 0) {
-                Write-Host "`nExcluded the following ScriptAnalyzer rules: `n    * $($ExcludedPSSCriptAnalyserRules -join '`n    * ')`n"
-            }
+    Context "Code Analysis" {
 
-            It 'passes all PSScriptAnalyser rules' {
-                (Invoke-ScriptAnalyzer -Path $functionScript -ExcludeRule $ExcludedPSSCriptAnalyserRules).Count | Should Be 0
-            }
+        It 'passes all PSScriptAnalyser rules' {
+            (Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
         }
     }
 }
-
-<#
-Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
-    InModuleScope PSTodoTxt {
-        Context "Testing parameters input" {
-            $invalidTodotxt = New-Object -TypeName PSObject -Property @{ CreatedDate = "2017-09-88"; Task = "Lets go to the Degobah system" }
-            $validTodoTxtArr = @( (New-Object -TypeName PSObject -Property @{ DoneDate = "2015-10-09"; CreatedDate = "2016-09-15"; Task = "LEIA!"; Context = "deathstar"; Project = @("rebels", "hoth"); Addon = @{ due = "2018-09-09"} } ),
-                    (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-09-15"; Priority = "G"; Task = "You're a little short to be a stormtrooper?"; Context = "deathstar"; Project = "prison" } )
-                    )
-
-            It "Passes testing for null and / or missing mandatory parameter" {
-                { Test-TodoTxt -CreatedDate $null } | Should throw "null"
-                { Test-TodoTxt -CreatedDate "" } | Should throw "empty"
-                { Test-TodoTxt -Task $null } | Should throw "null"
-                { Test-TodoTxt -Task "" } | Should throw "empty"
-            }
-
-            It "Passes testing for invalid parameters" {
-                { $invalidTodoTxt | Test-TodoTxt -ErrorAction Stop } | Should throw "Cannot validate argument"
-            }
-
-            It "Passes testing for valid parameters" {
-                $validTodoTxtArr | ForEach-Object {
-                    $actual = $_ | Test-TodoTxt
-                    $actual | Should BeOfType bool
-                    $actual | Should Be $true
-                }
-            }
-        }
-    }
-} #>
