@@ -35,10 +35,10 @@ function Test-TodoTxtContext
 
     # Context / Project / Tag / List should be a string (or an array of strings) that starts with an 
     # @ or a + and then followed by an alphabetic character
-    $regex = [regex]"[@+][a-zA-z]"
+    $regex = [regex]"[@+]+[a-zA-z-]+$"
 
     foreach ($item in $Context) {
-        if (($regex.Match($item)).Success -eq $True) {
+        if (($regex.Match($item)).Success -ne $True) {
             return $false
         }
     }
