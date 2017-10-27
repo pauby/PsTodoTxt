@@ -1,6 +1,6 @@
 ﻿$ModuleName = 'PsTodoTxt'
 
-. "$PSScriptRoot\..\shared.ps1"
+. "$PSScriptRoot\..\SharedTestHelper.ps1"
 
 $thisScript = Get-TestedScript
 Import-TestedModule | Out-Null
