@@ -1,36 +1,15 @@
-﻿#Requires -Module Pester
+﻿$ModuleName = 'PsTodoTxt'
 
-$ourModule = 'PsTodoTxt'
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+. "$PSScriptRoot\..\shared.ps1"
 
-$functionName = $sut -replace '\.ps1'
-$functionScript = Get-ChildItem $sut -Recurse | Select-Object -First 1
-if ($null -eq $functionScript) {
-    Write-Host "Cannot find the script $sut in any child directories. Will not check the code quality with PSScriptAnalyser." -ForegroundColor 'Red'
-}
+$thisScript = Get-TestedScript
+Import-TestedModule | Out-Null
 
-# Setup the PSScriptAnalyser Rules
-try {
-    $ExcludedPSSCriptAnalyserRules = Get-Variable -Name 'My_ExcludedPSScriptAnalyserRules' -Scope 'Global' -ValueOnly
-}
-catch {
-    $ExcludedPSSCriptAnalyserRules = @()
-}
-
-if (Test-Path -Path "$ourModule.psd1") {
-    Remove-Module $ourModule -ErrorAction SilentlyContinue
-    Import-Module ".\$ourModule.psd1" -Force
-}
-else {
-    throw "Module .\$ourModule.psd1 not found in current directory"
-}
-
-Describe "Function Testing - $($functionName)" {
-    Context "Parameter Validation" -Tag 'ValidParams' {
-        Mock -ModuleName $ourModule Test-TodoTxtDate { return $false }
-        Mock -ModuleName $ourModule Test-TodoTxtPriority { return $false }
-        Mock -ModuleName $ourModule Test-TodoTxtContext { return $false }
+Describe "Function Testing - Set-TodoTxt" {
+    Context "Input" {
+        Mock -ModuleName $ModuleName Test-TodoTxtDate { return $false }
+        Mock -ModuleName $ModuleName Test-TodoTxtPriority { return $false }
+        Mock -ModuleName $ModuleName Test-TodoTxtContext { return $false }
 
         It "will throw an exception for null, empty or missing parameters" {
             { Set-TodoTxt -Todo $null } | Should throw "argument is null"
@@ -69,7 +48,7 @@ Describe "Function Testing - $($functionName)" {
             )
 
             { Set-TodoTxt -Todo (New-Object -TypeName PSObject) @splat } | Should throw "did not return a result of True"
-            Assert-MockCalled -ModuleName $ourModule -CommandName $function -Times 1
+            Assert-MockCalled -ModuleName $ModuleName -CommandName $function -Times 1
         }
 
         It 'will pass for empty or $null data for parameters that accept it' {
@@ -80,11 +59,11 @@ Describe "Function Testing - $($functionName)" {
         }
     }
 
-    Context "Processing and Logic" -Tag 'Proc' {
+    Context "Logic & Flow" {
 	# Processing and logic flow tests
     }
 
-    Context "Output" -Tag 'Output' {
+    Context "Output" {
         $props1 = @{ CreatedDate = "2016-05-05"; DoneDate = "2016-09-09"; Priority = "H";
             Task = "Turn to the Dark Side"; Context = @("deathstar", "hoth");
             Project = @("rebelalliancedestruction", "deathstarbuild"); `
@@ -107,16 +86,11 @@ Describe "Function Testing - $($functionName)" {
             $result.Priority | Should be 'Z'
         }
     }
-#>
-    Context "Code Analysis" -Tag 'CodeCheck' {
-        if ($null -ne $functionScript) {
-            if ($ExcludedPSSCriptAnalyserRules.Count -gt 0) {
-                Write-Host "`nExcluded the following ScriptAnalyzer rules: `n    * $($ExcludedPSSCriptAnalyserRules -join '`n    * ')"
-            }
 
-            It 'passes all PSScriptAnalyser rules' {
-                (Invoke-ScriptAnalyzer -Path $functionScript -ExcludeRule $ExcludedPSSCriptAnalyserRules).Count | Should Be 0
-            }
+    Context "Code Analysis" {
+ 
+        It 'passes all PSScriptAnalyser rules' {
+        (Invoke-ScriptAnalyzer -Path $thisScript.Path).Count | Should Be 0
         }
     }
 }
