@@ -3,9 +3,9 @@
 . "$PSScriptRoot\..\shared.ps1"
 
 $thisScript = Get-TestedScript
-Import-TestedModule | Out-Null
 
 Describe "Function Testing - Set-TodoTxt" {
+
     Context "Input" {
         Mock -ModuleName $ModuleName Test-TodoTxtDate { return $false }
         Mock -ModuleName $ModuleName Test-TodoTxtPriority { return $false }

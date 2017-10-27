@@ -3,7 +3,6 @@ $ModuleName = 'PsTodoTxt'
 . "$PSScriptRoot\..\shared.ps1"
 
 $thisScript = Get-TestedScript
-Import-TestedModule | Out-Null
 
 Describe "Function Testing - Import-TodoTxt" {
     Context "Parameter Validation" {
