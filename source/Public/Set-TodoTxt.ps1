@@ -44,7 +44,7 @@
 
     Sets the priority of the $todoObj to "B" and outputs the modified todo.
 #>
-
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
     [OutputType([PSObject])]
 	Param(
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
@@ -107,6 +107,13 @@
     Begin
     {
         $validParams = @('DoneDate', 'CreatedDate', 'Priority', 'Task', 'Context', 'Project', 'Addon')
+
+        if (-not $PSBoundParameters.ContainsKey('Confirm')) {
+            $ConfirmPreference = $PSCmdlet.SessionState.PSVariable.GetValue('ConfirmPreference')
+        }
+        if (-not $PSBoundParameters.ContainsKey('WhatIf')) {
+            $WhatIfPreference = $PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')
+        }
     }
 
     Process
@@ -120,17 +127,21 @@
             {
                 if ( ($null -eq $PsBoundParameters.$key) -or ([string]::IsNullOrEmpty($PsBoundParameters.$key)) ) {
                     Write-Verbose "Removing property $key"
-                    $_.PSObject.Properties.Remove($key)
+                    
+                    if ($PSCmdlet.ShouldProcess("ShouldProcess?")) {
+                        $_.PSObject.Properties.Remove($key)
+                    }
                 }
                 else {
                     Write-Verbose "Set $key to $($PSBoundParameters.$key)"
-                    $_ | Add-Member -MemberType NoteProperty -Name $key -Value $PsBoundParameters.$key -Force
+                    if ($PSCmdlet.ShouldProcess("ShouldProcess?")) {
+                        $_ | Add-Member -MemberType NoteProperty -Name $key -Value $PsBoundParameters.$key -Force
+                    }
                 }
             }
 
-            Write-Output $_
-
             Write-Debug ($_ | Out-String)
+            Write-Output $_
         }
    }
 
