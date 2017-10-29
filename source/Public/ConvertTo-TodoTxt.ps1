@@ -53,8 +53,8 @@ function ConvertTo-TodoTxt
             @{ "name" = "DoneDate"; "regex" = "^x\ \d{4}-\d{2}-\d{2}\ " },  # the done date - eg. 'x 2017-08-01'
             @{ "name" = "Priority"; "regex" = "^\(([A-Za-z])\)\ " },    # priority - eg. '(B)'
             @{ "name" = "CreatedDate"; "regex" = "^\d{4}-\d{2}-\d{2}\ " },  # created date - eg. '2016-05-23'
-            @{ "name" = "Context"; "regex" = "\ @[^\s@]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
-            @{ "name" = "Project"; "regex" = "\ \+[^\+\s]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
+            @{ "name" = "Context"; "regex" = "\ @[a-z\d-_]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
+            @{ "name" = "Project"; "regex" = "\ \+[a-z\d-_]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
             @{ "name" = "Addon"; "regex" = "\ (\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
         )
     }
