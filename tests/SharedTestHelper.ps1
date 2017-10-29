@@ -41,7 +41,7 @@ function Import-TestedModule {
     # After importing it once, the $SuppressImportModule flag should prevent
     # the module from being imported again for each test file.
 
-    if (-not (Get-Module -Name $ModuleName -ErrorAction SilentlyContinue) -or (!$SuppressImportModule)) {
+    if (-not (Get-Module -Name $ModuleName -ErrorAction SilentlyContinue) -or !(Test-Path Variable:SuppressImportModule) -or !$SuppressImportModule) {
         # If we import the .psd1 file, Pester has issues where it detects multiple
         # modules named PSJira. Importing the .psm1 file seems to correct this.
 
@@ -49,7 +49,7 @@ function Import-TestedModule {
         Import-Module $ModulePath -Scope Global -Force
 
         # Set to true so we don't need to import it again for the next test
-        $SuppressImportModule = $true
+        $Script:SuppressImportModule = $true
     }
 
     "{0,-15} : {1}" -f "Module Manifest", $ModuleManifestPath | Write-Verbose
