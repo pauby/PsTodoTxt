@@ -35,7 +35,7 @@ Describe "Testing Function - Test-TodoTxtDate" {
     Context "Code Analysis" {
 
         It 'passes all PSScriptAnalyser rules' {
-            (Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
+            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
         }
     }
 }

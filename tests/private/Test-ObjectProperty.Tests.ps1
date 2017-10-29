@@ -5,9 +5,9 @@ $ModuleName = 'PsTodoTxt'
 $thisScript = Get-TestedScript
 Import-TestedModule | Out-Null
 
-Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" {
+Describe "Testing Function - Test-ObjectProperty" {
 
-    InModuleScope PSTodoTxt {
+    InModuleScope $ModuleName {
         Context "Input" {
 
             It "Passes testing for null and / or missing mandatory parameter" {
@@ -42,7 +42,7 @@ Describe "Testing Function - $($Function.Name) - Functional Processing & Logic" 
     Context "Code Analysis" {
 
         It 'passes all PSScriptAnalyser rules' {
-            (Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
+            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
         }
     }
 }

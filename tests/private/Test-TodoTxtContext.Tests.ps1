@@ -14,8 +14,8 @@ Describe "Testing Function - Test-TodoTxtContext" {
         }
 
         Context "Output" {
-            It "should be true for a single valid context (starting with @)" {
-                $actual = Test-TodoTxtContext -Context "@hello"
+            It "should be true for a single valid context" {
+                $actual = Test-TodoTxtContext -Context "hello"
                 $actual | Should Be $true
                 $actual | Should BeOfType boolean
             }
@@ -33,7 +33,7 @@ Describe "Testing Function - Test-TodoTxtContext" {
             }
 
             It "should be true for a valid context array" {
-                $actual = Test-TodoTxtContext -Context @("@so-long", "@fairwell", "+auf-Wiedersehen", "+goodnight")
+                $actual = Test-TodoTxtContext -Context @("so-long", "fairwell", "auf-Wiedersehen", "goodnight")
                 $actual | Should Be $true
                 $actual | Should BeOfType boolean
             }
@@ -43,7 +43,7 @@ Describe "Testing Function - Test-TodoTxtContext" {
     Context "Code Analysis" {
 
         It 'passes all PSScriptAnalyser rules' {
-            (Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
+            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
         }
     }
 }
