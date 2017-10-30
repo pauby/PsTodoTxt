@@ -42,9 +42,6 @@ function Import-TestedModule {
     # the module from being imported again for each test file.
 
     if (-not (Get-Module -Name $ModuleName -ErrorAction SilentlyContinue) -or !(Test-Path Variable:SuppressImportModule) -or !$SuppressImportModule) {
-        # If we import the .psd1 file, Pester has issues where it detects multiple
-        # modules named PSJira. Importing the .psm1 file seems to correct this.
-
         # -Scope Global is needed when running tests from within a CI environment
         Import-Module $ModulePath -Scope Global -Force
 
