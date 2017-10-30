@@ -35,10 +35,6 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
                 @{  "name"      = "double @@ / ++ for context / project"
                     "todo"      = "x 2016-01-23 Go to Ewok planet @@deathstar ++ewok";
                     "expected"  = (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-01-23"; CreatedDate = $todaysDate; Task = "Go to Ewok planet @@deathstar ++ewok"} )
-                },
-                @{  "name"      = "no task text";
-                    "todo"      = "2016-12-09 @deathstar +ewok";
-                    "expected"  = (New-Object -TypeName PSObject -Property @{ CreatedDate = "2016-12-09"; Task = "@deathstar +ewok"} )
                 }
             )
 
@@ -48,7 +44,9 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
                     $expected
                 )
                 $result = $todo | ConvertTo-TodoTxt
-                Compare-Object -ReferenceObject $expected -DifferenceObject $result | Should be $null
+                Compare-Object -ReferenceObject $expected -DifferenceObject $result `
+                    -Property @('DoneDate', 'Priority', 'CreatedDate', 'Context', `
+                    'Project', 'Addon', 'Task') | Should be $null
             }
 
             $invalidTests = @(
@@ -60,6 +58,9 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
                 },
                 @{  "name"      = "different date format";
                     "todo"      = "2016-23-01 Go to Ewok planet";
+                }
+                @{  "name"      = "no task text";
+                    "todo"      = "2016-12-09 @deathstar +ewok";
                 }
             )
 
