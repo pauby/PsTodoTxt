@@ -33,7 +33,7 @@ Describe "Function Testing - Import-TodoTxt" {
     }
 
     Context "Output" {
-        # the output comes from the ConvertFrom-TodoTxtString function. We tested this has been
+        # the output comes from the ConvertTo-TodoTxt function. We tested this has been
         # called above so no further output tests needed
     }
 
