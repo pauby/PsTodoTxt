@@ -47,23 +47,19 @@ function Export-TodoTxt
     )
 
     Begin {
+        if (!$Append.IsPresent -and (Test-Path -Path $Path)) {
+            Remove-Item -Path $Path -Force
+        }
     }
 
-    # NOTE:
-    # in order to use $input in End{} we CANNOT have a Process{}, even an empty one
-    #
-
-    End {
+    Process {
         Write-Verbose "We have $(@($Todo).count) objects in the pipeline to write to $Path."
         if ($VerbosePreference -ne "SilentlyContinue") {
             $Todo | ForEach-Object { Write-Verbose "Object: $_" }
         }
 
-        if ($Append.IsPresent) {
-            $Todo | ConvertFrom-TodoTxt | Add-Content -Path $Path -Encoding UTF8
-        }
-        else {
-            $Todo | ConvertFrom-TodoTxt | Set-Content -Path $Path -Encoding UTF8
-        }
+        $Todo | ConvertFrom-TodoTxt | Add-Content -Path $Path -Encoding UTF8
+    }
+    End {
     }
 }
