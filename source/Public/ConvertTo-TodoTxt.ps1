@@ -53,9 +53,9 @@ function ConvertTo-TodoTxt
             @{ "name" = "DoneDate"; "regex" = "^x\ \d{4}-\d{2}-\d{2}\ " },  # the done date - eg. 'x 2017-08-01'
             @{ "name" = "Priority"; "regex" = "^\(([A-Za-z])\)\ " },    # priority - eg. '(B)'
             @{ "name" = "CreatedDate"; "regex" = "^\d{4}-\d{2}-\d{2}\ " },  # created date - eg. '2016-05-23'
-            @{ "name" = "Context"; "regex" = "\ @[a-z\d-_]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
-            @{ "name" = "Project"; "regex" = "\ \+[a-z\d-_]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
-            @{ "name" = "Addon"; "regex" = "\ (\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
+            @{ "name" = "Context"; "regex" = "(?:^|\s)@[a-z\d-_]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
+            @{ "name" = "Project"; "regex" = "(?:^|\s)\+[a-z\d-_]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
+            @{ "name" = "Addon"; "regex" = "(?:^|\s)(\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
         )
     }
 
@@ -68,7 +68,7 @@ function ConvertTo-TodoTxt
             foreach ($item in $regexList) {
                 if ($line -match $item.regex) {
                     $found = [regex]::matches($line, $item.regex)
-                    $line = $line -replace $item.regex
+                    $line = $line -replace $item.regex, ""
 
                     switch ($item.name) {
                         "DoneDate" {
@@ -92,7 +92,13 @@ function ConvertTo-TodoTxt
                         }
 
                         { $_ -in "Context", "Project" } {
-                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value @($found | foreach-object { [string]$_.value.Trim() } )
+                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value @(
+                                $found | foreach-object { 
+                                    # trim the whitespace and then skip over the
+                                    # first characvter which will be @ or +
+                                    [string]$_.value.Trim().Remove(0,1)
+                                } 
+                            )
                             Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
