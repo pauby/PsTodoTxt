@@ -2,7 +2,10 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
+$pssaSettings = "$PSScriptRoot\..\PSScriptAnalyzerSettings.psd1"
+Test-Path $pssaSettings
 $thisScript = Get-TestedScript
+Import-TestedModule
 
 Describe "Function Testing - Export-TodoTxt" {
     Context "Parameter Validation" {
@@ -36,8 +39,20 @@ Describe "Function Testing - Export-TodoTxt" {
 
     Context "Code Analysis" {
 
-        It 'passes all PSScriptAnalyser rules' {
-            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).Count | Should Be 0
-        }
-    }
+        write-host $pssaSettings
+
+        $analysis = Invoke-ScriptAnalyzer -Path $thisScript.Path -Settings $pssaSettings
+        $scriptAnalyzerRules = Get-ScriptAnalyzerRule
+
+        ForEach ($rule in $scriptAnalyzerRules) {
+            It "Should pass $rule" {
+
+                If ($analysis.RuleName -contains $rule) {
+
+                    $analysis | Where-Object RuleName -EQ $rule -outvariable failures | Out-Default
+                    $failures.Count | Should Be 0
+                }
+            }
+        } #foreach
+    } #Context
 }
