@@ -193,7 +193,7 @@ task Test {
 }
 
 task InstallDependencies {
-    $modules = @( "Pester", "PSScriptAnalyzer" ) | ForEach-Object {
+    $modules = @( "Pester", "PSScriptAnalyzer", "PsCodeHealth", "ModuleBuild") | ForEach-Object {
         if (!(Get-Module -Name $_ -ListAvailable)) {
             Install-Module $_ -Force
         }
