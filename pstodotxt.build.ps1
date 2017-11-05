@@ -18,17 +18,19 @@ param(
 # Ensure Invoke-Build works in the most strict mode.
 Set-StrictMode -Version Latest
 
+# Project variables
+$buildDir = "$BuildRoot\build"
+
 # Synopsis: Convert markdown files to HTML.
 # <http://johnmacfarlane.net/pandoc/>
 task Markdown {
-    exec { pandoc.exe --standalone --from=markdown_strict --output=README.htm README.md }
-    exec { pandoc.exe --standalone --from=markdown_strict --output=CHANGELOG.htm CHANGELOG.md }
+    exec { pandoc.exe --standalone --from=markdown_strict --output=README.html README.md }
+    exec { pandoc.exe --standalone --from=markdown_strict --output=CHANGELOG.html CHANGELOG.md }
 }
 
 # Synopsis: Remove generated and temp files.
 task Clean {
-    Get-Item z, Tests\z, Tests\z.*, README.htm, Release-Notes.htm, Invoke-Build.*.nupkg -ErrorAction 0 |
-        Remove-Item -Force -Recurse
+    Remove-Item -Path $buildDir -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 # Synopsis: Warn about not empty git status if .git exists.
@@ -54,42 +56,42 @@ task Version {
 }
 
 # Synopsis: Make the module folder.
-task Module Version, {
+task BuildModule Clean, BuildManifest, {
     # mirror the module folder
-    Remove-Item [z] -Force -Recurse
-    $dir = "$BuildRoot\z\tools"
-    exec {$null = robocopy.exe source $dir /mir} (0..2)
+    exec {$null = robocopy.exe source $buildDir /mir} (0..2)
 
     # copy files
-#    Copy-Item -Destination $dir `
-#    README.htm,
-#    LICENSE,
-#    CHANGELOG.htm
+    Copy-Item -Destination $buildDir `
+    README.htm,
+    LICENSE,
+    CHANGELOG.htm
+}
 
+task BuildManifest Version, {
     # make manifest
     $scripts = ((Get-Item 'source\public\*.ps1').Name) | ForEach-Object { "'public\$_'" }
     $scripts += ((Get-Item 'source\private\*.ps1').Name) | ForEach-Object { "'private\$_'" }
     $functionsToExport = ((Get-Item 'source\public\*.ps1').BaseName) | ForEach-Object { "'$_'" }
-    Set-Content "$dir\PSTodoTxt.psd1" @"
+    Set-Content "$BuildRoot\source\\PSTodoTxt.psd1" @"
 @{
     RootModule = 'PSTodoTxt.psm1'
-	ModuleVersion = '$Version'
-	GUID = '6533f849-f8fa-4537-b4d1-7e3c21b96291'
-	Author = 'Paul Broadwith'
-	CompanyName = 'Paul Broadwith'
-	Copyright = '(c) 2016-$((Get-Date).Year) Paul Broadwith'
-	Description = 'PowerShell implementation of the Todo.txt CLI'
+    ModuleVersion = '$Version'
+    GUID = '6533f849-f8fa-4537-b4d1-7e3c21b96291'
+    Author = 'Paul Broadwith'
+    CompanyName = 'Paul Broadwith'
+    Copyright = '(c) 2016-$((Get-Date).Year) Paul Broadwith'
+    Description = 'PowerShell implementation of the Todo.txt CLI'
     PowerShellVersion = '3.0'
     FunctionsToExport = @($($functionsToExport -join ', '))
     NestedModules = @($($scripts -join ', '))
-	PrivateData = @{
-		PSData = @{
-			Tags = 'Todo', 'Todo.txt'
-			ProjectUri = 'https://github.com/pauby/PSTodoTxt'
-			LicenseUri = 'https://github.com/pauby/PsTodoTxt/blob/master/LICENSE'
-			ReleaseNotes = 'https://github.com/pauby/PSTodoTxt/blob/master/CHANGELOG.md'
-		}
-	}
+    PrivateData = @{
+        PSData = @{
+            Tags = 'Todo', 'Todo.txt', 'CLI'
+            ProjectUri = 'https://github.com/pauby/PSTodoTxt'
+            LicenseUri = 'https://github.com/pauby/PsTodoTxt/blob/master/LICENSE'
+            ReleaseNotes = 'https://github.com/pauby/PSTodoTxt/blob/master/CHANGELOG.md'
+        }
+    }
 }
 "@
 }
@@ -190,10 +192,14 @@ task Test {
         Show = "Failed"
     }
 
-    $results = Invoke-Pester @pesterParams
-
-    $fails = @($results).FailedCount
-    assert($fails -eq 0) ('Failed "{0}" unit tests.' -f $fails)
+    Get-ChildItem -Include '*.ps1', '*.psm1' -Path "$BuildRoot\source\" -Recurse | ForEach-Object {
+        $type = Split-Path -Path (Split-Path -Path $_.FullName -Parent) -Leaf | Where-Object { $_ -in @("public", "private") }
+        $testFilename = "$($_.BaseName).Tests.ps1"
+        $testPath = Join-Path -Path (Join-Path -Path "$BuildRoot\tests\" -ChildPath $type) -ChildPath $testFilename
+        $results = Invoke-PSCodeHealth -Path $_ -TestsPath $testPath
+        $fails = $results.ScriptAnalyzerFindingsTotal + $results.NumberOfFailedTests 
+        assert($fails -eq 0) ("{0} failed {1} tests." -f $testPath, $fails)
+    }
 }
 
 task CodeAnalysis {
@@ -216,4 +222,4 @@ task InstallDependencies {
 
 # Synopsis: The default task: make, test, clean.
 #task . Help, Test, Clean
-task . InstallDependencies, Test, Module
+task . GitStatus, InstallDependencies, Test, BuildModule
