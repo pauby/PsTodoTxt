@@ -37,7 +37,7 @@ Describe "Function Testing - Export-TodoTxt" {
         # called above so no further output tests needed
     }
 
-    Context "Code Analysis" {
+<#    Context "Code Analysis" {
 
         write-host $pssaSettings
 
@@ -54,5 +54,5 @@ Describe "Function Testing - Export-TodoTxt" {
                 }
             }
         } #foreach
-    } #Context
+    } #Context #>
 }
