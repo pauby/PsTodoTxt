@@ -39,14 +39,13 @@ Describe "Function Testing - Export-TodoTxt" {
 
 <#    Context "Code Analysis" {
 
-        write-host $pssaSettings
-
-        $analysis = Invoke-ScriptAnalyzer -Path $thisScript.Path -Settings $pssaSettings
+        $script:analysis = Invoke-ScriptAnalyzer -Path $thisScript.Path
         $scriptAnalyzerRules = Get-ScriptAnalyzerRule
 
         ForEach ($rule in $scriptAnalyzerRules) {
             It "Should pass $rule" {
 
+                write-host "Analysis: $($script:analysis)"
                 If ($analysis.RuleName -contains $rule) {
 
                     $analysis | Where-Object RuleName -EQ $rule -outvariable failures | Out-Default

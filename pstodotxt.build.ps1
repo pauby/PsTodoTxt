@@ -54,19 +54,22 @@ task Version {
 }
 
 # Synopsis: Make the module folder.
-task Module Version, Markdown, {
+task Module Version, {
     # mirror the module folder
     Remove-Item [z] -Force -Recurse
     $dir = "$BuildRoot\z\tools"
     exec {$null = robocopy.exe source $dir /mir} (0..2)
 
     # copy files
-    Copy-Item -Destination $dir `
-    README.htm,
-    LICENSE,
-    CHANGELOG.htm
+#    Copy-Item -Destination $dir `
+#    README.htm,
+#    LICENSE,
+#    CHANGELOG.htm
 
     # make manifest
+    $scripts = ((Get-Item 'source\public\*.ps1').Name) | ForEach-Object { "'public\$_'" }
+    $scripts += ((Get-Item 'source\private\*.ps1').Name) | ForEach-Object { "'private\$_'" }
+    $functionsToExport = ((Get-Item 'source\public\*.ps1').BaseName) | ForEach-Object { "'$_'" }
     Set-Content "$dir\PSTodoTxt.psd1" @"
 @{
     RootModule = 'PSTodoTxt.psm1'
@@ -77,7 +80,8 @@ task Module Version, Markdown, {
 	Copyright = '(c) 2016-$((Get-Date).Year) Paul Broadwith'
 	Description = 'PowerShell implementation of the Todo.txt CLI'
     PowerShellVersion = '3.0'
-    FunctionsToExport = @('$(@((Get-Item 'source\public\*.ps1').BaseName) -join ''', ''')')
+    FunctionsToExport = @($($functionsToExport -join ', '))
+    NestedModules = @($($scripts -join ', '))
 	PrivateData = @{
 		PSData = @{
 			Tags = 'Todo', 'Todo.txt'
@@ -188,8 +192,18 @@ task Test {
 
     $results = Invoke-Pester @pesterParams
 
-    $fails = $results.FailedCount
+    $fails = @($results).FailedCount
     assert($fails -eq 0) ('Failed "{0}" unit tests.' -f $fails)
+}
+
+task CodeAnalysis {
+    $scriptAnalyzerParams = @{
+        Path        = "$BuildRoot\source\"
+        Severity    = @('Error', 'Warning')
+        Recurse     = $true
+        Verbose     = $false
+    }
+    Invoke-ScriptAnalyzer @scriptAnalyzerParams
 }
 
 task InstallDependencies {
