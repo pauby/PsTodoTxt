@@ -2,10 +2,8 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
-$pssaSettings = "$PSScriptRoot\..\PSScriptAnalyzerSettings.psd1"
-Test-Path $pssaSettings
 $thisScript = Get-TestedScript
-Import-TestedModule
+Import-TestedModule | Out-Null
 
 Describe "Function Testing - Export-TodoTxt" {
     Context "Parameter Validation" {
