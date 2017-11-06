@@ -6,23 +6,21 @@
 .DESCRIPTION
     Imports todotxt strings from the source file and converts them to objects.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 29/04/16 - Initial version.
-                : 1.1 - 06/09/16 - Removed forcing output to be an array and replaced return with Write-Output.
+    Author: Paul Broadwith (https://pauby.com)
 .LINK
     https://www.github.com/pauby/pstodotxt
 .PARAMETER Path
     Path to the todo file. The file must exist.
     Throws an exception if the file does not exist. Nothing is returned if file is empty.
 .OUTPUTS
-    Output is [object]
+    System.Management.Automation.PSCustomObject
 .EXAMPLE
     Import-Todo -Path c:\todo.txt
 
     Reads the todotxt strings from the file c:\todo.txt and converts them to objects.
 #>
     [CmdletBinding()]
-    [OutputType([object])]
+    [OutputType([System.Management.Automation.PSCustomObject])]
     Param (
         [Parameter(Mandatory=$true,
                    HelpMessage='Enter the path to the todotxt file.')]
@@ -37,6 +35,6 @@
     }
     else {
         Write-Verbose "Read $(@($todos).count) todos."
-        Write-Output $todos | ConvertTo-TodoTxt
+        $todos | Where-Object { -not [string]::ISNullOrEmpty($_) } | ConvertTo-TodoTxt
     }
 }
