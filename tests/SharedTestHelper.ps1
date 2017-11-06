@@ -29,27 +29,31 @@ function Get-TestedScript {
 
 function Import-TestedModule {
     [CmdletBinding()]
-    Param()
+    Param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string]
+        $Name
+    )
     
-    $ModuleManifestPath = "$root\source\$ModuleName.psd1"
-    $ModulePath = "$root\source\$ModuleName.psm1"
-    if (!(Test-Path $ModulePath)) {
-        throw "Module $ModulePath not found."
+    $ModuleManifestPath = "$root\source\$Name.psd1"
+    $ModulePath = "$root\source\$Name.psm1"
+    if (!(Test-Path $ModuleManifestPath)) {
+        throw "Module $ModuleManifestPath not found."
     }
 
     # The first time this is called, the module will be forcibly (re-)imported.
     # After importing it once, the $SuppressImportModule flag should prevent
     # the module from being imported again for each test file.
 
-    if (-not (Get-Module -Name $ModuleName -ErrorAction SilentlyContinue) -or !(Test-Path Variable:SuppressImportModule) -or !$SuppressImportModule) {
+    if (-not (Get-Module -Name $Name -ErrorAction SilentlyContinue) -or !(Test-Path Variable:SuppressImportModule) -or !$SuppressImportModule) {
         # -Scope Global is needed when running tests from within a CI environment
-        Import-Module "$root\source\$ModuleName" -Scope Global -Force
+        Import-Module "$root\source\$Name" -Scope Global -Force
 
         # Set to true so we don't need to import it again for the next test
         $Script:SuppressImportModule = $true
     }
 
-    "{0,-15} : {1}" -f "Module Name", $ModuleName | Write-Verbose
+    "{0,-15} : {1}" -f "Module Name", $Name | Write-Verbose
     "{0,-15} : {1}" -f "Module Manifest", $ModuleManifestPath | Write-Verbose
     "{0,-15} : {1}" -f "Module", $ModulePath | Write-Verbose
 
