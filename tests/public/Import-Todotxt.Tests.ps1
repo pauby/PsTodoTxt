@@ -2,8 +2,6 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
-$thisScript = Get-TestedScript
-
 Describe "Function Testing - Import-TodoTxt" {
     Context "Parameter Validation" {
 
@@ -35,12 +33,5 @@ Describe "Function Testing - Import-TodoTxt" {
     Context "Output" {
         # the output comes from the ConvertTo-TodoTxt function. We tested this has been
         # called above so no further output tests needed
-    }
-
-    Context "Code Analysis" {
-
-        It 'passes all PSScriptAnalyser rules' {
-            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).Count | Should Be 0
-        }
     }
 }

@@ -2,8 +2,7 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
-$thisScript = Get-TestedScript
-Import-TestedModule | Out-Null
+$thisModule = Import-TestedModule -Name $ModuleName
 
 Describe "Function Testing - Export-TodoTxt" {
     Context "Parameter Validation" {
@@ -34,22 +33,4 @@ Describe "Function Testing - Export-TodoTxt" {
         # the output comes from the ConvertTo-TodoTxt function. We tested this has been
         # called above so no further output tests needed
     }
-
-<#    Context "Code Analysis" {
-
-        $script:analysis = Invoke-ScriptAnalyzer -Path $thisScript.Path
-        $scriptAnalyzerRules = Get-ScriptAnalyzerRule
-
-        ForEach ($rule in $scriptAnalyzerRules) {
-            It "Should pass $rule" {
-
-                write-host "Analysis: $($script:analysis)"
-                If ($analysis.RuleName -contains $rule) {
-
-                    $analysis | Where-Object RuleName -EQ $rule -outvariable failures | Out-Default
-                    $failures.Count | Should Be 0
-                }
-            }
-        } #foreach
-    } #Context #>
 }

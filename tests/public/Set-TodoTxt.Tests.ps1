@@ -2,7 +2,7 @@
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
-$thisScript = Get-TestedScript
+$thisModule = Import-TestedModule -Name $ModuleName
 
 Describe "Function Testing - Set-TodoTxt" {
 
@@ -57,7 +57,7 @@ Describe "Function Testing - Set-TodoTxt" {
             { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -Context ''} | Should not throw
             { Set-TodoTxt -Todo (New-Object -TypeName PSObject) -Project ''} | Should not throw
         }
-    }
+    } #Context
 
     Context "Logic & Flow" {
 	# Processing and logic flow tests
@@ -85,12 +85,5 @@ Describe "Function Testing - Set-TodoTxt" {
             $result = Set-TodoTxt -Todo $objTest -Priority 'Z'
             $result.Priority | Should be 'Z'
         }
-    }
-
-    Context "Code Analysis" {
-
-        It 'passes all PSScriptAnalyser rules' {
-        @(Invoke-ScriptAnalyzer -Path $thisScript.Path).Count | Should Be 0
-        }
-    }
+    } #Context
 }

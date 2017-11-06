@@ -2,8 +2,7 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
-$thisScript = Get-TestedScript
-Import-TestedModule | Out-Null
+$thisModule = Import-TestedModule -Name $ModuleName
 
 Describe "Testing Function - Test-TodoTxtDate" {
     InModuleScope PsTodoTxt {
@@ -31,11 +30,4 @@ Describe "Testing Function - Test-TodoTxtDate" {
             }
         } # Context
     } # InModuleScope
-
-    Context "Code Analysis" {
-
-        It 'passes all PSScriptAnalyser rules' {
-            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
-        }
-    }
 }

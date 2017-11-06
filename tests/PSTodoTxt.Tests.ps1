@@ -2,8 +2,7 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\SharedTestHelper.ps1"
 
-$thisScript = "$PSScriptRoot\..\source\PSTodoTxt.psm1"
-Import-TestedModule | Out-Null
+$thisModule = Import-TestedModule -Name $ModuleName
 
 Describe "Integration Testing - PSTodoTxt" {
 
@@ -21,11 +20,4 @@ Describe "Integration Testing - PSTodoTxt" {
             (Get-FileHash -Path "TestDrive:\before.txt").Hash -eq (Get-FileHash -Path "TestDrive:\after.txt").Hash | Should Be $true
         }
     } #InModuleScope
-
-    Context "Code Analysis" {
-
-        It 'passes all PSScriptAnalyser rules' {
-                @(Invoke-ScriptAnalyzer -Path $thisScript).count | Should Be 0
-        }
-    }
 }

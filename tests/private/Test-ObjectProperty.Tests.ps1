@@ -2,8 +2,7 @@ $ModuleName = 'PsTodoTxt'
 
 . "$PSScriptRoot\..\SharedTestHelper.ps1"
 
-$thisScript = Get-TestedScript
-Import-TestedModule | Out-Null
+$thisModule = Import-TestedModule -Name $ModuleName
 
 Describe "Testing Function - Test-ObjectProperty" {
 
@@ -36,13 +35,6 @@ Describe "Testing Function - Test-ObjectProperty" {
                 $actual -is [bool] | Should Be $true
                 $actual | Should Be $true
             }
-        }
-    }
-
-    Context "Code Analysis" {
-
-        It 'passes all PSScriptAnalyser rules' {
-            @(Invoke-ScriptAnalyzer -Path $thisScript.Path).count | Should Be 0
-        }
-    }
+        } #Context
+    } #InModuleScope
 }
