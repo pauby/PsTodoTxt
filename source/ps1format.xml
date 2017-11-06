@@ -1,0 +1,32 @@
+<ViewDefinitions>
+    <View>
+        <Name>Name of View</Name>
+        <ViewSelectedBy>
+            <TypeName>Object to display using this view</TypeName>
+            <TypeName>Object to display using this view</TypeName>
+        </ViewSelectedBy>
+        <TableControl>
+            <TableHeaders>
+                <TableColumnHeader>
+                    <Width></Width>
+                </TableColumnHeader>
+                <TableColumnHeader>
+                    <Width></Width>
+                </TableColumnHeader>
+            </TableHeaders>
+            <TableRowEntries>
+                <TableRowEntry>
+                    <TableColumnItems>
+                        <TableColumnItem>
+                            <PropertyName>Header for column 1</PropertyName>
+                        </TableColumnItem>
+                        <TableColumnItem>
+                            <PropertyName>Header for column 2</PropertyName>
+                        </TableColumnItem>
+                    </TableColumnItems>
+                </TableRowEntry>
+            </TableRowEntries>
+        </TableControl)
+  
+    </View>
+</ViewDefinitions>
