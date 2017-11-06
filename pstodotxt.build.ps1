@@ -72,7 +72,7 @@ task BuildManifest Version, {
     $scripts = ((Get-Item 'source\public\*.ps1').Name) | ForEach-Object { "'public\$_'" }
     $scripts += ((Get-Item 'source\private\*.ps1').Name) | ForEach-Object { "'private\$_'" }
     $functionsToExport = ((Get-Item 'source\public\*.ps1').BaseName) | ForEach-Object { "'$_'" }
-    Set-Content "$BuildRoot\source\\PSTodoTxt.psd1" @"
+    Set-Content "$BuildRoot\source\PSTodoTxt.psd1" @"
 @{
     RootModule = 'PSTodoTxt.psm1'
     ModuleVersion = '$Version'
@@ -184,7 +184,7 @@ task Test6 -If $env:powershell6 {
 
 # Synopsis: Test v3+ and v2.
 #task Test Test3, Test2, Test6
-task Test {
+task CodeHealth {
     $pesterParams = @{
         EnableExit = $false;
         PassThru = $true;
@@ -202,6 +202,20 @@ task Test {
     }
 }
 
+task Test BuildManifest, {
+    $pesterParams = @{
+        EnableExit = $false;
+        PassThru   = $true;
+        Strict     = $true;
+        Show       = "Failed"
+    }
+
+    $results = Invoke-Pester @pesterParams
+
+    $fails = @($results).FailedCount
+    assert($fails -eq 0) ('Failed "{0}" unit tests.' -f $fails)
+}
+
 task CodeAnalysis {
     $scriptAnalyzerParams = @{
         Path        = "$BuildRoot\source\"
@@ -213,13 +227,13 @@ task CodeAnalysis {
 }
 
 task InstallDependencies {
-    $modules = @( "Pester", "PSScriptAnalyzer", "PsCodeHealth", "ModuleBuild") | ForEach-Object {
+    @( "Pester", "PSScriptAnalyzer", "PsCodeHealth", "ModuleBuild") | ForEach-Object {
         if (!(Get-Module -Name $_ -ListAvailable)) {
-            Install-Module $_ -Force
+            Install-Module $_ -Force -Scope CurrentUser
         }
     }
 }
 
 # Synopsis: The default task: make, test, clean.
 #task . Help, Test, Clean
-task . GitStatus, InstallDependencies, Test, BuildModule
+task . GitStatus, InstallDependencies, Test, CodeAnalysis
