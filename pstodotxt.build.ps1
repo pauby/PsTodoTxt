@@ -19,83 +19,31 @@ param(
 Set-StrictMode -Version Latest
 
 # Project variables
-$buildDir = "$BuildRoot\build"
-
-# Synopsis: Convert markdown files to HTML.
-# <http://johnmacfarlane.net/pandoc/>
-task Markdown {
-    exec { pandoc.exe --standalone --from=markdown_strict --output=README.html README.md }
-    exec { pandoc.exe --standalone --from=markdown_strict --output=CHANGELOG.html CHANGELOG.md }
+$BuildOptions = @{
+    ModuleName          = 'PSTodoTxt'
+    PSGalleryApiKey     = $env:PSGALLERY_API_KEY
+    BuildPath           = "$BuildRoot\build"
+    SourcePath          = "$BuildRoot\source"
+    TestsPath           = "$BuildRoot\tests"
+    ModuleLoadPath      = "$($env:mysyncroot)\Coding\PowerShell\Modules"
 }
 
-# Synopsis: Remove generated and temp files.
-task Clean {
-    Remove-Item -Path $buildDir -Force -Recurse -ErrorAction SilentlyContinue
+$ManifestOptions = @{
+    RootModule          = "$($BuildOptions.ModuleName).psm1"
+    GUID                = '6533f849-f8fa-4537-b4d1-7e3c21b96291'
+    Author              = 'Paul Broadwith'
+    CompanyName         = 'Paul Broadwith'
+    Copyright           = "(c) 2016-$((Get-Date).Year) Paul Broadwith"
+    Description         = 'PowerShell implementation of the Todo.txt CLI'
+    PowerShellVersion   = '3.0'
+    FormatsToProcess    = 'PSTodoTxt.Format.ps1xml'
+    Tags                = 'Todo', 'Todo.txt'
+    ProjectUri = 'https://github.com/pauby/PSTodoTxt'
+    LicenseUri = 'https://github.com/pauby/PsTodoTxt/blob/master/LICENSE'
+    ReleaseNotes = 'https://github.com/pauby/PSTodoTxt/blob/master/CHANGELOG.md'
 }
 
-# Synopsis: Warn about not empty git status if .git exists.
-task GitStatus -If (Test-Path .git) {
-    $status = exec { git status -s }
-    if ($status) {
-        Write-Warning "Git status: $($status -join ', ')"
-    }
-}
-
-# Synopsis: Build the PowerShell help file.
-# <https://github.com/nightroman/Helps>
-task Help {
-    . Helps.ps1
-    Convert-Helps Invoke-Build-Help.ps1 Invoke-Build-Help.xml
-}
-
-# Synopsis: Set $script:Version.
-task Version {
-    # get the version from Release-Notes
-    ($script:Version = . { switch -Regex -File Changelog.md {'##\s+v(\d+\.\d+\.\d+)' {return $Matches[1]}} })
-    assert $Version
-}
-
-# Synopsis: Make the module folder.
-task BuildModule Clean, BuildManifest, {
-    # mirror the module folder
-    exec {$null = robocopy.exe source $buildDir /mir} (0..2)
-
-    # copy files
-    Copy-Item -Destination $buildDir `
-    README.htm,
-    LICENSE,
-    CHANGELOG.htm
-}
-
-task BuildManifest Version, {
-    # make manifest
-    $scripts = ((Get-Item 'source\public\*.ps1').Name) | ForEach-Object { "'public\$_'" }
-    $scripts += ((Get-Item 'source\private\*.ps1').Name) | ForEach-Object { "'private\$_'" }
-    $functionsToExport = ((Get-Item 'source\public\*.ps1').BaseName) | ForEach-Object { "'$_'" }
-    Set-Content "$BuildRoot\source\PSTodoTxt.psd1" @"
-@{
-    RootModule = 'PSTodoTxt.psm1'
-    ModuleVersion = '$Version'
-    GUID = '6533f849-f8fa-4537-b4d1-7e3c21b96291'
-    Author = 'Paul Broadwith'
-    CompanyName = 'Paul Broadwith'
-    Copyright = '(c) 2016-$((Get-Date).Year) Paul Broadwith'
-    Description = 'PowerShell implementation of the Todo.txt CLI'
-    PowerShellVersion = '3.0'
-    FunctionsToExport = @($($functionsToExport -join ', '))
-    NestedModules = @($($scripts -join ', '))
-    PrivateData = @{
-        PSData = @{
-            Tags = 'Todo', 'Todo.txt', 'CLI'
-            ProjectUri = 'https://github.com/pauby/PSTodoTxt'
-            LicenseUri = 'https://github.com/pauby/PsTodoTxt/blob/master/LICENSE'
-            ReleaseNotes = 'https://github.com/pauby/PSTodoTxt/blob/master/CHANGELOG.md'
-        }
-    }
-}
-"@
-}
-
+<#
 # Synopsis: Make the NuGet package.
 task NuGet Module, {
     $text = @'
@@ -126,21 +74,31 @@ more powerful. It is complete, bug free, well covered by tests.
     exec { NuGet pack z\Package.nuspec -NoDefaultExcludes -NoPackageAnalysis }
 }
 
-# Synopsis: Push with a version tag.
-task PushRelease Version, {
-    $changes = exec { git status --short }
-    assert (!$changes) "Please, commit changes."
-
-    exec { git push }
-    exec { git tag -a "v$Version" -m "v$Version" }
-    exec { git push origin "v$Version" }
-}
-
 # Synopsis: Push NuGet package.
 task PushNuGet NuGet, {
     exec { NuGet push "Invoke-Build.$Version.nupkg" -Source nuget.org }
 },
-Clean
+CleanBuild
+
+# Synopsis: Test v3+ and v2.
+#task Test Test3, Test2, Test6
+task CodeHealth {
+    $pesterParams = @{
+        EnableExit = $false;
+        PassThru = $true;
+        Strict = $true;
+        Show = "Failed"
+    }
+
+    Get-ChildItem -Include '*.ps1', '*.psm1' -Path "$($BuildOptions.SourcePath)" -Recurse | ForEach-Object {
+        $type = Split-Path -Path (Split-Path -Path $_.FullName -Parent) -Leaf | Where-Object { $_ -in @("public", "private") }
+        $testFilename = "$($_.BaseName).Tests.ps1"
+        $testPath = Join-Path -Path (Join-Path -Path "$($BuildOptions.TestsPath)" -ChildPath $type) -ChildPath $testFilename
+        $results = Invoke-PSCodeHealth -Path $_ -TestsPath $testPath
+        $fails = $results.ScriptAnalyzerFindingsTotal + $results.NumberOfFailedTests 
+        assert($fails -eq 0) ("{0} failed {1} tests." -f $testPath, $fails)
+    }
+}
 
 # Synopsis: Calls tests infinitely. NOTE: normal scripts do not use ${*}.
 task Loop {
@@ -151,6 +109,101 @@ task Loop {
         Invoke-Build . Tests\.build.ps1
     }
 }
+#>
+
+# Synopsis: Remove build folder
+task CleanBuild {
+    Remove-Item -Path $BuildOptions.BuildPath -Force -Recurse -ErrorAction SilentlyContinue
+}
+
+# Synopsis: Cleans the module from all PowerShell module paths
+task CleanModule {
+
+    Get-Module $BuildOptions.ModuleName -ListAvailable | ForEach-Object {
+        Remove-Module $_.Path -ErrorAction SilentlyContinue
+        Remove-Item -Path (Split-Path -Path $_.Path -Parent) -Force -Recurse
+    }
+}
+
+# Synopsis: Warn about not empty git status if .git exists.
+task GitStatus -If (Test-Path .git) {
+    $status = exec { git status -s }
+    if ($status) {
+        Write-Warning "Git status: $($status -join ', ')"
+    }
+}
+
+# Synopsis: Build the PowerShell help file.
+# <https://github.com/nightroman/Helps>
+task Help {
+    . Helps.ps1
+    Convert-Helps Invoke-Build-Help.ps1 Invoke-Build-Help.xml
+}
+
+# Synopsis: Set $script:Version.
+task Version {
+    # get the version from Release-Notes
+    $script:Version = . { switch -Regex -File Changelog.md {'##\s+v(\d+\.\d+\.\d+)' {return $Matches[1]}} }
+    assert ($Version)
+}
+
+# Synopsis: Convert markdown files to HTML.
+# <http://johnmacfarlane.net/pandoc/>
+task Markdown {
+    exec { pandoc.exe --standalone --from=markdown_strict --output=$($BuildOptions.BuildPath)\README.html README.md }
+    exec { pandoc.exe --standalone --from=markdown_strict --output=$($BuildOptions.SourcePath)\CHANGELOG.html CHANGELOG.md }
+}
+
+# Synopsis: Make the build folder.
+task Build CleanBuild, BuildManifest, {
+    # mirror the source folder
+    exec {$null = robocopy.exe $($BuildOptions.SourcePath) $($BuildOptions.BuildPath) /mir} (0..2)
+
+    # copy files
+    Copy-Item -Destination $BuildOptions.BuildPath -Path LICENSE
+}, Markdown
+
+# Synopsis: Builds the module manifest
+task BuildManifest Version, {
+    # make manifest
+    $scripts = ((Get-Item "$($BuildOptions.SourcePath)\public\*.ps1").Name) | ForEach-Object { "public\$_" }
+    $scripts += ((Get-Item "$($BuildOptions.SourcePath)\private\*.ps1").Name) | ForEach-Object { "private\$_" }
+    $functionsToExport = ((Get-Item "$($BuildOptions.SourcePath)\public\*.ps1").BaseName) | ForEach-Object { "$_" }
+
+    New-ModuleManifest -Path "$($BuildOptions.SourcePath)\$($BuildOptions.ModuleName).psd1" @ManifestOptions `
+        -NestedModules $scripts -FunctionsToExport $functionsToExport -ModuleVersion $Version
+}
+
+# Synopsis: Push with a version tag.
+task PushRelease Version, {
+    $changes = exec { git status --short }
+    assert (!$changes) "Please, commit changes."
+
+    exec { git push }
+    exec { git tag -a "v$Version" -m "v$Version" }
+    exec { git push origin "v$Version" }
+}
+
+task PushPSGallery CleanModule, Build, {
+    if (-not $BuildOptions.PSGalleryApiKey) {
+        Write-Error "You need to set the environment variable PSGALLERY_API_KEY to the PowerShell Gallery API Key"
+    }
+
+    exec {$null = robocopy.exe $($BuildOptions.BuildPath) "$($BuildOptions.ModuleLoadPath)\$($BuildOptions.ModuleName)" /mir} (0..2)
+
+    $PublishOptions = {
+        Name            = $BuildOptions.ModuleName
+        IconUri         = $ManifestOptions.IconUri
+        LicenseUri      = $ManifestOptions.LicenseUri
+        ProjectUri      = $ManifestOptions.ProjectUri
+        ReleaseNotes    = $ManifestOptions.ReleaseNotes
+        Tags            = $ManifestOptions.Tags
+        NuGetApiKey     = $BuildOptions.PSGalleryApiKey
+    }
+
+    #Import-Module "$MyBuildPath\$ModuleName.psd1"
+    Publish-Module @PublishOptions
+}, CleanBuild
 
 # Synopsis: Test and check expected output.
 # Requires PowerShelf/Assert-SameFile.ps1
@@ -182,26 +235,6 @@ task Test6 -If $env:powershell6 {
     exec {& $env:powershell6 -NoProfile -Command Invoke-Build Test3 $diff}
 }
 
-# Synopsis: Test v3+ and v2.
-#task Test Test3, Test2, Test6
-task CodeHealth {
-    $pesterParams = @{
-        EnableExit = $false;
-        PassThru = $true;
-        Strict = $true;
-        Show = "Failed"
-    }
-
-    Get-ChildItem -Include '*.ps1', '*.psm1' -Path "$BuildRoot\source\" -Recurse | ForEach-Object {
-        $type = Split-Path -Path (Split-Path -Path $_.FullName -Parent) -Leaf | Where-Object { $_ -in @("public", "private") }
-        $testFilename = "$($_.BaseName).Tests.ps1"
-        $testPath = Join-Path -Path (Join-Path -Path "$BuildRoot\tests\" -ChildPath $type) -ChildPath $testFilename
-        $results = Invoke-PSCodeHealth -Path $_ -TestsPath $testPath
-        $fails = $results.ScriptAnalyzerFindingsTotal + $results.NumberOfFailedTests 
-        assert($fails -eq 0) ("{0} failed {1} tests." -f $testPath, $fails)
-    }
-}
-
 task Test BuildManifest, {
     $pesterParams = @{
         EnableExit = $false;
@@ -210,15 +243,19 @@ task Test BuildManifest, {
         Show       = "Failed"
     }
 
-    $results = Invoke-Pester @pesterParams
+    # will throw an error and stop the build if errors
+    Test-ModuleManifest "$($BuildOptions.SourcePath)\$($BuildOptions.ModuleName).psd1" -ErrorAction Stop | Out-Null
 
+    # remove the module before we test it
+    Remove-Module $BuildOptions.ModuleName -Force -ErrorAction SilentlyContinue
+    $results = Invoke-Pester @pesterParams
     $fails = @($results).FailedCount
     assert($fails -eq 0) ('Failed "{0}" unit tests.' -f $fails)
 }
 
 task CodeAnalysis {
     $scriptAnalyzerParams = @{
-        Path        = "$BuildRoot\source\"
+        Path        = $BuildOptions.SourcePath
         Severity    = @('Error', 'Warning')
         Recurse     = $true
         Verbose     = $false
