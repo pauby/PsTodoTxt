@@ -7,6 +7,7 @@
     Copyright = '(c) 2016-2017 Paul Broadwith'
     Description = 'PowerShell implementation of the Todo.txt CLI'
     PowerShellVersion = '3.0'
+    FormatsToProcess = @('PSTodoTxt.Format.ps1xml')
     FunctionsToExport = @('ConvertFrom-TodoTxt', 'ConvertTo-TodoTxt', 'Export-TodoTxt', 'Import-TodoTxt', 'Set-TodoTxt')
     NestedModules = @('public\ConvertFrom-TodoTxt.ps1', 'public\ConvertTo-TodoTxt.ps1', 'public\Export-TodoTxt.ps1', 'public\Import-TodoTxt.ps1', 'public\Set-TodoTxt.ps1', 'private\Get-TodoTxtTodaysDate.ps1', 'private\Test-ObjectProperty.ps1', 'private\Test-TodoTxt.ps1', 'private\Test-TodoTxtContext.ps1', 'private\Test-TodoTxtDate.ps1', 'private\Test-TodoTxtPriority.ps1')
     PrivateData = @{
