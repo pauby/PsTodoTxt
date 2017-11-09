@@ -30,7 +30,6 @@ $BuildOptions = @{
 
 $ManifestOptions = @{
     RootModule          = "$($BuildOptions.ModuleName).psm1"
-    GUID                = '6533f849-f8fa-4537-b4d1-7e3c21b96291'
     Author              = 'Paul Broadwith'
     CompanyName         = 'Paul Broadwith'
     Copyright           = "(c) 2016-$((Get-Date).Year) Paul Broadwith"
