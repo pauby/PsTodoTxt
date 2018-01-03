@@ -55,7 +55,7 @@ Nothing yet - not released version 1 yet!
 # Contributing
 
 * Source hosted at [GitHub](https://github.com/pauby/pstodotxt)
-* Report issues/questions/feature requests on [GitHub Issues](https://github.com/pauby/pstodotxt)/issues)
+* Report issues/questions/feature requests on [GitHub Issues](https://github.com/pauby/pstodotxt/issues)
 
 Pull requests are very welcome! Make sure your patches are well tested. Ideally create a topic branch for every separate change you make. For example:
 
