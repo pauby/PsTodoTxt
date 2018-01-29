@@ -1,4 +1,3 @@
-
 function Export-TodoTxt
 {
 <#
@@ -10,14 +9,9 @@ function Export-TodoTxt
     back to todotxt strings by calling the cmdlet
     ConvertFrom-TodoTxt.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 29/04/16 - Initial version
-                : 2.0 - 06/09/16 - Completely rewritten to accept pipeline and parameter input.
-                  2.1 - 23/01/17 - Refactored code
+    Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     https://www.github.com/pauby/pstodotxt
-.PARAMETER Path
-    Path to the todo file. The file will be created if it does not exist.
 .EXAMPLE
     $todo = Import-TodoTxt -Path c:\input.txt
     Export-TodoTxt -Todo $todo -Path c:\output.txt
@@ -30,20 +24,21 @@ function Export-TodoTxt
     Imports todotxt strings from c:\input.txt and then exports the file c:\output.txt
     by appending them to the end of the file.
 #>
+
     [CmdletBinding()]
     Param(
+        # Object(s) to export
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
         [ValidateNotNull()]
-        [PSObject]
-        $Todo,
+        [PSObject]$Todo,
 
+        # Path to the todo file. The file will be created if it does not exist
         [Parameter(Mandatory=$true,Position=1)]
         [ValidateNotNullOrEmpty()]
-        [string]
-        $Path,
+        [string]$Path,
 
-        [switch]
-        $Append
+        # Append to todo file
+        [switch]$Append
     )
 
     Begin {

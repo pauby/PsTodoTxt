@@ -1,29 +1,30 @@
+function Test-TodoTxtDate
+{
 <#
 .SYNOPSIS
     Tests a date.
 .DESCRIPTION
-    Tests a date for the format yyy-MM-dd. It does not test to see if the date is in the future, past or present.
+    Tests a date for the format yyy-MM-dd. It does not test to see if the date
+    is in the future, past or present.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 28/09/15 - Initial version
-    TODO        : Might be easier to this via a regular expression.
+    Author: Paul Broadwith (https://github.com/pauby)
+
+    TODO: Might be easier to this via a regular expression.
 .LINK
-    https://www.github.com/pauby
-.PARAMETER Date
-    The date to test. Note that this is a string and not a date object.
+    https://www.github.com/pauby/pstodotxt
 .OUTPUTS
-	Whether the date is valid or not. Output type is [bool]
+    [System.Boolean]
 .EXAMPLE
     Test-TodoDate -TestDate '2015-10-10'
 
     Tests to ensure the date '2015-10-10' is in the valid todo date format and outputs $true or $false.
 #>
-function Test-TodoTxtDate
-{
+
     [CmdletBinding()]
-    [OutputType([bool])]
+    [OutputType([System.Boolean])]
     Param (
-        [Parameter(Mandatory)]
+        # The date to test. Note that this is a string and not a date object.
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]$Date
     )
@@ -39,12 +40,10 @@ function Test-TodoTxtDate
         return $false
     }
 
-    if ($result.CompareTo($Date) -ne 0 -or $? -eq $false) # test if the date returned is not the same as the input or we have an error
-    {
+    if ($result.CompareTo($Date) -ne 0 -or $? -eq $false) { # test if the date returned is not the same as the input or we have an error
         $false
     }
-    else
-    {
+    else {
         $true
     }
 }

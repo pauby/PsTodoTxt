@@ -4,18 +4,12 @@
 .DESCRIPTION
     Tests to ensure that the priority is valid.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 28/09/15 - Initial version
-
-    A valid priority is a single character string that is between A and Z.
-
-    TODO        : Might be easier to this via a regular expression.
+    Author: Paul Broadwith (https://github.com/pauby)
+    TODO: Might be easier to this via a regular expression.
 .LINK
-    https://www.github.com/pauby/
-.PARAMETER Priority
-    The priority to test.
+    https://www.github.com/pauby/pstodotxt
 .OUTPUTS
-	Whether the priority is correct. Output type is [bool]
+	[System.Boolean]
 .EXAMPLE
     Test-TodoPriority "N"
 
@@ -24,9 +18,10 @@
 function Test-TodoTxtPriority
 {
     [CmdletBinding()]
-    [OutputType([bool])]
+    [OutputType([System.Boolean])]
     Param (
-        [Parameter(Mandatory)]
+        # The priority to test. A valid priority is a single character string that is between A and Z.
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]$Priority
     )

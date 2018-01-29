@@ -4,29 +4,14 @@
 .SYNOPSIS
     Tests a todotxt object.
 .DESCRIPTION
-    Tests a TodoTxt object properties to ensure they conform to the todotxt specification.
+    Tests a TodoTxt object properties to ensure they conform to the todotxt
+    specification.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 15/09/16 - Initial version
-                  1.1 - 23/01/17 - Refactored code
+    Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     https://www.github.com/pauby/pstodotxt
-.PARAMETER DoneDate
-    The DoneDate property to test.
-.PARAMETER CreatedDate
-    The CreatedDate property to test.
-.PARAMETER Priority
-    The Priority property to test.
-.PARAMETER Task
-    The Tasks property to test.
-.PARAMETER Context
-    The Context property to test.
-.PARAMETER Project
-    The Project property to test.
-.PARAMETER Addon
-    The Addon (key:value pairs) property to test.
 .OUTPUTS
-	Result of the tested todo - true or false [boolean]
+    [System.Boolean]
 .EXAMPLE
     $obj | Test-TodoTxt
 
@@ -34,32 +19,39 @@
 #>
 
     [CmdletBinding()]
-    [OutputType([boolean])]
+    [OutputType([System.Boolean])]
 	Param(
+        # The DoneDate property to test.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("dd")]
         [string]$DoneDate,
 
+        # The CreatedDate property to test
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("cd")]
         [string]$CreatedDate,
 
+        # The Priority property to test.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("pri", "u")]
         [string]$Priority,
 
+        # The Tasks property to test.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("t")]
         [string]$Task,
 
+        # The Context property to test.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("c")]
         [string[]]$Context,
 
+        # The Project property to test.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("p")]
         [string[]]$Project,
 
+        # The Addon (key:value pairs) property to test.
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [Alias("a")]
         [string[]]$Addon

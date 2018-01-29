@@ -1,41 +1,37 @@
-﻿#Requires -Version 3
+﻿function ConvertTo-TodoTxt
+{
 <#
 .SYNOPSIS
-    Splits a todo text string.
+    Converts a todo text string to a TodoTxt object.
 .DESCRIPTION
-    Splits a todo text string into parts and return back an object.
+    Converts a todo text string to a TodoTxt object.
+
+    If the task description is not present then you will find that various components of the todo end up as it.
 
     See the project documentation for the format of the object.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 20/06/16 - Initial version
-                  1.1 - 31/08/16 - Changed to return an object; Changed name.
-                  1.2 - 19/01/17 - Function renamed; code refactored and cut down substantially
-    Notes       : If the task description is not present then you will find that various components of the todo end up as it.
+    Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     http://www.github.com/pauby/pstodotxt
-.PARAMETER Todo
-    This is the raw todo text - ie. 'take car to garage @car +car_maintenance'
 .INPUTS
-	Input type [String]
+    Input type [System.String]
 .OUTPUTS
-	Output type [PSObject]
+    Output type [System.Object]
 .EXAMPLE
     ConvertTo-TodoTxt -Todo 'take car to garage @car +car_maintenance'
 
-	Splits the todo text into it's components and returns them in an object.
+    Converts the todo text into it's components and returns them in an object.
 .EXAMPLE
     $todo = 'take car to garage @car +car_maintenance'
     $todo | ConvertTo-TodoTxt
 
-	Splits the todo text into it's components and returns them in an object
+    Converts the todo text into it's components and returns them in an object
 #>
 
-function ConvertTo-TodoTxt
-{
     [CmdletBinding()]
-    [OutputType([object[]])]
+    [OutputType([System.Object])]
     Param (
+        # This is the raw todo text - ie. 'take car to garage @car +car_maintenance'
         [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
         [ValidateNotNullOrEmpty()]
         [string[]]$Todo
@@ -50,12 +46,18 @@ function ConvertTo-TodoTxt
         # Note that as each part is extracted it is also removed from the input so this will affect which
         # anchors used in the expressions
         $regexList = @(
-            @{ "name" = "DoneDate"; "regex" = "^x\ \d{4}-\d{2}-\d{2}\ " },  # the done date - eg. 'x 2017-08-01'
-            @{ "name" = "Priority"; "regex" = "^\(([A-Za-z])\)\ " },    # priority - eg. '(B)'
-            @{ "name" = "CreatedDate"; "regex" = "^\d{4}-\d{2}-\d{2}\ " },  # created date - eg. '2016-05-23'
-            @{ "name" = "Context"; "regex" = "(?:^|\s)@[a-z\d-_]+" },                # context - eg. '@computer' - can only have ONE @ to be recognised as a context
-            @{ "name" = "Project"; "regex" = "(?:^|\s)\+[a-z\d-_]+" },              # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
-            @{ "name" = "Addon"; "regex" = "(?:^|\s)(\S+)\:((?!//)\S+)" }           # addon - eg. 'due:2017-02-01'
+            # the done date - eg. 'x 2017-08-01'
+            @{ "name" = "DoneDate"; "regex" = "^x\ \d{4}-\d{2}-\d{2}\ " },
+            # priority - eg. '(B)'
+            @{ "name" = "Priority"; "regex" = "^\(([A-Za-z])\)\ " },
+            # created date - eg. '2016-05-23'
+            @{ "name" = "CreatedDate"; "regex" = "^\d{4}-\d{2}-\d{2}\ " },
+            # context - eg. '@computer' - can only have ONE @ to be recognised as a context
+            @{ "name" = "Context"; "regex" = "(?:^|\s)@[a-z\d-_]+" },
+            # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
+            @{ "name" = "Project"; "regex" = "(?:^|\s)\+[a-z\d-_]+" },
+            # addon - eg. 'due:2017-02-01'
+            @{ "name" = "Addon"; "regex" = "(?:^|\s)(\S+)\:((?!//)\S+)" }
         )
     }
 
@@ -63,6 +65,7 @@ function ConvertTo-TodoTxt
         $Todo | ForEach-Object {
             Write-Verbose "Processing line: $_"
             $output = New-Object -TypeName PSObject -Property @{ "CreatedDate" = (Get-TodoTxtTodaysDate) }
+            $output.PSObject.TypeNames.Insert(0, 'TodoTxt')
             $line = $_
 
             foreach ($item in $regexList) {
@@ -72,8 +75,10 @@ function ConvertTo-TodoTxt
 
                     switch ($item.name) {
                         "DoneDate" {
-                            # the format of the 'done' is 'x <DATE>' so we need to skip over the x and the space
-                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value (Get-Date -Date $found.value.SubString(2) -Format "yyyy-MM-dd")
+                            # the format of the 'done' is 'x <DATE>' so we need
+                            # to skip over the x and the space
+                            $output | Add-Member -MemberType NoteProperty -Name $_ `
+                                -Value (Get-Date -Date $found.value.SubString(2) -Format "yyyy-MM-dd")
                             Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
@@ -85,8 +90,11 @@ function ConvertTo-TodoTxt
                         }
 
                         "Priority"  {
-                            # priority is returned as '(<PRIORITY>)' and that will match the numbered capture (1) in the regex so we use that
-                            $output | Add-Member -MemberType NoteProperty -Name $_ -Value ([string]$found.groups[1].value).ToUpper()
+                            # priority is returned as '(<PRIORITY>)' and that
+                            # will match the numbered capture (1) in the regex
+                            # so we use that
+                            $output | Add-Member -MemberType NoteProperty -Name $_ `
+                                -Value ([string]$found.groups[1].value).ToUpper()
                             Write-Verbose "Found '$_': $($output.$_)"
                             break
                         }
@@ -112,9 +120,9 @@ function ConvertTo-TodoTxt
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value $addons
                             break
                         }
-                    }
-                }
-            }
+                    } # end switch
+                } # end if
+            } # end foreach
 
             # what is left here is the task itself but we need to tidy it up
             # as each part is extracted it's leaving behind double spaces etc.
@@ -126,8 +134,8 @@ function ConvertTo-TodoTxt
             Write-Verbose "Found 'Task': $($output.task)"
 
             Write-Output $output
-        }
-    }
+        } # end foreach
+    } # end Process
 
     End {
     }

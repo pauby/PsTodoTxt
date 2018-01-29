@@ -6,24 +6,23 @@
 .DESCRIPTION
     Imports todotxt strings from the source file and converts them to objects.
 .NOTES
-    Author: Paul Broadwith (https://pauby.com)
+    Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     https://www.github.com/pauby/pstodotxt
-.PARAMETER Path
-    Path to the todo file. The file must exist.
-    Throws an exception if the file does not exist. Nothing is returned if file is empty.
 .OUTPUTS
-    System.Management.Automation.PSCustomObject
+    System.Object
 .EXAMPLE
     Import-Todo -Path c:\todo.txt
 
     Reads the todotxt strings from the file c:\todo.txt and converts them to objects.
 #>
+
     [CmdletBinding()]
-    [OutputType([System.Management.Automation.PSCustomObject])]
+    [OutputType([System.Object])]
     Param (
-        [Parameter(Mandatory=$true,
-                   HelpMessage='Enter the path to the todotxt file.')]
+        # Path to the todo file. The file must exist. Throws an exception if the
+        # file does not exist. Nothing is returned if file is empty.
+        [Parameter(Mandatory=$true)]
         [ValidateScript( { Test-Path $_ } )]
         [string]$Path
     )

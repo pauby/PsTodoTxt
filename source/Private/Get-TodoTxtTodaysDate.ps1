@@ -1,3 +1,5 @@
+function Get-TodoTxtTodaysDate
+{
 <#
 .SYNOPSIS
     Gets todays date in todo.txt format.
@@ -15,7 +17,6 @@
 
 	Outputs todays date.
 #>
-function Get-TodoTxtTodaysDate
-{
+
     Get-Date -Format "yyyy-MM-dd"
 }

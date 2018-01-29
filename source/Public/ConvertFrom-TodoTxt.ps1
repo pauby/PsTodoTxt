@@ -2,21 +2,18 @@ function ConvertFrom-TodoTxt
 {
 <#
 .SYNOPSIS
-    Converts a todo text object..
+    Converts a todo object to a todotxt string.
 .DESCRIPTION
-    Converts a todo text object into a string.
+    Converts a todo object to a todotxt string.
 .NOTES
-    Author		: Paul Broadwith (paul@pauby.com)
-	History		: 1.0 - 31/08/16 - Initial version
-                  1.1 - 23/01/17 - Refactored code
+    Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     http://www.github.com/pauby/pstodotxt
 .PARAMETER InputObject
-    This is the todotxt object (as output from ConvertTo-TodoTxt for example).
 .INPUTS
-	Input type [PSObject]
+	Input type [System.Object]
 .OUTPUTS
-	Output type [String]
+	Output type [System.String]
 .EXAMPLE
     $todoObject | ConvertFrom-TodoTxt
 
@@ -24,12 +21,12 @@ function ConvertFrom-TodoTxt
 #>
 
     [CmdletBinding()]
-    [OutputType([string])]
+    [OutputType([System.String])]
     Param (
+        # This is the todotxt object (as output from ConvertTo-TodoTxt for example).
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [ValidateNotNull()]
-        [PSObject]
-        $Todo
+        [PSObject]$Todo
     )
 
     Begin {
@@ -46,7 +43,9 @@ function ConvertFrom-TodoTxt
             }
 
             Foreach ($prop in $objProps) {
-                if ( (Test-ObjectProperty -InputObject $todoObj -PropertyName $prop) -and ($null -ne $todoObj.$prop) -and (-not [string]::IsNullOrEmpty($todoObj.$prop)) ) {
+                if ( (Test-ObjectProperty -InputObject $todoObj -PropertyName $prop) `
+                    -and ($null -ne $todoObj.$prop) `
+                    -and (-not [string]::IsNullOrEmpty($todoObj.$prop)) ) {
 
                     switch ($prop) {
                         "DoneDate" {
