@@ -9,7 +9,6 @@ function ConvertFrom-TodoTxt
     Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     http://www.github.com/pauby/pstodotxt
-.PARAMETER InputObject
 .INPUTS
 	Input type [System.Object]
 .OUTPUTS
