@@ -51,3 +51,16 @@ Nothing yet - not released version 1 yet!
 * [How to GTD with SimpleTask](https://gist.github.com/alehandrof/9941620)
 * [How TaskWarrior handles Urgency](http://taskwarrior.org/docs/urgency.html)
 * [How topydo handles urgency](https://github.com/bram85/topydo/wiki/Importance)
+
+# Contributing
+
+* Source hosted at [GitHub](https://github.com/pauby/pstodotxt)
+* Report issues/questions/feature requests on [GitHub Issues](https://github.com/pauby/pstodotxt/issues)
+
+Pull requests are very welcome! Make sure your patches are well tested. Ideally create a topic branch for every separate change you make. For example:
+
+* Fork the repo
+* Create your feature branch (git checkout -b my-new-feature)
+* Commit your changes (git commit -am 'Added some feature')
+* Push to the branch (git push origin my-new-feature)
+* Create new Pull Request
