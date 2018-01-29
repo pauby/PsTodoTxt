@@ -4,7 +4,7 @@
         <View>
             <Name>Todo</Name>
             <ViewSelectedBy>
-                <TypeName>System.Management.Automation.PSCustomObject</TypeName>
+                <TypeName>TodoTxt</TypeName>
             </ViewSelectedBy>
             <TableControl>
                 <TableHeaders>
