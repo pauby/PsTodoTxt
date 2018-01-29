@@ -46,6 +46,7 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
                 Compare-Object -ReferenceObject $expected -DifferenceObject $result `
                     -Property @('DoneDate', 'Priority', 'CreatedDate', 'Context', `
                     'Project', 'Addon', 'Task') | Should be $null
+                $result.PSObject.TypeNames[0] | Should -BeExactly 'TodoTxt'
             }
 
             $invalidTests = @(
