@@ -1,6 +1,0 @@
-# In .\ScriptAnalyzerProfile.txt
-@{
-    Severity = @('Error', 'Warning')
-    IncludeRules = 'PSAvoid*'
-    ExcludeRules = '*WriteHost'
-}
