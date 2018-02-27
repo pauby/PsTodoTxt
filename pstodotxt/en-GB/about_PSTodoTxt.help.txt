@@ -1,0 +1,36 @@
+TOPIC
+    about_PSTodoTxt
+
+SHORT DESCRIPTION
+
+    PSTodoTxt is a PowerShell module for working with TodoTxt format files.
+    
+LONG DESCRIPTION
+
+    PSTodoTxt is a PowerShell module for working with TodoTxt format files.
+
+    TodoTxt format properties that are used:
+
+		"DoneDate" 		= [string] date the todo was completed in yyyy-MM-dd format
+		"CreatedDate" 	= [string] date the todo was created in yyyy-MM-dd format
+		"Priority"		= [string] todo priority (A - Z)
+		"Task"			= [string] the todo text
+		"Context"		= [string[]] the todo context (such as @computer)
+        "Project"		= [string[]] the project the todo is assigned to (ie. +housebuild)
+        "Addon"         = [hashtable] key:value pairs of addons to the todo core properties
+
+POWERSHELL COMPATIBILITY
+
+    PowerShell v3.
+
+FEEDBACK
+
+    https://github.com/pauby/pstodotxt
+
+CONTRIBUTING
+
+    https://github.com/pauby/pstodotxt
+
+SEE ALSO
+    
+    Todo.txt project - http://todotxt.com/
