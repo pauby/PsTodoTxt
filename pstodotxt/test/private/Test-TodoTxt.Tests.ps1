@@ -1,11 +1,5 @@
-﻿$ModuleName = 'PsTodoTxt'
-
-. "$PSScriptRoot\..\SharedTestHelper.ps1"
-
-$thisModule = Import-TestedModule -Name $ModuleName
-
-Describe "Function Testing - Test-TodoTxt" {
-    InModuleScope -ModuleName $ModuleName {
+﻿Describe "Function Testing - Test-TodoTxt" {
+    InModuleScope PSTodoTxt{
         Context "Input" {
 
             Mock Test-TodoTxtDate { return $false }

@@ -38,8 +38,8 @@ function Test-TodoTxtContext
         if (($regex.Match($item)).Success -ne $true) {
             $false
         }
+        else {
+            $true
+        }
     }
-
-    # if we get here each context must be valid
-    $true
 }

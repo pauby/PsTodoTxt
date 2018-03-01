@@ -1,12 +1,6 @@
-$ModuleName = 'PsTodoTxt'
-
-. "$PSScriptRoot\..\SharedTestHelper.ps1"
-
-$thisModule = Import-TestedModule -Name $ModuleName
-
 Describe "Testing Function - Test-ObjectProperty" {
 
-    InModuleScope $ModuleName {
+    InModuleScope PSTodoTxt {
         Context "Input" {
 
             It "Passes testing for null and / or missing mandatory parameter" {

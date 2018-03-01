@@ -1,9 +1,3 @@
-$ModuleName = 'PsTodoTxt'
-
-. "$PSScriptRoot\..\SharedTestHelper.ps1"
-
-$thisModule = Import-TestedModule -Name $ModuleName
-
 Describe "Function Testing - Export-TodoTxt" {
     Context "Parameter Validation" {
 
@@ -15,7 +9,7 @@ Describe "Function Testing - Export-TodoTxt" {
     }
 
     Context "Logic & Flow" {
-        InModuleScope $ModuleName {
+        InModuleScope PSTodoTxt {
             Mock ConvertFrom-TodoTxt { "" }
             Mock Add-Content { $true }
             Mock Remove-Item {}

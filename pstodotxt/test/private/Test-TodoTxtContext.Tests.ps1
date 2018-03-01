@@ -1,9 +1,3 @@
-$ModuleName = 'PsTodoTxt'
-
-. "$PSScriptRoot\..\SharedTestHelper.ps1"
-
-$thisModule = Import-TestedModule -Name $ModuleName
-
 Describe "Testing Function - Test-TodoTxtContext" {
     InModuleScope PsTodoTxt {
         Context "Input" {
@@ -27,13 +21,13 @@ Describe "Testing Function - Test-TodoTxtContext" {
 
             It "should be false for a invalid context array" {
                 $actual = Test-TodoTxtContext -Context @("so-long", "fairwell", "auf-Wiedersehen", "@goodnight")
-                $actual | Should Be $false
+                $actual | Should Be $true, $true, $true, $false
                 $actual | Should BeOfType boolean
             }
 
             It "should be true for a valid context array" {
                 $actual = Test-TodoTxtContext -Context @("so-long", "fairwell", "auf-Wiedersehen", "goodnight")
-                $actual | Should Be $true
+                $actual | Should Be $true, $true, $true, $true
                 $actual | Should BeOfType boolean
             }
         } #Context

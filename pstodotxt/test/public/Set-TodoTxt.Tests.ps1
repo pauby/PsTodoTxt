@@ -1,15 +1,9 @@
-﻿$ModuleName = 'PsTodoTxt'
-
-. "$PSScriptRoot\..\SharedTestHelper.ps1"
-
-$thisModule = Import-TestedModule -Name $ModuleName
-
-Describe "Function Testing - Set-TodoTxt" {
+﻿Describe "Function Testing - Set-TodoTxt" {
 
     Context "Input" {
-        Mock -ModuleName $ModuleName Test-TodoTxtDate { return $false }
-        Mock -ModuleName $ModuleName Test-TodoTxtPriority { return $false }
-        Mock -ModuleName $ModuleName Test-TodoTxtContext { return $false }
+        Mock -ModuleName PSTodoTxt Test-TodoTxtDate { return $false }
+        Mock -ModuleName PSTodoTxt Test-TodoTxtPriority { return $false }
+        Mock -ModuleName PSTodoTxt Test-TodoTxtContext { return $false }
 
         It "will throw an exception for null, empty or missing parameters" {
             { Set-TodoTxt -Todo $null } | Should throw "argument is null"
@@ -48,7 +42,7 @@ Describe "Function Testing - Set-TodoTxt" {
             )
 
             { Set-TodoTxt -Todo (New-Object -TypeName PSObject) @splat } | Should throw "did not return a result of True"
-            Assert-MockCalled -ModuleName $ModuleName -CommandName $function -Times 1
+            Assert-MockCalled -ModuleName PSTodoTxt -CommandName $function -Times 1
         }
 
         It 'will pass for empty or $null data for parameters that accept it' {

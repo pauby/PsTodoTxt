@@ -1,8 +1,3 @@
-$ModuleName = 'PsTodoTxt'
-
-. "$PSScriptRoot\..\SharedTestHelper.ps1"
-$thisModule = Import-TestedModule -Name $ModuleName
-
 Describe "Function Testing - Import-TodoTxt" {
     Context "Parameter Validation" {
 
@@ -21,25 +16,27 @@ Describe "Function Testing - Import-TodoTxt" {
             }
 
             It 'returns todo objects when given strings' {
-                # this tests the flow of the function not the Output
-                Mock -ModuleName $ModuleName ConvertTo-TodoTxt { } # we don't care about calling the real function just measuring how many times it was called
+                # this tests the flow of the function not the Output we don't
+                # care about calling the real function just measuring how many
+                # times it was called
+                Mock -ModuleName PSTodoTxt ConvertTo-TodoTxt { } 
                 $todoFile = 'TESTDRIVE:\todofile.txt'
                 Add-Content -Path $todoFile -Value 'line 1'
                 Add-Content -Path $todoFile -Value 'line 2'
                 Import-TodoTxt -Path $todoFile
-                Assert-MockCalled -ModuleName $ModuleName -CommandName 'ConvertTo-TodoTxt' -Times 2
+                Assert-MockCalled -ModuleName PSTodoTxt -CommandName 'ConvertTo-TodoTxt' -Times 2
             }
 
             It 'returns todo objects when given strings that are empty and non-empty' {
                 # this tests the flow of the function not the Output
-                Mock -ModuleName $ModuleName ConvertTo-TodoTxt { } # we don't care about calling the real function just measuring how many times it was called
+                Mock -ModuleName PSTodoTxt ConvertTo-TodoTxt { } # we don't care about calling the real function just measuring how many times it was called
                 $todoFile = 'TESTDRIVE:\todofile.txt'
                 Add-Content -Path $todoFile -Value 'line 1'
                 Add-Content -Path $todoFile -Value ''
                 Add-Content -Path $todoFile -Value ''
                 Add-Content -Path $todoFile -Value 'line 2'
                 Import-TodoTxt -Path $todoFile
-                Assert-MockCalled -ModuleName $ModuleName -CommandName 'ConvertTo-TodoTxt' -Times 2
+                Assert-MockCalled -ModuleName PSTodoTxt -CommandName 'ConvertTo-TodoTxt' -Times 2
             }
         }
     

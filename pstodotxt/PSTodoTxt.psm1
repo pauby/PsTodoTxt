@@ -12,7 +12,6 @@ function ConvertFrom-TodoTxt
     Author: Paul Broadwith (https://github.com/pauby)
 .LINK
     http://www.github.com/pauby/pstodotxt
-.PARAMETER InputObject
 .INPUTS
 	Input type [System.Object]
 .OUTPUTS
@@ -336,7 +335,7 @@ function Import-TodoTxt
     )
 
     Write-Verbose "Reading todo file ($Path) contents."
-    $todos = Get-Content -Path $Path -Encoding UTF8
+    $todos = Get-Content -Path $Path -Encoding UTF8 | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
     if ($null -eq $todos) {
         Write-Verbose "File $Path is empty."
     }
