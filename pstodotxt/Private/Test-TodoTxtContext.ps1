@@ -1,5 +1,4 @@
-function Test-TodoTxtContext
-{
+function Test-TodoTxtContext {
 <#
 .SYNOPSIS
     Tests the todo context.
@@ -9,7 +8,7 @@ function Test-TodoTxtContext
     Author: Paul Broadwith (https://github.com/pauby)
 
     TODO        : The function should only test a single context string so we know which one if any fail.
-                  At the moment if any of the contexts fail we fail the whole test.
+                At the moment if any of the contexts fail we fail the whole test.
 .LINK
     https://www.github.com/pauby/pstodotxt
 .OUTPUTS
@@ -18,7 +17,7 @@ function Test-TodoTxtContext
     Test-TodoContext "@computer","@home"
 
     Tests to see if the contexts "@computer" and "@home" are valid and returns $true or $false.
-#>
+    #>
 
     [CmdletBinding()]
     [OutputType([System.Boolean])]

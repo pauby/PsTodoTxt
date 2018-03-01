@@ -1,5 +1,4 @@
-﻿function Set-TodoTxt
-{
+﻿function Set-TodoTxt {
 <#
 .SYNOPSIS
     Sets a todo's properties.
@@ -21,11 +20,11 @@
     Sets the priority of the $todoObj to "B" and outputs the modified todo.
 #>
 
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Low')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     [OutputType([System.Object])]
 	Param(
         # The todo object to set the properties of.
-        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [Object]$Todo,
 
@@ -34,7 +33,7 @@
         # property value from the object pass $null or an empty string as the
         # parameter value.
         [ValidateScript( {  if ([string]::IsNullOrEmpty($_)) { $true } else { Test-TodoTxtDate -Date $_ }  } )]
-        [Alias('dd','done')]
+        [Alias('dd', 'done')]
         [string]$DoneDate,
 
         # The created date to set. This is only validated as a date in the
@@ -43,7 +42,7 @@
         # only change it.
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {  Test-TodoTxtDate -Date $_ } )]
-        [Alias('cd','created')]
+        [Alias('cd', 'created')]
         [string]$CreatedDate,
 
         # The priority of the todo. To remove this property value from the
@@ -76,8 +75,7 @@
         [hashtable]$Addon
     )
 
-    Begin
-    {
+    Begin {
         $validParams = @('DoneDate', 'CreatedDate', 'Priority', 'Task', 'Context', 'Project', 'Addon')
 
         if (-not $PSBoundParameters.ContainsKey('Confirm')) {
@@ -88,15 +86,13 @@
         }
     }
 
-    Process
-    {
+    Process {
         $Todo | ForEach-Object {
             # only check for specific parameters
             $keys = $PsBoundParameters.Keys | Where-Object { $_ -in $validParams }
 
             # loop through each parameter and set the corresponding property on the todotxt object
-            foreach ($key in $keys)
-            {
+            foreach ($key in $keys) {
                 if ( ($null -eq $PsBoundParameters.$key) -or ([string]::IsNullOrEmpty($PsBoundParameters.$key)) ) {
                     Write-Verbose "Removing property $key"
                     
