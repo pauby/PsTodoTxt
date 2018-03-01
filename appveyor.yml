@@ -28,7 +28,7 @@ install:
       Set-Location $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME
       Invoke-Build -Task GetBuildInfo
       git clone -q https://github.com/pauby/indented.build.git $Env:TEMP/indented.build
-      $env:PSModuleBuildScript = $env:TEMP/indented.build/.build.ps1
+      $env:PSModuleBuildScript = "$env:TEMP/indented.build/.build.ps1"
       choco install pandoc -y
 
 build_script:
