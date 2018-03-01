@@ -1,3 +1,4 @@
+function Test-TodoTxtPriority {
 <#
 .SYNOPSIS
     Tests a todo priority.
@@ -9,14 +10,13 @@
 .LINK
     https://www.github.com/pauby/pstodotxt
 .OUTPUTS
-	[System.Boolean]
+    [System.Boolean]
 .EXAMPLE
     Test-TodoPriority "N"
 
     Tests to see if the priority "N" is valid and outputs $true or $false.
 #>
-function Test-TodoTxtPriority
-{
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     Param (

@@ -5,8 +5,8 @@
     # https://github.com/PowerShell/PSScriptAnalyzer/issues/675
     #CustomRulePath      = "CommunityAnalyzerRules.psm1"
     
-    Rules               = @{
-        PSProvideCommentHelp       = @{
+    Rules = @{
+        PSProvideCommentHelp = @{
             Enable                  = $true
             ExportedOnly            = $false
             BlockComment            = $true
@@ -29,14 +29,15 @@
         }
 
         PSUseConsistentIndentation = @{
-            Enable          = $true
+            Enable          = $false
             Kind            = 'space'
             IndentationSize = 4
         }
 
         PSUseConsistentWhitespace  = @{
             Enable         = $true
-            CheckOpenBrace = $true
+            # if this is true it causes issues with scriptblocks
+            CheckOpenBrace = $false
             CheckOpenParen = $true
             CheckOperator  = $true
             CheckSeparator = $true

@@ -1,5 +1,4 @@
-﻿function Test-TodoTxt
-{
+﻿function Test-TodoTxt {
 <#
 .SYNOPSIS
     Tests a todotxt object.
@@ -20,45 +19,44 @@
 
     [CmdletBinding()]
     [OutputType([System.Boolean])]
-	Param(
+    Param(
         # The DoneDate property to test.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("dd")]
         [string]$DoneDate,
 
         # The CreatedDate property to test
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("cd")]
         [string]$CreatedDate,
 
         # The Priority property to test.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("pri", "u")]
         [string]$Priority,
 
         # The Tasks property to test.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("t")]
         [string]$Task,
 
         # The Context property to test.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("c")]
         [string[]]$Context,
 
         # The Project property to test.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("p")]
         [string[]]$Project,
 
         # The Addon (key:value pairs) property to test.
-        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias("a")]
         [string[]]$Addon
     )
 
-    Process
-    {
+    Process {
         # we didn't mark any parameters mandatory as we didn't want to prompt for them but throw instead
         # test mandatory parameters here
         $mandatoryParams = @( 'CreatedDate', 'Task')

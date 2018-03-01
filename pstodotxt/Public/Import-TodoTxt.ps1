@@ -1,5 +1,4 @@
-﻿function Import-TodoTxt
-{
+﻿function Import-TodoTxt {
 <#
 .SYNOPSIS
     Imports todotxt strings and converts them to objects.
@@ -22,13 +21,13 @@
     Param (
         # Path to the todo file. The file must exist. Throws an exception if the
         # file does not exist. Nothing is returned if file is empty.
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateScript( { Test-Path $_ } )]
         [string]$Path
     )
 
     Write-Verbose "Reading todo file ($Path) contents."
-    $todos = Get-Content -Path $Path -Encoding UTF8
+    $todos = Get-Content -Path $Path -Encoding UTF8 | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
     if ($null -eq $todos) {
         Write-Verbose "File $Path is empty."
     }

@@ -1,5 +1,4 @@
-﻿function ConvertTo-TodoTxt
-{
+﻿function ConvertTo-TodoTxt {
 <#
 .SYNOPSIS
     Converts a todo text string to a TodoTxt object.
@@ -26,13 +25,13 @@
     $todo | ConvertTo-TodoTxt
 
     Converts the todo text into it's components and returns them in an object
-#>
+    #>
 
     [CmdletBinding()]
     [OutputType([System.Object])]
     Param (
         # This is the raw todo text - ie. 'take car to garage @car +car_maintenance'
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
         [ValidateNotNullOrEmpty()]
         [string[]]$Todo
     )
@@ -67,7 +66,9 @@
             $output = New-Object -TypeName PSObject -Property @{ "CreatedDate" = (Get-TodoTxtTodaysDate) }
             $output.PSObject.TypeNames.Insert(0, 'TodoTxt')
             $line = $_
-
+            $ErrorActionPreference = 'SilentlyContinue'
+            $ErrorActionPreference = 'SilentlyContinue'
+            $ErrorActionPreference = 'SilentlyContinue'
             foreach ($item in $regexList) {
                 if ($line -match $item.regex) {
                     $found = [regex]::matches($line, $item.regex)
@@ -89,7 +90,7 @@
                             break
                         }
 
-                        "Priority"  {
+                        "Priority" {
                             # priority is returned as '(<PRIORITY>)' and that
                             # will match the numbered capture (1) in the regex
                             # so we use that
@@ -104,7 +105,7 @@
                                 $found | foreach-object { 
                                     # trim the whitespace and then skip over the
                                     # first characvter which will be @ or +
-                                    [string]$_.value.Trim().Remove(0,1)
+                                    [string]$_.value.Trim().Remove(0, 1)
                                 } 
                             )
                             Write-Verbose "Found '$_': $($output.$_)"
@@ -116,7 +117,7 @@
                             foreach ($f in $found) {
                                 $addons.Add($f.groups[1].value.Trim(), $f.groups[2].value.Trim())
                                 Write-Verbose "Found Addon '$($f.groups[1].value)': $($f.groups[2].value)"
-                        }
+                            }
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value $addons
                             break
                         }

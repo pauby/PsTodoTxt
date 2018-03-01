@@ -1,5 +1,4 @@
-function Export-TodoTxt
-{
+function Export-TodoTxt {
 <#
 .SYNOPSIS
     Exports todotxt objects.
@@ -28,12 +27,12 @@ function Export-TodoTxt
     [CmdletBinding()]
     Param(
         # Object(s) to export
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [PSObject]$Todo,
 
         # Path to the todo file. The file will be created if it does not exist
-        [Parameter(Mandatory=$true,Position=1)]
+        [Parameter(Mandatory = $true, Position = 1)]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
 

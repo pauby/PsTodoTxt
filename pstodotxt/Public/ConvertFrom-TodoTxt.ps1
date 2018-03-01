@@ -1,5 +1,4 @@
-function ConvertFrom-TodoTxt
-{
+function ConvertFrom-TodoTxt {
 <#
 .SYNOPSIS
     Converts a todo object to a todotxt string.
@@ -10,20 +9,21 @@ function ConvertFrom-TodoTxt
 .LINK
     http://www.github.com/pauby/pstodotxt
 .INPUTS
-	Input type [System.Object]
+    Input type [System.Object]
 .OUTPUTS
-	Output type [System.String]
+    Output type [System.String]
 .EXAMPLE
     $todoObject | ConvertFrom-TodoTxt
 
-	Converts $todoObject into a todotxt string.
+    Converts $todoObject into a todotxt string.
 #>
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseConsistentWhitespace", "", Justification = "Causes issue with multi-line if statement")]
     [CmdletBinding()]
     [OutputType([System.String])]
     Param (
         # This is the todotxt object (as output from ConvertTo-TodoTxt for example).
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateNotNull()]
         [PSObject]$Todo
     )

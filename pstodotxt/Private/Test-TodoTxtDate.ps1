@@ -1,5 +1,4 @@
-function Test-TodoTxtDate
-{
+function Test-TodoTxtDate {
 <#
 .SYNOPSIS
     Tests a date.
@@ -18,7 +17,7 @@ function Test-TodoTxtDate
     Test-TodoDate -TestDate '2015-10-10'
 
     Tests to ensure the date '2015-10-10' is in the valid todo date format and outputs $true or $false.
-#>
+    #>
 
     [CmdletBinding()]
     [OutputType([System.Boolean])]
@@ -40,7 +39,8 @@ function Test-TodoTxtDate
         return $false
     }
 
-    if ($result.CompareTo($Date) -ne 0 -or $? -eq $false) { # test if the date returned is not the same as the input or we have an error
+    # test if the date returned is not the same as the input or we have an error
+    if ($result.CompareTo($Date) -ne 0 -or $? -eq $false) { 
         $false
     }
     else {
