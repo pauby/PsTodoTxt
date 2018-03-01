@@ -1,6 +1,7 @@
 *-test*
-.vscode
+*.ignore
 .git
-build/*
-CHANGELOG.htm
-README.htm
+build/
+output/
+1.*/
+2.*/

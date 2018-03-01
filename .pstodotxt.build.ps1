@@ -1,4 +1,4 @@
-$BuildOptions = @{
+<#$BuildOptions = @{
     ModuleName              = 'PSTodoTxt'
     PSGalleryApiKey         = $env:PSGALLERY_API_KEY
     BuildPath               = "$BuildRoot\build"
@@ -31,10 +31,11 @@ $ManifestOptions = @{
     ProjectUri              = 'https://github.com/pauby/PSTodoTxt'
     LicenseUri              = 'https://github.com/pauby/PsTodoTxt/blob/master/LICENSE'
     ReleaseNotes            = 'https://github.com/pauby/PSTodoTxt/blob/master/CHANGELOG.md'
-}
+}#>
 
-. .\build.ps1
+. $env:PSModuleBuildScript
 
 # Synopsis: The default task: make, test, clean.
 #task . Help, Test, Clean
-task . GitStatus, InstallDependencies, Test, CodeAnalysis, Build
+#task . GitStatus, InstallDependencies, Test, CodeAnalysis, Build
+
