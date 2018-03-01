@@ -27,7 +27,7 @@
     )
 
     Write-Verbose "Reading todo file ($Path) contents."
-    $todos = Get-Content -Path $Path -Encoding UTF8
+    $todos = Get-Content -Path $Path -Encoding UTF8 | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
     if ($null -eq $todos) {
         Write-Verbose "File $Path is empty."
     }
