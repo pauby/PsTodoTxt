@@ -1,7 +1,9 @@
 # PSScriptAnalyzerSettings.psd1
 @{
     IncludeDefaultRules = $true
-    CustomRulePath      = "CommunityAnalyzerRules.psm1"
+    # This cannot be used as yet in this file
+    # https://github.com/PowerShell/PSScriptAnalyzer/issues/675
+    #CustomRulePath      = "CommunityAnalyzerRules.psm1"
     
     Rules               = @{
         PSProvideCommentHelp       = @{

@@ -113,7 +113,7 @@ function Measure-RequiresRunAsAdministrator {
 .DESCRIPTION
     The #Requires statement prevents a script from running unless the Windows PowerShell version, modules, snap-ins, and module and snap-in version prerequisites are met.
     From Windows PowerShell 3.0, the #Requires statement let script developers specify Windows PowerShell modules that the script requires.
-    To fix a violation of this rule, please consider to use #Requires -RunAsAdministrator instead of using Import-Module.
+    To fix a violation of this rule, please consider to use #Requires -Modules { <Module-Name> | <Hashtable> } instead of using Import-Module.
 .EXAMPLE
     Measure-RequiresModules -ScriptBlockAst $ScriptBlockAst
 .INPUTS
@@ -681,12 +681,15 @@ function Measure-ErrorActionPreference {
                 [bool]$returnValue = $false
 
                 if ($Ast -is [System.Management.Automation.Language.AssignmentStatementAst]) {
+                   # add-content -path c:\temp\ast.txt -value ([bool]($ast.left.variablepath.ToString() -eq "ErrorActionPreference"))
                     if ($Ast.Left.VariablePath.ToString() -eq "ErrorActionPreference") {
+                        #Add-Content -Path 'c:\temp\count.txt' -Value "Found 1"
                         return $true
                     }
                 }
 
-                return $returnValue
+                #Add-Content -Path 'c:\temp\count.txt' -Value "Not found"
+                return $false
             }
 
             #endregion
@@ -694,11 +697,12 @@ function Measure-ErrorActionPreference {
             #region Finds ASTs that match the predicates.
 
             [System.Management.Automation.Language.Ast[]]$asts = $ScriptBlockAst.FindAll($predicate1, $true)
-
+            
             if ($asts.Count % 2 -ne 0) {
+                Add-Content -Path 'c:\temp\count.txt' -Value (@($asts).count)
                 $result = New-Object `
                     -Typename "Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord" `
-                    -ArgumentList $Messages.MeasureErrorActionPreference, $asts[0].Extent, "Measure-ErrorActionPreference", Warning, $null
+                    -ArgumentList $Messages.MeasureErrorActionPreference, $asts[0].Extent, $PSCmdlet.MyInvocation.InvocationName, Error, $null
 
                 $results += $result
             }
