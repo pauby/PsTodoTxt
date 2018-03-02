@@ -28,19 +28,19 @@ function Test-TodoTxtDate {
         [string]$Date
     )
 
-    # what we do here is first of all pass the date to Get-Date and ask it to format it in yyyy-MM-dd.
+    # what we do here is first of all pass the date to Get-Date and ask it to format itsin yyyy-MM-dd.
     # If it doesn't output the same as the input the date is not in a valid format.
     # also make sure we don't display errors if there is invalid input; instead return $false
     $error.Clear()
     try {
         $result = Get-Date $Date -Format "yyyy-MM-dd" -ErrorAction SilentlyContinue
     }
-    catch [System.Exception] {
+    catch {
         return $false
     }
 
     # test if the date returned is not the same as the input or we have an error
-    if ($result.CompareTo($Date) -ne 0 -or $? -eq $false) { 
+    if ($result.CompareTo($Date) -ne 0) { 
         $false
     }
     else {

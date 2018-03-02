@@ -39,6 +39,6 @@ function Test-TodoTxtContext {
         }
         else {
             $true
-        }
-    }
+        } # end if
+    } # end foreach
 }
