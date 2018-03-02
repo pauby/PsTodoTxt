@@ -1,6 +1,7 @@
 # PSScriptAnalyzerSettings.psd1
 @{
-    IncludeDefaultRules = $true
+    ExcludeRules         = @('Measure-ErrorActionPreference')
+    #IncludeDefaultRules = $true
     # This cannot be used as yet in this file
     # https://github.com/PowerShell/PSScriptAnalyzer/issues/675
     #CustomRulePath      = "CommunityAnalyzerRules.psm1"
