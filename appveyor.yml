@@ -44,6 +44,7 @@ install:
   - ps: |
       $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+      Install-Module InvokeBuild
       Set-Location $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME
       git clone https://github.com/pauby/indented.build.git (Split-Path $env:PSModuleBuildScript -Parent)
       choco install pandoc -y
