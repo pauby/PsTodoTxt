@@ -26,8 +26,8 @@
 
     Converts the todo text into it's components and returns them in an object
     #>
-
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("CommunityAnalyzerRules\Measure-Backtick", "", Justification = "Warning as this is a small function with comment based help")]
     [OutputType([System.Object])]
     Param (
         # This is the raw todo text - ie. 'take car to garage @car +car_maintenance'

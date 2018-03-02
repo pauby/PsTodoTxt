@@ -18,6 +18,7 @@ function ConvertFrom-TodoTxt {
     Converts $todoObject into a todotxt string.
 #>
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("CommunityAnalyzerRules\Measure-Backtick", "")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseConsistentWhitespace", "", Justification = "Causes issue with multi-line if statement")]
     [CmdletBinding()]
     [OutputType([System.String])]
@@ -41,6 +42,7 @@ function ConvertFrom-TodoTxt {
                 throw 'Invalid TodoTxt object - invalid or missing properties'
             }
 
+            # TODO: We should tidy this up to stop using backticks
             Foreach ($prop in $objProps) {
                 if ( (Test-ObjectProperty -InputObject $todoObj -PropertyName $prop) `
                     -and ($null -ne $todoObj.$prop) `
