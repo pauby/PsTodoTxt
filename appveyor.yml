@@ -1,6 +1,6 @@
 os: WMF 5
 
-version: '{build}'
+version: 1.1.{build}
 max_jobs: 1
 
 environment:
@@ -46,8 +46,9 @@ install:
       Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
       Install-Module InvokeBuild
       Set-Location $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME
-      git clone https://github.com/pauby/indented.build.git (Split-Path $env:PSModuleBuildScript -Parent)
-      choco install pandoc -y
+      git clone -q https://github.com/pauby/indented.build.git (Split-Path $env:PSModuleBuildScript -Parent) --single-branch --depth 1
+      choco install pandoc -y --limit-output
+      Update-Help -Force
 
 build_script:
   - ps: |
