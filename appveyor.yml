@@ -9,6 +9,8 @@ environment:
   appveyor_rdp_password:
     secure: FkFUdBFp3f4+PKFV1bNoIQ==
 
+  $env:PSModuleBuildScript = "$env:TEMP\indented.build\.build.ps1"
+
 branches:
   only:
   - master
@@ -26,17 +28,30 @@ init:
 
 install:
   - ps: |
+      'Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version'
+      Get-ChildItem env:
+      $PSVersionTable
+
+  - git --version
+  - choco --version
+
+  - ps: |
+    "Build info"
+    '  {0,-20} {1}' -f 'SCHEDULED BUILD:', ($Env:APPVEYOR_SCHEDULED_BUILD -eq 'true')
+    '  {0,-20} {1}' -f 'FORCED BUILD:'   , ($Env:APPVEYOR_FORCED_BUILD    -eq 'true')
+    '  {0,-20} {1}' -f 'RE BUILD:'       , ($Env:APPVEYOR_RE_BUILD        -eq 'true')
+
+  -ps: |
       $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
       Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-      Install-Module Pester, InvokeBuild, PSScriptAnalyzer, platyPS, PSCodeHealth
       Set-Location $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME
-      Invoke-Build -Task GetBuildInfo
-      git clone -q https://github.com/pauby/indented.build.git $Env:TEMP/indented.build
-      $env:PSModuleBuildScript = "$env:TEMP/indented.build/.build.ps1"
+      git clone https://github.com/pauby/indented.build.git (Split-Path $env:PSModuleBuildScript -Parent)
       choco install pandoc -y
 
 build_script:
-  - ps: Invoke-Build
+  - ps: |
+      Invoke-Build -Task GetBuildInfo
+      Invoke-Build
 
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
