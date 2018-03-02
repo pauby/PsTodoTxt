@@ -52,6 +52,7 @@ install:
 
 build_script:
   - ps: |
+      Invoke-Build InstallRequiredModules
       Invoke-Build -Task GetBuildInfo
       Invoke-Build
 
