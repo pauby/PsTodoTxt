@@ -104,9 +104,9 @@
                     Write-Verbose "Set $key to $($PSBoundParameters.$key)"
                     if ($PSCmdlet.ShouldProcess("ShouldProcess?")) {
                         $_ | Add-Member -MemberType NoteProperty -Name $key -Value $PsBoundParameters.$key -Force
-                    }
-                }
-            }
+                    } # end if
+                } # end else
+            } # end foreach
 
             Write-Debug ($_ | Out-String)
             Write-Output $_
