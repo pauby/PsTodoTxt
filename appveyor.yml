@@ -7,7 +7,7 @@ environment:
     secure: qPAs23fYiJNou8sdbzm08y/azR3FTVzz/L54nbzg2C1pTrUtxN+IiDqEoSOu0gxu
 
   appveyor_rdp_password:
-    secure: Du4SoP5NLJywev/X0Q0W+g==
+    secure: FkFUdBFp3f4+PKFV1bNoIQ==
 
 branches:
   only:
