@@ -9,7 +9,7 @@ environment:
   appveyor_rdp_password:
     secure: FkFUdBFp3f4+PKFV1bNoIQ==
 
-  $env:PSModuleBuildScript = "$env:TEMP\indented.build\.build.ps1"
+  PSModuleBuildScript: %TEMP%/indented.build/.build.ps1"
 
 branches:
   only:
