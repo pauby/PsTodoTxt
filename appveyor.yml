@@ -9,8 +9,6 @@ environment:
   appveyor_rdp_password:
     secure: FkFUdBFp3f4+PKFV1bNoIQ==
 
-  PSModuleBuildScript: %TEMP%/indented.build/.build.ps1"
-
 branches:
   only:
   - master
@@ -28,6 +26,7 @@ init:
 
 install:
   - ps: |
+      $env:PSModuleBuildScript = "$env:TEMP\indented.build\.build.ps1"
       'Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version'
       Get-ChildItem env:
       $PSVersionTable
