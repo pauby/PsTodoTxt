@@ -6,6 +6,9 @@ environment:
   PSGALLERY_API_KEY:
     secure: qPAs23fYiJNou8sdbzm08y/azR3FTVzz/L54nbzg2C1pTrUtxN+IiDqEoSOu0gxu
 
+  appveyor_rdp_password:
+    secure: gQzLbP0EFW4o4D/sDPOe7Q==
+
 branches:
   only:
   - master
@@ -19,6 +22,7 @@ init:
 - git config --global user.email "nobody@nothing.com"
 - git config --global user.name "Nobody"
 - git config --global core.safecrlf false
+- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - ps: |
