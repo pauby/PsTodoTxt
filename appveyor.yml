@@ -1,0 +1,35 @@
+os: WMF 5
+
+version: 1.1.{build}
+
+environment:
+  PSGALLERY_API_KEY:
+    secure: qPAs23fYiJNou8sdbzm08y/azR3FTVzz/L54nbzg2C1pTrUtxN+IiDqEoSOu0gxu
+
+branches:
+  only:
+  - master
+
+skip_commits:
+  message: /updated? readme.*s/
+
+build: false
+
+init:
+- git config --global user.email "nobody@nothing.com"
+- git config --global user.name "Nobody"
+- git config --global core.safecrlf false
+
+install:
+  - ps: |
+      $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+      Install-Module Pester, InvokeBuild, PSScriptAnalyzer, platyPS, PSCodeHealth
+      Set-Location $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME
+      Invoke-Build -Task GetBuildInfo
+      git clone -q https://github.com/pauby/indented.build.git $Env:TEMP/indented.build
+      $env:PSModuleBuildScript = "$env:TEMP/indented.build/.build.ps1"
+      choco install pandoc -y
+
+build_script:
+  - ps: Invoke-Build
