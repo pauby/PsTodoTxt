@@ -1,60 +1,73 @@
+# See http://www.appveyor.com/docs/appveyor-yml for more options
+
 os: WMF 5
 
-version: 1.1.{build}
+version: 1.1.0.{build}
 max_jobs: 1
 
 environment:
   PSGALLERY_API_KEY:
-    secure: qPAs23fYiJNou8sdbzm08y/azR3FTVzz/L54nbzg2C1pTrUtxN+IiDqEoSOu0gxu
+    secure: TO/Slq79myoBRfUTivNSeTkCJAvK5RPE2K52pjR9djE=
+#    secure: TO/Slq79myoBRfUTivNSeScz0nRWFlFp0JMiImdmHVZLsSa349qCi98nm29e6uGC
+
+  GITHUB_API_KEY:
+    secure: jmTiAdpCVvSrW0a0kDpC+ucDk4WSnSiNJhpVbsE+FKx1ZwzB189RUmFvnbgkBGBw
+
+  GITHUB_USERNAME:
+    secure: WbMc18DNWPRELk0QTnab0Q==
 
   appveyor_rdp_password:
-    secure: FkFUdBFp3f4+PKFV1bNoIQ==
+    secure: pky5Pop1AV7LIiB4zFOkhQ==
+
+  notify_email:
+    secure: xxzrryH1TErXFSjxmYszGA==
 
 branches:
   only:
   - master
 
-skip_commits:
-  message: /updated? readme.*s/
+#skip_commits:
+#  message: /updated? readme.*/
 
-build: false
+#only_commits:
+#  message: /Release/
+
+build: false # disable MSBuild
 
 init:
-- git config --global user.email "nobody@nothing.com"
-- git config --global user.name "Nobody"
-- git config --global core.safecrlf false
-- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
-  - ps: |
-      $env:PSModuleBuildScript = "$env:TEMP\indented.build\.build.ps1"
-      'Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version'
-      Get-ChildItem env:
-      $PSVersionTable
-
   - git --version
   - choco --version
+  - git checkout master
 
   - ps: |
-      "Build info"
-      '  {0,-20} {1}' -f 'SCHEDULED BUILD:', ($Env:APPVEYOR_SCHEDULED_BUILD -eq 'true')
-      '  {0,-20} {1}' -f 'FORCED BUILD:'   , ($Env:APPVEYOR_FORCED_BUILD    -eq 'true')
-      '  {0,-20} {1}' -f 'RE BUILD:'       , ($Env:APPVEYOR_RE_BUILD        -eq 'true')
-
-  - ps: |
-      $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-      Install-Module InvokeBuild
-      Set-Location $env:APPVEYOR_BUILD_FOLDER\$env:APPVEYOR_PROJECT_NAME
-      git clone -q https://github.com/pauby/indented.build.git (Split-Path $env:PSModuleBuildScript -Parent) --single-branch --depth 1
-      choco install pandoc -y --limit-output
-      Update-Help -Force
+      Set-Location $env:APPVEYOR_BUILD_FOLDER
+      .\build\Initialize-Build.ps1 -v
+      Set-Location '..\'
+      git clone -q https://github.com/pauby/PSBuildHelper.git --single-branch --depth 1
+      $BHModulePath = Join-Path -Path (Get-Location).Path -ChildPath 'PSBuildHelper'
+      Import-Module -Name (Join-Path -Path $BHModulePath -ChildPath 'Source\PSModuleBuildHelper.psd1')
+      $env:PSModuleBuildScript = Join-Path -Path $BHModulePath -ChildPath 'Start-ModuleBuild.ps1'
+      Set-Location $env:APPVEYOR_BUILD_FOLDER
+      git config --global credential.helper store
+      Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_API_KEY):x-oauth-basic@github.com`n"
 
 build_script:
   - ps: |
-      Invoke-Build InstallRequiredModules
-      Invoke-Build -Task GetBuildInfo
-      Invoke-Build
+      $Verbose = @{}
+      $tasks = 'Build', 'Test'
+      switch -Regex ($env:APPVEYOR_REPO_COMMIT_MESSAGE) {
+          '!verbose' {
+              $Verbose = @{ Verbose = $true }
+          }
+          '!deploy' {
+              $tasks += 'PublishAll'
+          }
+      }
 
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+      Invoke-Build ($tasks -join ', ') @Verbose
+
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
