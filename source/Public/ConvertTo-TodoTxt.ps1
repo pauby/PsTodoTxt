@@ -1,30 +1,30 @@
 ﻿function ConvertTo-TodoTxt {
-<#
-.SYNOPSIS
-    Converts a todo text string to a TodoTxt object.
-.DESCRIPTION
-    Converts a todo text string to a TodoTxt object.
+    <#
+    .SYNOPSIS
+        Converts a todo text string to a TodoTxt object.
+    .DESCRIPTION
+        Converts a todo text string to a TodoTxt object.
 
-    If the task description is not present then you will find that various components of the todo end up as it.
+        If the task description is not present then you will find that various components of the todo end up as it.
 
-    See the project documentation for the format of the object.
-.NOTES
-    Author: Paul Broadwith (https://github.com/pauby)
-.LINK
-    http://www.github.com/pauby/pstodotxt
-.INPUTS
-    Input type [System.String]
-.OUTPUTS
-    Output type [System.Object]
-.EXAMPLE
-    ConvertTo-TodoTxt -Todo 'take car to garage @car +car_maintenance'
+        See the project documentation for the format of the object.
+    .NOTES
+        Author: Paul Broadwith (https://github.com/pauby)
+    .LINK
+        http://www.github.com/pauby/pstodotxt
+    .INPUTS
+        Input type [System.String]
+    .OUTPUTS
+        Output type [System.Object]
+    .EXAMPLE
+        ConvertTo-TodoTxt -Todo 'take car to garage @car +car_maintenance'
 
-    Converts the todo text into it's components and returns them in an object.
-.EXAMPLE
-    $todo = 'take car to garage @car +car_maintenance'
-    $todo | ConvertTo-TodoTxt
+        Converts the todo text into it's components and returns them in an object.
+    .EXAMPLE
+        $todo = 'take car to garage @car +car_maintenance'
+        $todo | ConvertTo-TodoTxt
 
-    Converts the todo text into it's components and returns them in an object
+        Converts the todo text into it's components and returns them in an object
     #>
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("CommunityAnalyzerRules\Measure-Backtick", "", Justification = "Warning as this is a small function with comment based help")]
@@ -66,9 +66,6 @@
             $output = New-Object -TypeName PSObject -Property @{ "CreatedDate" = (Get-TodoTxtTodaysDate) }
             $output.PSObject.TypeNames.Insert(0, 'TodoTxt')
             $line = $_
-            $ErrorActionPreference = 'SilentlyContinue'
-            $ErrorActionPreference = 'SilentlyContinue'
-            $ErrorActionPreference = 'SilentlyContinue'
             foreach ($item in $regexList) {
                 if ($line -match $item.regex) {
                     $found = [regex]::matches($line, $item.regex)
@@ -138,6 +135,6 @@
         } # end foreach
     } # end Process
 
-    End {
-    }
+#    End {
+#    }
 }
