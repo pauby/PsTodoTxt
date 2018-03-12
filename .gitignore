@@ -1,6 +1,5 @@
 *-test*
 *.ignore
 .git
-build/
 output/
 [0-9].*/
