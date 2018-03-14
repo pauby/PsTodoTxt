@@ -1,6 +1,7 @@
 # PSScriptAnalyzerSettings.psd1
 @{
-    ExcludeRules         = @('Measure-ErrorActionPreference')
+    # this i sjust causing problems just now - keep checking it
+    ExcludeRules         = @('Measure-WriteHost')
     #IncludeDefaultRules = $true
     # This cannot be used as yet in this file
     # https://github.com/PowerShell/PSScriptAnalyzer/issues/675
