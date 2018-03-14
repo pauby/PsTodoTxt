@@ -69,5 +69,5 @@ build_script:
 
       Invoke-Build $tasks @Verbose
 
-#on_finish:
+on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
