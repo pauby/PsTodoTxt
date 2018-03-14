@@ -20,4 +20,4 @@ $params = @{
     PSGalleryApiKey = $PSGalleryApiKey
 }
 
-. (Get-BHBuildScript) @params
+. (Get-BuildScript) @params
