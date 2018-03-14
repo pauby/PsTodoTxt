@@ -43,7 +43,7 @@ install:
 
   - ps: |
       Set-Location $env:APPVEYOR_BUILD_FOLDER
-      .\build\Initialize-Build.ps1 -v
+      .\build\Initialize-Build.ps1
       Set-Location '..\'
       git clone -q https://github.com/pauby/PSBuildHelper.git --single-branch --depth 1
       $BHModulePath = Join-Path -Path (Get-Location).Path -ChildPath 'PSBuildHelper'
