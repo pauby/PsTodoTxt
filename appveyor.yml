@@ -35,7 +35,7 @@ branches:
 build: false # disable MSBuild
 
 init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - git --version
@@ -61,7 +61,7 @@ build_script:
           '!verbose' {
               $Verbose = @{ Verbose = $true }
           }
-          '!deploy' {
+          '!publish' {
               git checkout master -q
               $tasks += 'PublishAll'
           }
@@ -70,4 +70,4 @@ build_script:
       Invoke-Build $tasks @Verbose
 
 on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
