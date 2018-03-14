@@ -12,7 +12,7 @@
 RootModule = 'pstodotxt.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.1'
+ModuleVersion = '1.1.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -101,7 +101,7 @@ PrivateData = @{
         LicenseUri = 'https://github.com/pauby/PsTodoTxt/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/pauby/PSTodoTxt'
+        ProjectUri = 'https://github.com/pauby/PsTodoTxt'
 
         # A URL to an icon representing this module.
         # IconUri = ''
