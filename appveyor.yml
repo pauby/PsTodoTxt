@@ -40,7 +40,6 @@ init:
 install:
   - git --version
   - choco --version
-  - git checkout master
 
   - ps: |
       Set-Location $env:APPVEYOR_BUILD_FOLDER
@@ -63,11 +62,12 @@ build_script:
               $Verbose = @{ Verbose = $true }
           }
           '!deploy' {
+              git checkout master -q
               $tasks += 'PublishAll'
           }
       }
 
-      Invoke-Build ($tasks -join ', ') @Verbose
+      Invoke-Build $tasks @Verbose
 
 #on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
