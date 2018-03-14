@@ -1,6 +1,6 @@
 ## v1.1.1 01 March 2018
 
-* Fixed bug where a todo file with blank lines would case an error to be thrown;
+* Fixed bug where a todo file with blank lines would cause an error to be thrown;
 ## v1.1.0 29 January 2018
 
 * Fixed a but where the views in PSTodoTxt.Format.ps1xml were being applied to all PSObjects. TodoTxt objects now have their own 'TodoTxt' object name;
