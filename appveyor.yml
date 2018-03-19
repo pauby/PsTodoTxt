@@ -40,7 +40,6 @@ init:
 install:
   - git --version
   - choco --version
-  - git checkout master
 
   - ps: |
       Set-Location $env:APPVEYOR_BUILD_FOLDER
