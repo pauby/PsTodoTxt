@@ -29,8 +29,8 @@ branches:
 #skip_commits:
 #  message: /updated? readme.*/
 
-#only_commits:
-#  message: /Release/
+only_commits:
+  message: /^Rebuild|^Release/
 
 build: false # disable MSBuild
 
@@ -40,15 +40,17 @@ init:
 install:
   - git --version
   - choco --version
+  - git checkout master
 
   - ps: |
       Set-Location $env:APPVEYOR_BUILD_FOLDER
       .\build\Initialize-Build.ps1
       Set-Location '..\'
-      git clone -q https://github.com/pauby/PSBuildHelper.git --single-branch --depth 1
-      $BHModulePath = Join-Path -Path (Get-Location).Path -ChildPath 'PSBuildHelper'
-      Import-Module -Name (Join-Path -Path $BHModulePath -ChildPath 'Source\PSModuleBuildHelper.psd1')
-      $env:PSModuleBuildScript = Join-Path -Path $BHModulePath -ChildPath 'Start-ModuleBuild.ps1'
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+      Invoke-WebRequest -Uri https://github.com/pauby/PSModuleBuildHelper/releases/download/v0.0.1/psmodulebuildhelper-0.0.1.zip -OutFile psmodulebuildhelper.zip -UseBasicParsing
+      Expand-Archive psmodulebuildhelper.zip
+      $path = Join-Path -Path (Get-Location).Path -ChildPath 'PSModuleBuildHelper'
+      Import-Module -Name (Join-Path -Path $path -ChildPath 'PSModuleBuildHelper.psd1')
       Set-Location $env:APPVEYOR_BUILD_FOLDER
       git config --global credential.helper store
       Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_API_KEY):x-oauth-basic@github.com`n"
