@@ -1,4 +1,6 @@
-﻿Describe "Function Testing - Set-TodoTxt" {
+﻿$testEnv = Initialize-TestEnvironment
+
+Describe "Function Testing - Set-TodoTxt" {
 
     Context "Input" {
         Mock -ModuleName PSTodoTxt Test-TodoTxtDate { return $false }

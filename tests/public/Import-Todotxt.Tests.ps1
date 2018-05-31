@@ -1,3 +1,5 @@
+$testEnv = Initialize-TestEnvironment
+
 Describe "Function Testing - Import-TodoTxt" {
     Context "Parameter Validation" {
 
