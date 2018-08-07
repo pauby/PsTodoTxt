@@ -33,7 +33,10 @@
         # This is the raw todo text - ie. 'take car to garage @car +car_maintenance'
         [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$Todo
+        [string[]]$Todo,
+
+        [switch]
+        $ParseOnly
     )
 
     Begin {
@@ -63,7 +66,10 @@
     Process {
         $Todo | ForEach-Object {
             Write-Verbose "Processing line: $_"
-            $output = New-Object -TypeName PSObject -Property @{ "CreatedDate" = (Get-TodoTxtTodaysDate) }
+            $output = New-Object -TypeName PSObject
+            if (-not $ParseOnly.IsPresent) {
+                $output | Add-Member -MemberType NoteProperty -Name 'CreatedDate' -Value (Get-TodoTxtTodaysDate)
+            }
             $output.PSObject.TypeNames.Insert(0, 'TodoTxt')
             $line = $_
             foreach ($item in $regexList) {
@@ -73,37 +79,58 @@
 
                     switch ($item.name) {
                         "DoneDate" {
-                            # the format of the 'done' is 'x <DATE>' so we need
-                            # to skip over the x and the space
-                            $output | Add-Member -MemberType NoteProperty -Name $_ `
-                                -Value (Get-Date -Date $found.value.SubString(2) -Format "yyyy-MM-dd")
-                            Write-Verbose "Found '$_': $($output.$_)"
-                            break
+                            try {
+                                # the format of the 'done' is 'x <DATE>' so we need
+                                # to skip over the x and the space
+                                $output | Add-Member -MemberType NoteProperty -Name $_ `
+                                    -Value (Get-Date -Date $found.value.SubString(2) -Format "yyyy-MM-dd")
+                                Write-Verbose "Found '$_': $($output.$_)"
+                                break
+                            }
+                            catch {
+                                if (-not $ParseOnly.IsPresent) {
+                                    throw $_
+                                }
+                            }
                         }
 
                         "CreatedDate" {
-                            $output.CreatedDate = (Get-Date -Date $found.value -Format "yyyy-MM-dd")
-                            Write-Verbose "Found '$_': $($output.$_)"
-                            break
+                            try {
+                                $output.CreatedDate = (Get-Date -Date $found.value -Format "yyyy-MM-dd")
+                                Write-Verbose "Found '$_': $($output.$_)"
+                                break
+                            }
+                            catch {
+                                if (-not $ParseOnly.IsPresent) {
+                                    throw $_
+                                }
+                            }
                         }
 
                         "Priority" {
-                            # priority is returned as '(<PRIORITY>)' and that
-                            # will match the numbered capture (1) in the regex
-                            # so we use that
-                            $output | Add-Member -MemberType NoteProperty -Name $_ `
-                                -Value ([string]$found.groups[1].value).ToUpper()
-                            Write-Verbose "Found '$_': $($output.$_)"
-                            break
+                            try {
+                                # priority is returned as '(<PRIORITY>)' and that
+                                # will match the numbered capture (1) in the regex
+                                # so we use that
+                                $output | Add-Member -MemberType NoteProperty -Name $_ `
+                                    -Value ([string]$found.groups[1].value).ToUpper()
+                                Write-Verbose "Found '$_': $($output.$_)"
+                                break
+                            }
+                            catch {
+                                if (-not $ParseOnly.IsPresent) {
+                                    throw $_
+                                }
+                            }
                         }
 
                         { $_ -in "Context", "Project" } {
                             $output | Add-Member -MemberType NoteProperty -Name $_ -Value @(
-                                $found | foreach-object { 
+                                $found | foreach-object {
                                     # trim the whitespace and then skip over the
                                     # first characvter which will be @ or +
                                     [string]$_.value.Trim().Remove(0, 1)
-                                } 
+                                }
                             )
                             Write-Verbose "Found '$_': $($output.$_)"
                             break
@@ -125,7 +152,7 @@
             # what is left here is the task itself but we need to tidy it up
             # as each part is extracted it's leaving behind double spaces etc.
             $line = ($line -replace "\ {2,}", " ").Trim()
-            if ($line.length -lt 1) {
+            if ($line.length -lt 1 -and (-not $ParseOnly.IsPresent)) {
                 throw "Task description cannot be empty."
             }
             $output | Add-Member -MemberType NoteProperty -Name 'Task' -Value $line
