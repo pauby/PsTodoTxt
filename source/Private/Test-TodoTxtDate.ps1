@@ -40,7 +40,7 @@ function Test-TodoTxtDate {
     }
 
     # test if the date returned is not the same as the input or we have an error
-    if ($result.CompareTo($Date) -ne 0) { 
+    if ($result.CompareTo($Date) -ne 0) {
         $false
     }
     else {
