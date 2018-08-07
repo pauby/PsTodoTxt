@@ -95,7 +95,7 @@
             foreach ($key in $keys) {
                 if ( ($null -eq $PsBoundParameters.$key) -or ([string]::IsNullOrEmpty($PsBoundParameters.$key)) ) {
                     Write-Verbose "Removing property $key"
-                    
+
                     if ($PSCmdlet.ShouldProcess("ShouldProcess?")) {
                         $_.PSObject.Properties.Remove($key)
                     }
