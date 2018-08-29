@@ -1,5 +1,6 @@
 ## v1.2.0 7 August 2018
 * Added new `-ParseOnly` parameter to ConvertTo-TodoTxt to only parse the todo text and not validate it;
+* Made the Get-TodoTxtTodaysDate function public;
 
 ## v1.1.1 01 March 2018
 * Fixed bug where a todo file with blank lines would cause an error to be thrown;
