@@ -35,6 +35,7 @@
         [ValidateNotNullOrEmpty()]
         [string[]]$Todo,
 
+        # Requests that the todo not be validated and only parsed.
         [switch]
         $ParseOnly
     )
