@@ -1,6 +1,6 @@
-$testEnv = Initialize-TestEnvironment
+Import-HelperModuleForTesting
 
-Describe "Function Testing - ConvertTo-TodoTxt" {
+Describe "Function Testing - ConvertFrom-TodoTxt" {
     Context "Input" {
         It 'will throw an exception for null or missing parameters' {
             { ConvertFrom-TodoTxt -Todo $null } | Should throw 'argument is null'  # use parameter instead of pipeline otherwise exception not caught
@@ -34,13 +34,13 @@ Describe "Function Testing - ConvertTo-TodoTxt" {
                 'result'        = '2016-01-01 Rescue Han from Jabba @palace @jabba'
             },
             @{  'name'          = 'with CreatedDate, Task and Addon';
-                'testObject'    = (New-Object -TypeName PSObject -Property @{ 'Addon' = @{ 'due' = '2017-09-01'; 'help' = 'leia'}; 'CreatedDate' = '2016-01-01';
+                'testObject'    = (New-Object -TypeName PSObject -Property @{ 'Addon' = [ordered]@{ 'due' = '2017-09-01'; 'help' = 'leia'}; 'CreatedDate' = '2016-01-01';
                     'Task' = 'Rescue Han from Jabba' });
                 'result'        = '2016-01-01 Rescue Han from Jabba due:2017-09-01 help:leia'
             },
             @{  'name'          = 'with everything';
                 'testObject'    = (New-Object -TypeName PSObject -Property @{ 'DoneDate' = '2018-08-15'; Priority = 'K'; 'CreatedDate' = '2016-01-01';
-                'Task' = 'Rescue Han from Jabba'; 'Context' = @('palace', 'jabba'); 'Project' = @('rescue', 'rescue-han'); 'Addon' = @{ 'due' = '2087-12-09'; 'help' = 'luke'} });
+                'Task' = 'Rescue Han from Jabba'; 'Context' = @('palace', 'jabba'); 'Project' = @('rescue', 'rescue-han'); 'Addon' = [ordered]@{ 'due' = '2087-12-09'; 'help' = 'luke'} });
                 'result'        = 'x 2018-08-15 (K) 2016-01-01 Rescue Han from Jabba @palace @jabba +rescue +rescue-han due:2087-12-09 help:luke'
             }
         )

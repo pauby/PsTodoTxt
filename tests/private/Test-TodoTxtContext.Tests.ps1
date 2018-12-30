@@ -1,8 +1,10 @@
+Import-HelperModuleForTesting
+
 Describe "Testing Function - Test-TodoTxtContext" {
     InModuleScope PsTodoTxt {
         Context "Input" {
             It "Should throw an exception for null / empty input" {
-                { Test-TodoTxtContext -Context "" } | Should throw "argument is null or empty"
+                { Test-TodoTxtContext -Context "" } | Should throw "Cannot validate argument on parameter"
             }
         }
 

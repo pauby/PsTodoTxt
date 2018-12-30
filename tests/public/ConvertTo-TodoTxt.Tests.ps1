@@ -1,11 +1,11 @@
-$testEnv = Initialize-TestEnvironment
+Import-HelperModuleForTesting
 
 Describe "Function Testing - ConvertTo-TodoTxt" {
     Context "Input" {
         It "will throw an exception for null or missing parameters" {
             # we only have one parameter so test it
             { ConvertTo-TodoTxt -Todo $null } | Should throw "null or empty"
-            { ConvertTo-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "null or empty"
+            { ConvertTo-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "argument is null, empty"
         }
     }
 
