@@ -1,9 +1,17 @@
-# See http://www.appveyor.com/docs/appveyor-yml for more options
+# Appveyor Options http://www.appveyor.com/docs/appveyor-yml
+# Appveyor Environment Variables https://www.appveyor.com/docs/environment-variables/
+version: 1.1.0.{build}
 
 os: WMF 5
-
-version: 1.1.0.{build}
 max_jobs: 1
+
+branches:
+  only:
+  - master
+
+skip_non_tags: true
+
+build: false # disable MSBuild
 
 environment:
   PSGALLERY_API_KEY:
@@ -22,20 +30,10 @@ environment:
   notify_email:
     secure: xxzrryH1TErXFSjxmYszGA==
 
-branches:
-  only:
-  - master
-
-#skip_commits:
-#  message: /updated? readme.*/
-
-only_commits:
-  message: /^Rebuild|^Release/
-
-build: false # disable MSBuild
-
 init:
-#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: |
+      # iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+      git config --global core.autocrlf input
 
 install:
   - git --version
@@ -44,31 +42,30 @@ install:
   - ps: |
       Set-Location $env:APPVEYOR_BUILD_FOLDER
       .\build\Initialize-Build.ps1
-      Set-Location '..\'
-      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      Invoke-WebRequest -Uri https://github.com/pauby/PSModuleBuildHelper/releases/download/v0.0.1/psmodulebuildhelper-0.0.1.zip -OutFile psmodulebuildhelper.zip -UseBasicParsing
-      Expand-Archive psmodulebuildhelper.zip
-      $path = Join-Path -Path (Get-Location).Path -ChildPath 'PSModuleBuildHelper'
-      Import-Module -Name (Join-Path -Path $path -ChildPath 'PSModuleBuildHelper.psd1')
-      Set-Location $env:APPVEYOR_BUILD_FOLDER
       git config --global credential.helper store
       Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_API_KEY):x-oauth-basic@github.com`n"
 
 build_script:
   - ps: |
-      $Verbose = @{}
-      $tasks = 'Build', 'Test'
-      switch -Regex ($env:APPVEYOR_REPO_COMMIT_MESSAGE) {
-          '!verbose' {
-              $Verbose = @{ Verbose = $true }
-          }
-          '!publish' {
-              git checkout master -q
-              $tasks += 'PublishAll'
-          }
-      }
+      Invoke-Build -File .\build.ps1 -Task build
 
-      Invoke-Build $tasks @Verbose
+test_script:
+  - ps: |
+      Invoke-Build -File .\build.ps1 -Task build, test
+
+deploy_script:
+  - ps: |
+      Invoke-Build -File .\build.ps1 -Task deploy
 
 on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+notifications:
+  - provider: Email
+    to:
+      secure: xxzrryH1TErXFSjxmYszGA==
+    subject: 'Build {{status}}'                  # optional
+    message: "{{message}}, {{commitId}}, ..."    # optional
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
