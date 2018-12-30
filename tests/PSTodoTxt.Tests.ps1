@@ -1,3 +1,5 @@
+Import-HelperModuleForTesting
+
 Describe "Integration Testing - PSTodoTxt" {
 
     InModuleScope PsTodoTxt {
@@ -8,7 +10,7 @@ Describe "Integration Testing - PSTodoTxt" {
             "2015-09-29 Find out if a parsec is a measure of time or distance @computer +millenium-falcon assign:Chewie",
             "2015-09-29 Ask Han if Greedo fired first @han +cantina"
         ) | Add-Content -Path TestDrive:\before.txt -Encoding UTF8
-        
+
         It "exports the same todos that it imports" {
             Import-TodoTxt -Path "TestDrive:\before.txt" | Export-TodoTxt -Path "TestDrive:\after.txt"
             (Get-FileHash -Path "TestDrive:\before.txt").Hash -eq (Get-FileHash -Path "TestDrive:\after.txt").Hash | Should Be $true

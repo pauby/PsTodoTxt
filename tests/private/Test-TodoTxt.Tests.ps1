@@ -1,4 +1,6 @@
-﻿Describe "Function Testing - Test-TodoTxt" {
+﻿Import-HelperModuleForTesting
+
+Describe "Function Testing - Test-TodoTxt" {
     InModuleScope PSTodoTxt{
         Context "Input" {
 

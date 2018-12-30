@@ -1,4 +1,4 @@
-﻿$testEnv = Initialize-TestEnvironment
+﻿Import-HelperModuleForTesting
 
 Describe "Function Testing - Set-TodoTxt" {
 

@@ -1,3 +1,5 @@
+Import-HelperModuleForTesting
+
 Describe "Testing Function - Test-TodoTxtDate" {
     InModuleScope PsTodoTxt {
         Context "Input" {
