@@ -11,6 +11,10 @@ $dependModules = @(
         Name = 'PowerShellBuild'
         MinimumVersion = '0.3.0-beta'
         AllowPrerelease = $true
+    },
+    @{
+        Name = 'Pester'
+        MinimumVersion = 4.4.3
     }
 )
 
