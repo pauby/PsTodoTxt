@@ -45,15 +45,28 @@ install:
 
 build_script:
   - ps: |
+      if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -match "(?<version>[\d\.]+)") {
+        Update-Manifest -Path .\source\PSTodoTxt.psd1 -PropertyName moduleversion -Value $matches.version
+      }
+
       .\build.ps1 -Task build
 
 test_script:
   - ps: |
-      .\build.ps1 -Task test -Verbose
+        if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -match "(?<version>[\d\.]+)") {
+        Update-Manifest -Path .\source\PSTodoTxt.psd1 -PropertyName moduleversion -Value $matches.version
+      }
+
+      .\build.ps1 -Task test
 
 deploy_script:
   - ps: |
-      .\build.ps1 -Task deploy -Verbose
+      if ($env:APPVEYOR_REPO_TAG -eq 'true') {
+        .\build.ps1 -Task deploy
+      }
+      else {
+        Write-Host 'Commit not a tag - not deploying.'
+      }
 
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
