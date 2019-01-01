@@ -8,6 +8,9 @@ $dependModules = @(
         Name = 'InvokeBuild'
     },
     @{
+        Name = 'Configuration'
+    },
+    @{
         Name            = 'PowerShellBuild'
         MinimumVersion  = '0.3.0-beta'
         AllowPrerelease = $true
@@ -20,7 +23,6 @@ $dependModules = @(
         Name           = 'PSScriptAnalyzer'
         MinimumVersion = '1.17.1'
     }
-
 )
 
 .\Initialize-Build.ps1 -RequiredModule $dependModules -Verbose:$VerbosePreference
