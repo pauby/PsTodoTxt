@@ -40,8 +40,6 @@ install:
   - choco --version
 
   - ps: |
-      Set-Location $env:APPVEYOR_BUILD_FOLDER
-      .\build\Initialize-Build.ps1
       git config --global credential.helper store
       Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_API_KEY):x-oauth-basic@github.com`n"
 
