@@ -2,7 +2,9 @@
 
 [CmdletBinding()]
 Param (
-    [string[]]
+    # Hashtable:
+    #   Same parameters as Install-Module - Name is mandatory
+    [hashtable[]]
     $RequiredModule,
 
     [string[]]
@@ -19,14 +21,14 @@ if (-not (Get-Command -Name 'Get-PackageProvider' -ErrorAction SilentlyContinue)
 Set-PSRepository -Name PSGallery -InstallationPOlicy Trusted
 
 $RequiredModule | ForEach-Object {
-    if (-not (Get-Module -Name $_ -ListAvailable)) {
-        Write-Verbose "Installing module '$_'."
-        Install-Module -Name $_ -SkipPublisherCheck -AllowClobber
+    if (-not (Get-Module -Name $_.Name -ListAvailable)) {
+        Write-Verbose "Installing module '$($_.Name)'."
+        Install-Module @_ -SkipPublisherCheck -AllowClobber
     }
     else {
-        Write-Verbose "Module '$_' already installed."
+        Write-Verbose "Module '$($_.Name)' already installed."
     }
-    Import-Module -Name $_ -Force
+    Import-Module -Name $_.Name -Force
 }
 
 if (@($ChocoPackage.count) -gt 0) {
