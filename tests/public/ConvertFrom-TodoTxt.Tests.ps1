@@ -1,6 +1,7 @@
 Import-HelperModuleForTesting
+$functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
-Describe "Function Testing - ConvertFrom-TodoTxt" {
+Describe "Function Testing - $functionName" {
     Context "Input" {
         It 'will throw an exception for null or missing parameters' {
             { ConvertFrom-TodoTxt -Todo $null } | Should throw 'argument is null'  # use parameter instead of pipeline otherwise exception not caught

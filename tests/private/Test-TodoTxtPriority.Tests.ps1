@@ -1,6 +1,7 @@
 Import-HelperModuleForTesting
+$functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
-Describe "Testing Function - Test-TodoTxtDate" {
+Describe "Testing Function - $functionName" {
     InModuleScope PsTodoTxt {
         Context "Input" {
             It "Should throw an exception for null / empty input" {

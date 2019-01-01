@@ -1,6 +1,7 @@
 Import-HelperModuleForTesting
+$functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
-Describe "Function Testing - Export-TodoTxt" {
+Describe "Function Testing - $functionName" {
     Context "Parameter Validation" {
 
         It "throws an exception for null or missing parameters" {

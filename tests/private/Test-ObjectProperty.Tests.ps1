@@ -1,6 +1,7 @@
 Import-HelperModuleForTesting
+$functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
-Describe "Testing Function - Test-ObjectProperty" {
+Describe "Testing Function - $functionName" {
 
     InModuleScope PSTodoTxt {
         Context "Input" {

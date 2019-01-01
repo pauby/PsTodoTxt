@@ -1,6 +1,7 @@
 ﻿Import-HelperModuleForTesting
+$functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
-Describe "Function Testing - Set-TodoTxt" {
+Describe "Function Testing - $functionName" {
 
     Context "Input" {
         Mock -ModuleName PSTodoTxt Test-TodoTxtDate { return $false }

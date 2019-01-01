@@ -1,6 +1,7 @@
 Import-HelperModuleForTesting
+$functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
-Describe "Testing Function - Get-TodoTxtTodaysDate" {
+Describe "Testing Function - $functionName" {
 
     Context "Output" {
 
