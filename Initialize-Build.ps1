@@ -26,7 +26,7 @@ $RequiredModule | ForEach-Object {
     else {
         Write-Verbose "Module '$_' already installed."
     }
-    Import-Module -Name $_
+    Import-Module -Name $_ -Force
 }
 
 if (@($ChocoPackage.count) -gt 0) {
