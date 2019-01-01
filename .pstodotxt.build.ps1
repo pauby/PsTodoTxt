@@ -22,6 +22,25 @@ task LocalDeploy {
     Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
 }
 
+$moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select -First 1).Version
+if ($moduleVersion -le [version]"0.3.0") {
+    task Build {
+        #Write-Host "Setting env"
+        #[Environment]::SetEnvironmentVariable("BHBuildOutput", $PSBPreference.Build.ModuleOutDir, "machine")
+    }, StageFiles, BuildHelp
+
+    task Init {
+        Initialize-PSBuild -UseBuildHelpers
+        Set-BuildEnvironment -BuildOutput $PSBPreference.Build.ModuleOutDir -Force
+        $nl = [System.Environment]::NewLine
+        "$nl`Environment variables:"
+        (Get-Item ENV:BH*).Foreach({
+            '{0,-20}{1}' -f $_.name, $_.value
+        })
+    }
+}
+
+
 # task compilemodule {
 #     ipmo modulebuilder
 #     $params = @{
