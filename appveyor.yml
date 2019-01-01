@@ -25,7 +25,7 @@ environment:
     secure: WbMc18DNWPRELk0QTnab0Q==
 
   appveyor_rdp_password:
-    secure: pky5Pop1AV7LIiB4zFOkhQ==
+    secure: CC+F6/yXM5KgZMVnjjHyBIaw8aK8oOCYipXqGfQUHEE=
 
   NOTIFY_EMAIL:
     secure: xxzrryH1TErXFSjxmYszGA==
