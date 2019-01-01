@@ -45,8 +45,7 @@ install:
 
 build_script:
   - ps: |
-      .\build.ps1 -Task build -Verbose
-      ls output -recurse
+      .\build.ps1 -Task build
 
 test_script:
   - ps: |
