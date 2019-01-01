@@ -45,15 +45,15 @@ install:
 
 build_script:
   - ps: |
-      .\build.ps1 -Task build
+      .\build.ps1 -Task build -Verbose
 
 test_script:
   - ps: |
-      .\build.ps1 -Task test
+      .\build.ps1 -Task test -Verbose
 
 deploy_script:
   - ps: |
-      .\build.ps1 -Task deploy
+      .\build.ps1 -Task deploy -Verbose
 
 on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
