@@ -27,7 +27,7 @@ environment:
   appveyor_rdp_password:
     secure: pky5Pop1AV7LIiB4zFOkhQ==
 
-  notify_email:
+  NOTIFY_EMAIL:
     secure: xxzrryH1TErXFSjxmYszGA==
 
 init:
@@ -62,8 +62,7 @@ on_finish:
 
 notifications:
   - provider: Email
-    to:
-      secure: xxzrryH1TErXFSjxmYszGA==
+    to: ${NOTIFY_EMAIL}
     subject: 'Build {{status}}'                  # optional
     message: "{{message}}, {{commitId}}, ..."    # optional
     on_build_success: true
