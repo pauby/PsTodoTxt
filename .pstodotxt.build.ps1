@@ -22,7 +22,7 @@ task LocalDeploy {
     Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
 }
 
-$moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select -First 1).Version
+$moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
 if ($moduleVersion -le [version]"0.3.0") {
     task Build {
         #Write-Host "Setting env"
@@ -30,7 +30,7 @@ if ($moduleVersion -le [version]"0.3.0") {
     }, StageFiles, BuildHelp
 
     task Init {
-        Initialize-PSBuild -UseBuildHelpers
+        Initialize-PSBuild
         Set-BuildEnvironment -BuildOutput $PSBPreference.Build.ModuleOutDir -Force
         $nl = [System.Environment]::NewLine
         "$nl`Environment variables:"
