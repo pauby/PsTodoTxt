@@ -1,4 +1,4 @@
-Import-HelperModuleForTesting
+Import-PTHBuildModule
 $functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
 Describe "Testing Function - $functionName" {

@@ -1,4 +1,4 @@
-Import-HelperModuleForTesting
+Import-PTHBuildModule
 $functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
 Describe "Testing Function - $functionName" {
@@ -22,13 +22,13 @@ Describe "Testing Function - $functionName" {
             $testObj = New-Object -TypeName PSObject -Property @{ forename = 'Luke'; surname = 'Skywalker' }
 
             It "Passes testing of invalid data" {
-                $actual = Test-ObjectProperty -InputObject $testObj -PropertyName 'dob' 
+                $actual = Test-ObjectProperty -InputObject $testObj -PropertyName 'dob'
                 $actual -is [bool] | Should Be $true
                 $actual | Should Be $false
             }
-        
+
 			It "Passes testing of valid data" {
-                $actual = Test-ObjectProperty -InputObject $testObj -PropertyName 'surname' 
+                $actual = Test-ObjectProperty -InputObject $testObj -PropertyName 'surname'
                 $actual -is [bool] | Should Be $true
                 $actual | Should Be $true
             }
