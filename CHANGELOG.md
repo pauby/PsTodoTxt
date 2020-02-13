@@ -1,3 +1,6 @@
+## 1.2.1 13 February 2020
+* Fixed some filename casing issues that only appeared in Linux (Linux is case sensitive!);
+
 ## v1.2.0 7 August 2018
 * Added new `-ParseOnly` parameter to ConvertTo-TodoTxt to only parse the todo text and not validate it;
 * Made the Get-TodoTxtTodaysDate function public;
