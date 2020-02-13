@@ -1,16 +1,15 @@
-Import-HelperModuleForTesting
+Import-PTHBuildModule
 $functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
 Describe "Function Testing - $functionName" {
-    Context "Parameter Validation" {
-
-        It "throws an exception for missing import file" {
-            { Import-TodoTxt -Path 'TestDrive:missingfile.txt'  } | Should throw "Cannot validate argument on parameter 'Path'"
+    InModuleScope -ModuleName PsTodoTxt {
+        Context "Parameter Validation" {
+            It "throws an exception for missing import file" {
+                { Import-TodoTxt -Path 'TestDrive:missingfile.txt'  } | Should throw "Cannot validate argument on parameter 'Path'"
+            }
         }
-    }
 
-    Context "Logic & Flow" {
-
+        Context "Logic & Flow" {
             It 'returns $null for empty todo file' {
                 $emptyFile = 'TestDrive:\empty.txt'
                 Add-Content -Path $emptyFile -Value ''
@@ -42,10 +41,10 @@ Describe "Function Testing - $functionName" {
                 Assert-MockCalled -ModuleName PSTodoTxt -CommandName 'ConvertTo-TodoTxt' -Times 2
             }
         }
-    
 
-    Context "Output" {
-        # the output comes from the ConvertTo-TodoTxt function. We tested this has been
-        # called above so no further output tests needed
-    }
+        Context "Output" {
+            # the output comes from the ConvertTo-TodoTxt function. We tested this has been
+            # called above so no further output tests needed
+        }
+    } #InModuleScope
 }
