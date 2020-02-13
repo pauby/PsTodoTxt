@@ -1,4 +1,4 @@
-Import-HelperModuleForTesting
+Import-PTHBuildModule
 
 Describe "Integration Testing - PSTodoTxt" {
 

@@ -1,20 +1,20 @@
-Import-HelperModuleForTesting
+Import-PTHBuildModule
 $functionName = $MyInvocation.MyCommand -split '.tests.ps1'
 
 Describe "Function Testing - $functionName" {
-    Context "Input" {
-        It "will throw an exception for null or missing parameters" {
-            # we only have one parameter so test it
-            { ConvertTo-TodoTxt -Todo $null } | Should throw "argument is null"
-            { ConvertTo-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "argument is null"
+    InModuleScope -ModuleName PsTodoTxt {
+        Context "Input" {
+            It "will throw an exception for null or missing parameters" {
+                # we only have one parameter so test it
+                { ConvertTo-TodoTxt -Todo $null } | Should throw "argument is null"
+                { ConvertTo-TodoTxt -Todo (New-Object -Typename PSObject) } | Should throw "argument is null"
+            }
         }
-    }
 
-    Context "Logic & Flow" {
-    }
+        Context "Logic & Flow" {
+        }
 
-    Context "Output" {
-        InModuleScope PsTodoTxt {
+        Context "Output" {
             $todaysDate = "2016-01-01"
             Mock Get-TodoTxtTodaysDate { return $todaysDate }
 
@@ -68,6 +68,6 @@ Describe "Function Testing - $functionName" {
 
                 { ConvertTo-TodoTxt -Todo $todo } | Should throw
             }
-        } #InModuleScope
-    } #Context
+        } #Context
+    } #InModuleScope
 }

@@ -2,6 +2,8 @@ Import-Module PowerShellBuild -force
 . PowerShellBuild.IB.Tasks
 
 $PSBPreference.Build.CompileModule = $true
+$PSBPreference.Build.CompileHeader = "Set-StrictMode -Version Latest`n"
+$PSBPreference.Build.CompileScriptFooter = "`n"
 # $PSBPreference.Build.Dependencies                           = 'StageFiles', 'BuildHelp'
 $PSBPreference.Test.Enabled                                 = $true
 $PSBPreference.Test.CodeCoverage.Enabled                    = $true
@@ -22,7 +24,7 @@ task LocalDeploy {
     Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
 }
 
-$moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select -First 1).Version
+$moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
 if ($moduleVersion -le [version]"0.3.0") {
     task Build {
         #Write-Host "Setting env"
@@ -30,7 +32,7 @@ if ($moduleVersion -le [version]"0.3.0") {
     }, StageFiles, BuildHelp
 
     task Init {
-        Initialize-PSBuild -UseBuildHelpers
+        Initialize-PSBuild
         Set-BuildEnvironment -BuildOutput $PSBPreference.Build.ModuleOutDir -Force
         $nl = [System.Environment]::NewLine
         "$nl`Environment variables:"
@@ -54,3 +56,13 @@ if ($moduleVersion -le [version]"0.3.0") {
 
 #     build-module @params
 # }
+
+Task Clean Init, {
+    Clear-PSBuildOutputFolder -Path $PSBPreference.Build.ModuleOutDir
+
+    # Remove docs folder
+    Remove-Item -Path $PSBPreference.Docs.RootDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+Task Build StageFiles, BuildHelp
+Task Test Pester

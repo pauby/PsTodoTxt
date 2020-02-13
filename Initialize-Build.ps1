@@ -18,7 +18,7 @@ if (-not (Get-Command -Name 'Get-PackageProvider' -ErrorAction SilentlyContinue)
     Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 }
 
-Set-PSRepository -Name PSGallery -InstallationPOlicy Trusted
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
 $RequiredModule | ForEach-Object {
     if (-not (Get-Module -Name $_.Name -ListAvailable)) {
