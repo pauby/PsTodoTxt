@@ -2,6 +2,8 @@ Import-Module PowerShellBuild -force
 . PowerShellBuild.IB.Tasks
 
 $PSBPreference.Build.CompileModule = $true
+$PSBPreference.Build.CompileHeader = "Set-StrictMode -Version Latest`n"
+$PSBPreference.Build.CompileScriptFooter = "`n"
 # $PSBPreference.Build.Dependencies                           = 'StageFiles', 'BuildHelp'
 $PSBPreference.Test.Enabled                                 = $true
 $PSBPreference.Test.CodeCoverage.Enabled                    = $true
@@ -54,3 +56,13 @@ if ($moduleVersion -le [version]"0.3.0") {
 
 #     build-module @params
 # }
+
+Task Clean Init, {
+    Clear-PSBuildOutputFolder -Path $PSBPreference.Build.ModuleOutDir
+
+    # Remove docs folder
+    Remove-Item -Path $PSBPreference.Docs.RootDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+Task Build StageFiles, BuildHelp
+Task Test Pester
