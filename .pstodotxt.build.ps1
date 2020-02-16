@@ -1,6 +1,15 @@
 Import-Module PowerShellBuild -force
 . PowerShellBuild.IB.Tasks
 
+$PSBPreference.Build.OutDir =
+    Join-Path -Path $PSBPreference.General.ProjectRoot -ChildPath "output"
+$PSBPreference.Build.ModuleOutDir =
+    Join-Path `
+        -Path $PSBPreference.Build.OutDir `
+        -ChildPath ("{0}{1}{2}" -f
+            $PSBPreference.General.ModuleName,
+            [IO.Path]::DirectorySeparatorChar,
+            $PSBPreference.General.ModuleVersion)
 $PSBPreference.Build.CompileModule = $true
 $PSBPreference.Build.CompileHeader = "Set-StrictMode -Version Latest`n"
 $PSBPreference.Build.CompileScriptFooter = "`n"
