@@ -55,9 +55,9 @@ test_script:
   - ps: |
         if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -match "(?<version>[\d\.]+)") {
         Update-Manifest -Path .\source\PSTodoTxt.psd1 -PropertyName moduleversion -Value $matches.version
-      }
+        }
 
-      .\build.ps1 -Task test
+        .\build.ps1 -Task test
 
 deploy_script:
   - ps: |
