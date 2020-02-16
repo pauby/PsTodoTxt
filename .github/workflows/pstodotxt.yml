@@ -1,0 +1,15 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.0.0
+      - name: Test the module
+        run: ./build.ps1 test -Bootstrap
+        shell: pwsh
