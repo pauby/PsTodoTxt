@@ -1,3 +1,6 @@
+## 1.3.0 25 February 2020
+* added function ConvertTo-TodoTxtDate to return a date in the TodoTxt format. No more having to convert those dates manually (and maybe wrongly!);
+
 ## 1.2.1 13 February 2020
 * Fixed some filename casing issues that only appeared in Linux (Linux is case sensitive!);
 
