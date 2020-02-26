@@ -31,8 +31,8 @@ environment:
 
 init:
   - ps: |
-      iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
       git config --global core.autocrlf input
+#      iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - git --version
@@ -67,6 +67,10 @@ deploy_script:
       else {
         Write-Host 'Commit not a tag - not deploying.'
       }
+
+test:
+
+deploy:
 
 on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
