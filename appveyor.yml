@@ -77,7 +77,8 @@ on_finish:
 
 notifications:
   - provider: Email
-    to: ${NOTIFY_EMAIL}
+    to:
+      secure: ${NOTIFY_EMAIL}
     subject: 'Build {{status}}'                  # optional
     message: "{{message}}, {{commitId}}, ..."    # optional
     on_build_success: true
