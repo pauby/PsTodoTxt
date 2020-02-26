@@ -33,6 +33,27 @@ task LocalDeploy {
     Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
 }
 
+# this is broken for PowerShellBuild 0.4.0 - redefine it here
+task Publish Test, {
+    assert ($PSBPreference.Publish.PSRepositoryApiKey -or $PSBPreference.Publish.PSRepositoryCredential) "API key or credential not defined to authenticate with [$($PSBPreference.Publish.PSRepository)] with."
+
+    $publishParams = @{
+        Path       = $PSBPreference.Build.ModuleOutDir
+        Version    = $PSBPreference.General.ModuleVersion
+        Repository = $PSBPreference.Publish.PSRepository
+        Verbose    = $VerbosePreference
+    }
+    if ($PSBPreference.Publish.PSRepositoryApiKey) {
+        $publishParams.ApiKey = $PSBPreference.Publish.PSRepositoryApiKey
+    }
+
+    if ($PSBPreference.Publish.PSRepositoryCredential) {
+        $publishParams.Credential = $PSBPreference.Publish.PSRepositoryCredential
+    }
+
+    Publish-PSBuildModule @publishParams
+}
+
 $moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
 if ($moduleVersion -le [version]"0.3.0") {
     task Build {
