@@ -21,6 +21,8 @@ $PSBPreference.Test.CodeCoverage.Files                      =
     (Join-Path -Path $PSBPreference.Build.ModuleOutDir -ChildPath "*.psm1")
 $PSBPreference.Test.ScriptAnalysis.Enabled                  = $true
 $PSBPreference.Test.ScriptAnalysis.FailBuildOnSeverityLevel = 'Error'
+$PSBPreference.Publish.PSRepository = 'PSGallery'
+$PSBPreference.Publish.ApiKey = $env:PSGALLERY_API_KEY
 
 task LocalDeploy {
     $sourcePath = $PSBPreference.Build.ModuleOutDir
