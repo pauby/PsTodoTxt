@@ -62,7 +62,7 @@ test_script:
 deploy_script:
   - ps: |
       if ($env:APPVEYOR_REPO_TAG -eq 'true') {
-        .\build.ps1 -Task deploy
+        .\build.ps1 -Task publish
       }
       else {
         Write-Host 'Commit not a tag - not deploying.'
