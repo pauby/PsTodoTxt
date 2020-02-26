@@ -62,7 +62,7 @@ test_script:
 deploy_script:
   - ps: |
       if ($env:APPVEYOR_REPO_TAG -eq 'true') {
-        .\build.ps1 -Task deploy
+        .\build.ps1 -Task publish
       }
       else {
         Write-Host 'Commit not a tag - not deploying.'
@@ -74,13 +74,3 @@ deploy:
 
 on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
-notifications:
-  - provider: Email
-    to:
-      secure: ${NOTIFY_EMAIL}
-    subject: 'Build {{status}}'                  # optional
-    message: "{{message}}, {{commitId}}, ..."    # optional
-    on_build_success: true
-    on_build_failure: true
-    on_build_status_changed: true
