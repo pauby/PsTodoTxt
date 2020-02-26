@@ -9,13 +9,12 @@ branches:
   only:
   - master
 
-skip_non_tags: true
+#skip_non_tags: true
 
 build: false # disable MSBuild
 
 environment:
   PSGALLERY_API_KEY:
-#    secure: TO/Slq79myoBRfUTivNSeTkCJAvK5RPE2K52pjR9djE=
     secure: TO/Slq79myoBRfUTivNSeScz0nRWFlFp0JMiImdmHVZLsSa349qCi98nm29e6uGC
 
   GITHUB_API_KEY:
@@ -42,6 +41,7 @@ install:
   - ps: |
       git config --global credential.helper store
       Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_API_KEY):x-oauth-basic@github.com`n"
+      .\Initialize-Build.ps1
 
 build_script:
   - ps: |
@@ -54,7 +54,7 @@ build_script:
 test_script:
   - ps: |
         if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -match "(?<version>[\d\.]+)") {
-        Update-Manifest -Path .\source\PSTodoTxt.psd1 -PropertyName moduleversion -Value $matches.version
+          Update-Manifest -Path .\source\PSTodoTxt.psd1 -PropertyName moduleversion -Value $matches.version
         }
 
         .\build.ps1 -Task test
@@ -69,7 +69,7 @@ deploy_script:
       }
 
 on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 notifications:
   - provider: Email
