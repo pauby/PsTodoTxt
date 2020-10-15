@@ -60,7 +60,7 @@
             # project - eg. '+rebuild' - can only have ONE + to be recognised as a project
             @{ "name" = "Project"; "regex" = "(?:^|\s)\+[a-z\d-_]+" },
             # addon - eg. 'due:2017-02-01'
-            @{ "name" = "Addon"; "regex" = "(?:^|\s)(\S+)\:((?!//)\S+)" }
+            @{ "name" = "Addon"; "regex" = "(?:^|\s)(\S+)\:((?!//|\\)\S+)" }
         )
     }
 
