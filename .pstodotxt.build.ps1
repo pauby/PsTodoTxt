@@ -56,6 +56,23 @@ task Publish Test, {
     Publish-PSBuildModule @publishParams
 }
 
+task Announce {
+    Import-Module PSTwitterApi
+    $OAuthSettings = @{
+        ApiKey = $env:TWITTER_API_KEY
+        ApiSecret = $env:TWITTER_API_KEY_SECRET
+        AccessToken = $env:TWITTER_ACCESS_TOKEN
+        AccessTokenSecret = $ENV:TWITTER_ACCESS_TOKEN_SECRET
+    }
+    Set-TwitterOAuthSettings @OAuthSettings
+
+    $twitterUser = Get-TwitterUsers_Lookup -screen_name 'pauby'
+
+    $status = "Version {0} of {1} has just been pushed to PowerShell Gallery! https://www.powershellgallery.com/packages/{1}/{0} Find it on GitHub at https://github.com/pauby/{1}" `
+        -f $PSBPreference.General.ModuleVersion, $PSBPreference.General.ModuleName
+    Send-TwitterStatuses_Update -status $status
+}
+
 $moduleVersion = (Get-Module -Name PowerShellBuild -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
 if ($moduleVersion -le [version]"0.3.0") {
     task Build {

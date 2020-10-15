@@ -12,10 +12,11 @@ $dependencies = @{
     InvokeBuild         = 'latest'
     Configuration       = 'latest'
     PowerShellBuild     = 'latest'
-    Pester              = 'latest'
+    Pester              = '4.10.1'
     PSScriptAnalyzer    = 'latest'
     PSPesterTestHelpers = 'latest'  # I don't trust this Warren guy...
     PSDeploy            = 'latest'  # Maybe pin the version in case he breaks this...
+    PSTwitterApi        = 'latest'
 }
 
 # dependencies

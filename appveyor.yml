@@ -26,8 +26,17 @@ environment:
   appveyor_rdp_password:
     secure: CC+F6/yXM5KgZMVnjjHyBIaw8aK8oOCYipXqGfQUHEE=
 
-  NOTIFY_EMAIL:
-    secure: xxzrryH1TErXFSjxmYszGA==
+  TWITTER_API_KEY:
+    secure: meJYucOgoV/VjoB5wpB/QVQHRVqj3XVc9cn+b+nOi0Q=
+
+  TWITTER_API_KEY_SECRET:
+    secure: 6+Yae/vAjeaOo1AuOliMD5B+7z6OMPDrlSeGyNV4wm4VDTBgYPSr9QqdrhuEtdUDTopVEA+93r5t3EPWw4Ol8A==
+
+  TWITTER_API_ACCESS_TOKEN:
+    secure: F2Ynh4ajTEv/bp8L8GkfaS4WyMF+7VBAA8cPVF50OO1wT2sHlCaIzDZBtuE7R/y5sLpDeDhdXm3DLkgd2hLpug==
+
+  TWITTER_API_ACCESS_TOKEN_SECRET:
+    secure: X5QyyPoP+VKwmn0FnOowwGgQ+rp7f2Sj2VTQMmQaNrelKJzikM8GnNnWvHAobYZ8
 
 init:
   - ps: |
@@ -62,7 +71,7 @@ test_script:
 deploy_script:
   - ps: |
       if ($env:APPVEYOR_REPO_TAG -eq 'true') {
-        .\build.ps1 -Task publish
+        .\build.ps1 -Task publish, announce
       }
       else {
         Write-Host 'Commit not a tag - not deploying.'
