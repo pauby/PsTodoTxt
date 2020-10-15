@@ -24,6 +24,20 @@ Describe "Function Testing - $functionName" {
                     "expected"  = (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-12-11"; Priority = "R"; CreatedDate="2016-10-09";
                                     Context = @( "home" ); Project = @( "travel" ); Addon = @{ "due" = "2016-12-03" }; Task = "Go to Ewok planet" })
                 },
+                @{  "name"     = "Windows type file path in an addon";
+                    "todo"     = "x 2016-12-11 (r) 2016-10-09 Go to Ewok planet @home +travel due:2016-12-03 file:c:\temp\test.txt";
+                    "expected" = (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-12-11"; Priority = "R"; CreatedDate = "2016-10-09";
+                            Context = @( "home" ); Project = @( "travel" ); Addon = @{ "due" = "2016-12-03"; "file" = "c:\temp\test.txt" };
+                            Task = "Go to Ewok planet"
+                        })
+                },
+                @{  "name"     = "Linux type file path in an addon";
+                    "todo"     = "x 2016-12-11 (r) 2016-10-09 Go to Ewok planet @home +travel due:2016-12-03 file:c:/temp/test.txt";
+                    "expected" = (New-Object -TypeName PSObject -Property @{ DoneDate = "2016-12-11"; Priority = "R"; CreatedDate = "2016-10-09";
+                            Context = @( "home" ); Project = @( "travel" ); Addon = @{ "due" = "2016-12-03"; "file" = "c:/temp/test.txt" };
+                            Task = "Go to Ewok planet"
+                        })
+                },
                 @{  "name"      = "just task";
                     "todo"      = "Go to Ewok planet";
                     "expected"  = (New-Object -TypeName PSObject -Property @{ CreatedDate = $todaysDate; Task = "Go to Ewok planet"} )
