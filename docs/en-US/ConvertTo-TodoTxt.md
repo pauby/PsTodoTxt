@@ -35,9 +35,8 @@ Converts the todo text into it's components and returns them in an object.
 ### EXAMPLE 2
 ```
 $todo = 'take car to garage @car +car_maintenance'
-```
-
 $todo | ConvertTo-TodoTxt
+```
 
 Converts the todo text into it's components and returns them in an object
 

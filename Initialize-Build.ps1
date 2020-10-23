@@ -1,3 +1,6 @@
+[CmdletBinding()]
+param()
+
 function Test-Administrator {
     if ($PSVersionTable.Platform -ne 'Unix') {
         $user = [Security.Principal.WindowsIdentity]::GetCurrent();
@@ -10,12 +13,12 @@ function Test-Administrator {
 
 $dependencies = @{
     InvokeBuild         = 'latest'
-    Configuration       = 'latest'
+#    Configuration       = 'latest'
     PowerShellBuild     = 'latest'
-    Pester              = 'latest'
+    Pester              = '4.10.1'
     PSScriptAnalyzer    = 'latest'
     PSPesterTestHelpers = 'latest'  # I don't trust this Warren guy...
-    PSDeploy            = 'latest'  # Maybe pin the version in case he breaks this...
+#    PSDeploy            = 'latest'  # Maybe pin the version in case he breaks this...
 }
 
 # dependencies

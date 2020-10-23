@@ -28,9 +28,8 @@ ConvertFrom-TodoTxt.
 ### EXAMPLE 1
 ```
 $todo = Import-TodoTxt -Path c:\input.txt
-```
-
 Export-TodoTxt -Todo $todo -Path c:\output.txt
+```
 
 Converts the todotxt objects in $todo to todotxt strings and writes
 them to the file c:\output.txt.
